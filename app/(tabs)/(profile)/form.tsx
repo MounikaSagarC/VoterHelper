@@ -26,7 +26,7 @@ import {
 
 import Map from "@/components/screens/Map";
 import { InputField } from "@/components/ui/InputField";
-import { FormCombo } from "@/constants/helpers/formCombo";
+import { FormCombo } from "@/lib/helpers/formCombo";
 import { addressSchema, AddressType } from "@/services/schemas/profileSchema";
 import { useAddressStore } from "@/store/addressStore";
 

@@ -1,4 +1,5 @@
 import ChangePassword from "@/components/screens/ChangePassword";
+import { MenuItem } from "@/lib/helpers/profileHelper";
 import { logoutUser } from "@/services/api/auth";
 import { userProfile } from "@/services/api/profile";
 import { useAuthStore } from "@/store/auth_store";
@@ -19,36 +20,12 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const MenuItem = ({
-  icon,
-  arrowicon,
-  label,
-  onPress,
-}: {
-  arrowicon?: any;
-  icon: any;
-  label?: string;
-  onPress: () => void;
-}) => (
-  <TouchableOpacity
-    onPress={onPress}
-    className="flex-row items-center justify-between py-4"
-  >
-    <View className="flex-row items-center space-x-3 gap-2">
-      <Ionicons name={icon} size={20} color="#111827" />
-      <Text className="text-base text-gray-900">{label}</Text>
-    </View>
-    <Ionicons name={arrowicon} size={18} color="#9CA3AF" />
-  </TouchableOpacity>
-);
+
 export default function ProfileScreen() {
   const setActive = useProfilestore((s) => s.setActive);
   const isActive = useProfilestore((s) => s.isActive);
-  const isEdit = useProfilestore((s) => s.isEdit);
-  const setIsedit = useProfilestore((s) => s.setIsedit);
 
   const { logout } = useAuthStore();
-  const navigation = useNavigation();
 
   const { data } = useQuery({
     queryKey: ["userProfile"],
@@ -101,7 +78,7 @@ export default function ProfileScreen() {
                 icon="person-outline"
                 label="Edit Profile"
                 arrowicon="chevron-forward"
-                onPress={() =>( router.push("/profile/editProfile"))}
+                onPress={() =>( router.push("/editProfile"))}
               />
 
               <View className="border-t-2 border-gray-200">
@@ -110,7 +87,7 @@ export default function ProfileScreen() {
                   label="Manage Addresses"
                   arrowicon="chevron-forward"
                   onPress={() => {
-                    router.push("/profile/adress");
+                    router.push("/adress");
                   }}
                 />
               </View>
@@ -121,7 +98,7 @@ export default function ProfileScreen() {
                   label="Settings"
                   arrowicon="chevron-forward"
                   onPress={() => {
-                    router.push("/profile/settings");
+                    router.push("/settings");
                   }}
                 />
               </View>

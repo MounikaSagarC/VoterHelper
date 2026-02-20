@@ -38,7 +38,7 @@ const Address = () => {
   const handleEditAddress = (address: AddressType) => {
     setEditingAddress(address);
     router.push({
-      pathname: "/profile/form",
+      pathname: "/form",
       params: {
         mode: "edit",
         address: JSON.stringify(address),
@@ -48,7 +48,7 @@ const Address = () => {
 
   const handleAddAddress = () => {
     router.push({
-      pathname: "/profile/form",
+      pathname: "/form",
       params: {
         mode: "add",
       },
@@ -150,7 +150,6 @@ const Address = () => {
           >
             {/* Glossy highlight */}
             <View className="absolute top-2 left-3 w-8 h-4 bg-white/30 rounded-full" />
-
             <AntDesign name="plus" size={26} color="white" />
           </LinearGradient>
         </Pressable>

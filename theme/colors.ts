@@ -6,6 +6,10 @@ export const Colors = {
     border: "#E5E5EA",
     card: "#F2F2F7",
     foreground: "#000000",
+    destructive: "#FF3B30",
+    muted: "#8E8E93",
+    textMuted: "#8E8E93",
+    primaryForeground: "#FFFFFF",
   },
   dark: {
     primary: "#0A84FF",
@@ -14,5 +18,9 @@ export const Colors = {
     border: "#38383A",
     card: "#1C1C1E",
     foreground: "#FFFFFF",
+    destructive: "#FF453A",
+    muted: "#8E8E93",
+    textMuted: "#8E8E93",
+    primaryForeground: "#FFFFFF",
   },
 };

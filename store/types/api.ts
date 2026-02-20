@@ -4,3 +4,5 @@ export type Response<T> = {
   message: string;
   data: T;
 };
+
+export type UserRole = "ROLE_CANDIDATE" | "SUPER_ADMIN" | "ROLE_USER";

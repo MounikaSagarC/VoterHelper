@@ -21,6 +21,7 @@ export default function VoteLandingScreen() {
   const slideUpAnim = useRef(new Animated.Value(40)).current;
   const floatAnim = useRef(new Animated.Value(0)).current;
   
+  
 
   useEffect(() => {
     Animated.parallel([
