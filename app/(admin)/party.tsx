@@ -1,59 +1,47 @@
+import FloatingActionButton from "@/components/FloatingButton";
+import PartyModal from "@/components/Modal/Modal";
 import { Icon } from "@/components/ui/icon";
-import PartyModal from "@/components/ui/Modal";
 import { fetchParties } from "@/services/api/party";
 import {
   useInActivatePartyMutation,
   usePartyMutations,
 } from "@/services/mutations/admin_mutation";
 import { AntDesign } from "@expo/vector-icons";
-// import { usePartyMutations } from "@/services/mutations/party_mutation"; // ✅ ADD THIS
 import { useQuery } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
 import { Edit } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Animated, Pressable, Switch, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Animated,
+  Pressable,
+  Switch,
+  Text,
+  View,
+  StyleSheet,
+} from "react-native";
 
 const PartyScreen = () => {
-  // ✅ Modal states
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [selectedParty, setSelectedParty] = useState<any>(null);
 
-  // Animations
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-
-  // Mutations
   const inActivatePartyMutate = useInActivatePartyMutation();
-  const { createPartyMutate, updatePartyMutate } = usePartyMutations(); // ✅
+  const { createPartyMutate, updatePartyMutate } = usePartyMutations();
 
-  // Switch state
   const [partyState, setPartyState] = useState<Record<number, boolean>>({});
 
-  const handlePressIn = () => {
-    Animated.spring(scaleAnim, {
-      toValue: 0.9,
-      useNativeDriver: true,
-    }).start();
+  const handlePress = () => {
+    setSelectedParty(null);
+    setMode("create");
+    setOpen(true);
   };
 
-  const handlePressOut = () => {
-    Animated.spring(scaleAnim, {
-      toValue: 1,
-      friction: 3,
-      tension: 40,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  // Fetch parties
   const { data, isLoading } = useQuery({
     queryKey: ["parties"],
     queryFn: fetchParties,
   });
 
-  console.log("Fetched parties:", data);
-
-  // Initialize switch state
   useEffect(() => {
     if (data) {
       const state: Record<number, boolean> = {};
@@ -64,7 +52,6 @@ const PartyScreen = () => {
     }
   }, [data]);
 
-  // Toggle active/inactive
   const handleToggle = (id: number) => {
     setPartyState((prev) => ({ ...prev, [id]: !prev[id] }));
     inActivatePartyMutate.mutate(id);
@@ -72,68 +59,54 @@ const PartyScreen = () => {
 
   if (isLoading) {
     return (
-      <View className="flex-1 justify-center items-center">
+      <View style={styles.loader}>
         <ActivityIndicator size="large" color="#3b82f6" />
       </View>
     );
   }
 
   return (
-    <View className="flex-1 px-5 gap-10">
+    <View style={styles.container}>
       {/* HEADER */}
-      <View className="rounded-full mt-10">
+      <View style={styles.headerWrapper}>
         <LinearGradient
           colors={["#0cc48b", "#0D9488", "#0E7490"]}
           start={{ x: 0.6, y: 0 }}
           end={{ x: 1, y: 1 }}
-          className="rounded-full h-24 p-3 mb-2 shadow-xl"
+          style={styles.headerGradient}
         >
-          <Text className="text-white font-bold text-3xl mt-5 ml-5">
-            Parties
-          </Text>
+          <Text style={styles.headerText}>Parties</Text>
         </LinearGradient>
       </View>
 
       {/* TABLE */}
-      <View className="bg-white rounded-2xl shadow-xl overflow-hidden">
+      <View style={styles.table}>
         {/* Header Row */}
         <LinearGradient
           colors={["#0cc48b", "#0D9488", "#0E7490"]}
           start={{ x: 0.6, y: 0 }}
           end={{ x: 1, y: 1 }}
-          className="flex-row items-center h-16 px-4"
+          style={styles.tableHeader}
         >
-          <Text className="w-24 text-white font-bold text-sm">PARTY CODE</Text>
-          <Text className="flex-1 text-white text-center font-bold text-sm">
-            PARTY NAME
-          </Text>
-          <Text className="w-16 text-white font-bold text-sm text-right">
-            ACTIONS
-          </Text>
+          <Text style={styles.codeHeader}>PARTY CODE</Text>
+          <Text style={styles.nameHeader}>PARTY NAME</Text>
+          <Text style={styles.actionHeader}>ACTIONS</Text>
         </LinearGradient>
 
         {/* Rows */}
         {data?.length ? (
           data.map((party: any) => (
-            <View
-              key={party.id}
-              className="flex-row items-center px-4 py-4 border-b border-gray-200"
-            >
-              <Text className="w-24 text-gray-900 font-medium">
-                {party.partyCode}
-              </Text>
+            <View key={party.id} style={styles.row}>
+              <Text style={styles.codeText}>{party.partyCode}</Text>
 
-              <Text className="flex-1 text-gray-700 text-center">
-                {party.partyName}
-              </Text>
+              <Text style={styles.nameText}>{party.partyName}</Text>
 
-              <Pressable className="w-16 flex-row gap-4 mr-5">
-                {/* EDIT */}
+              <Pressable style={styles.actions}>
                 {party.isActive && (
                   <Icon
                     as={Edit}
                     size={20}
-                    className="self-center"
+                    style={styles.editIcon}
                     onPress={() => {
                       setSelectedParty(party);
                       setMode("edit");
@@ -142,7 +115,6 @@ const PartyScreen = () => {
                   />
                 )}
 
-                {/* SWITCH */}
                 <Switch
                   value={partyState[party.id] ?? party.isActive}
                   onValueChange={() => handleToggle(party.id)}
@@ -151,34 +123,16 @@ const PartyScreen = () => {
             </View>
           ))
         ) : (
-          <View className="items-center mt-10">
+          <View style={styles.emptyState}>
             <Text>No parties found</Text>
           </View>
         )}
       </View>
 
       {/* FLOATING ADD BUTTON */}
-      <Animated.View
-        style={{ transform: [{ scale: scaleAnim }] }}
-        className="absolute bottom-6 right-6 rounded-full"
-      >
-        <Pressable
-          onPress={() => {
-            setSelectedParty(null);
-            setMode("create");
-            setOpen(true);
-          }}
-          onPressIn={handlePressIn}
-          onPressOut={handlePressOut}
-        >
-          <LinearGradient
-            colors={["#22d3ee", "#06b6d4", "#0891b2"]}
-            className="w-16 h-16 items-center justify-center rounded-full"
-          >
-            <AntDesign name="plus" size={26} color="white" />
-          </LinearGradient>
-        </Pressable>
-      </Animated.View>
+      <FloatingActionButton onPress={() => handlePress()}>
+        <AntDesign name="plus" size={26} color="white" />
+      </FloatingActionButton>
 
       {/* MODAL */}
       <PartyModal
@@ -197,20 +151,12 @@ const PartyScreen = () => {
           if (mode === "create") {
             createPartyMutate.mutate(formData);
           } else {
-            const payload = {
-              ...formData,
-              id: selectedParty.id,
-            };
-
-            console.log("UPDATE PAYLOAD:", payload); // DEBUG
-
             updatePartyMutate.mutate({
               id: selectedParty.id,
               partyCode: formData.partyCode,
               partyName: formData.partyName,
             });
           }
-
           setOpen(false);
         }}
       />
@@ -219,3 +165,110 @@ const PartyScreen = () => {
 };
 
 export default PartyScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 20,
+    gap: 40,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  headerWrapper: {
+    marginTop: 40,
+    borderRadius: 999,
+  },
+  headerGradient: {
+    height: 96,
+    padding: 12,
+    borderRadius: 999,
+    marginBottom: 8,
+    elevation: 6,
+  },
+  headerText: {
+    color: "#fff",
+    fontSize: 30,
+    fontWeight: "bold",
+    marginTop: 20,
+    marginLeft: 20,
+  },
+  table: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    overflow: "hidden",
+    elevation: 6,
+  },
+  tableHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    height: 64,
+    paddingHorizontal: 16,
+  },
+  codeHeader: {
+    width: 96,
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 12,
+  },
+  nameHeader: {
+    flex: 1,
+    color: "#fff",
+    textAlign: "center",
+    fontWeight: "bold",
+    fontSize: 12,
+  },
+  actionHeader: {
+    width: 64,
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 12,
+    textAlign: "right",
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e5e7eb",
+  },
+  codeText: {
+    width: 96,
+    color: "#111827",
+    fontWeight: "500",
+  },
+  nameText: {
+    flex: 1,
+    color: "#374151",
+    textAlign: "center",
+  },
+  actions: {
+    width: 64,
+    flexDirection: "row",
+    gap: 16,
+    marginRight: 20,
+  },
+  editIcon: {
+    alignSelf: "center",
+  },
+  emptyState: {
+    alignItems: "center",
+    marginTop: 40,
+  },
+  fabWrapper: {
+    position: "absolute",
+    bottom: 24,
+    right: 24,
+    borderRadius: 999,
+  },
+  fab: {
+    width: 64,
+    height: 64,
+    borderRadius: 999,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});

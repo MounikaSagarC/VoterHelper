@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View, StyleSheet } from "react-native";
 
 export const MenuItem = ({
   icon,
@@ -12,14 +12,29 @@ export const MenuItem = ({
   label?: string;
   onPress: () => void;
 }) => (
-  <TouchableOpacity
-    onPress={onPress}
-    className="flex-row items-center justify-between py-4"
-  >
-    <View className="flex-row items-center space-x-3 gap-2">
+  <TouchableOpacity onPress={onPress} style={styles.container}>
+    <View style={styles.left}>
       <Ionicons name={icon} size={20} color="#111827" />
-      <Text className="text-base text-gray-900">{label}</Text>
+      <Text style={styles.label}>{label}</Text>
     </View>
     <Ionicons name={arrowicon} size={18} color="#9CA3AF" />
   </TouchableOpacity>
 );
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 16,
+  },
+  left: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8, // replaces space-x-3 + gap-2
+  },
+  label: {
+    fontSize: 16,
+    color: "#111827",
+  },
+});

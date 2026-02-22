@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { ComponentProps, useState } from "react";
 import { Control, Controller, FieldValues, Path } from "react-hook-form";
-import { Text, TextInput, View } from "react-native";
+import { StyleSheet, Text, TextInput, View } from "react-native";
 
 type InputFieldProps<T extends FieldValues> = {
   label: string;
@@ -12,7 +12,9 @@ type InputFieldProps<T extends FieldValues> = {
   control: Control<T>;
   placeholder?: string;
   required?: boolean;
-  className?: string;
+  className?: string; // kept but not used (same behavior)
+  keyboardType?: "default" | "numeric" | "email-address";
+  onChangeText?: (text: string) => void;
 };
 
 export function InputField<T extends FieldValues>({
@@ -25,54 +27,63 @@ export function InputField<T extends FieldValues>({
   placeholder,
   required,
   className,
+  keyboardType,
+  onChangeText,
 }: InputFieldProps<T>) {
-    const [showPassword, setShowPassword] = useState(true);
-  
+  const [showPassword, setShowPassword] = useState(true);
+
   return (
     <Controller
       control={control}
       name={name}
       render={({ field: { onChange, value }, fieldState: { error } }) => (
-        <View className="flex flex-col gap-2 mb-2 h-14">
+        <View style={styles.wrapper}>
           {/* Label */}
-          <View className="flex-row">
-            <Text className="text-gray-500 text-md font-semibold">{label}</Text>
-            {required && <Text className="text-red-600 ml-1">*</Text>}
+          <View style={styles.labelRow}>
+            <Text style={styles.label}>{label}</Text>
+            {required && <Text style={styles.required}>*</Text>}
           </View>
+
           <View
-            className={`flex flex-row justify-between ${className} bg-white px-2 rounded-xl border ${
-              error ? "border-red-500" : "border-gray-300"
-            }`}
+            style={[
+              styles.inputContainer,
+              error ? styles.errorBorder : styles.defaultBorder,
+            ]}
           >
-            <View className="flex-row">
+            <View style={styles.inputLeft}>
               {icon && (
                 <Ionicons
-                  className="self-center"
                   name={icon}
                   size={20}
                   color="#111827"
+                  style={styles.icon}
                 />
               )}
+
               <TextInput
                 value={value}
-                onChangeText={onChange}
+                onChangeText={onChangeText ? onChangeText : onChange}
                 placeholder={placeholder ?? `Enter ${label}`}
-                {...icon && { secureTextEntry: showPassword }}
+                secureTextEntry={!!icon && showPassword}
+                style={styles.input}
+                keyboardType={keyboardType}
               />
             </View>
+
             {pwdIcon && (
               <Ionicons
-                className="self-center"
                 name={showPassword ? "eye-off" : "eye"}
                 size={26}
                 color="#111827"
-                onPress={()=>setShowPassword(!showPassword)}
+                style={styles.icon}
+                onPress={() => setShowPassword(!showPassword)}
               />
             )}
           </View>
+
           {/* Zod Error Message */}
           {error && (
-            <Text className="text-red-500 text-sm">
+            <Text style={styles.errorText}>
               {error.message || "This field is required."}
             </Text>
           )}
@@ -81,3 +92,55 @@ export function InputField<T extends FieldValues>({
     />
   );
 }
+
+const styles = StyleSheet.create({
+  wrapper: {
+    flexDirection: "column",
+    gap: 8,
+    marginBottom: 8,
+    height: 56,
+  },
+  labelRow: {
+    flexDirection: "row",
+  },
+  label: {
+    color: "#6b7280",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  required: {
+    color: "#dc2626",
+    marginLeft: 4,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    backgroundColor: "#ffffff",
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  defaultBorder: {
+    borderColor: "#d1d5db",
+  },
+  errorBorder: {
+    borderColor: "#ef4444",
+  },
+  inputLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  icon: {
+    alignSelf: "center",
+    marginRight: 6,
+  },
+  input: {
+    flex: 1,
+    paddingVertical: 8,
+  },
+  errorText: {
+    color: "#ef4444",
+    fontSize: 14,
+  },
+});

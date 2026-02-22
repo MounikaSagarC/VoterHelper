@@ -222,17 +222,18 @@ export function ComboboxContent({
 }: {
   children: ReactNode;
   maxHeight?: number;
-  className?:string;
+  className?: string;
 }) {
   const { isOpen, setIsOpen, setSearchQuery, triggerLayout } = useCombobox();
 
   if (!isOpen) return null;
 
   const screenHeight = Dimensions.get("window").height;
-  const height = Math.min(
-    maxHeight,
-    screenHeight - triggerLayout.y - triggerLayout.height - 10,
-  );
+
+  const availableHeight =
+    screenHeight - (triggerLayout.y + triggerLayout.height) - 8;
+
+  const height = Math.min(maxHeight, availableHeight);
 
   return (
     <Modal transparent visible onRequestClose={() => setIsOpen(false)}>
@@ -244,15 +245,21 @@ export function ComboboxContent({
         }}
       >
         <View
-        className={className}
+          className={className}
           style={{
             position: "absolute",
-            top: triggerLayout.y +20,
+            top: triggerLayout.y + triggerLayout.height + 4,
             left: triggerLayout.x,
             width: triggerLayout.width,
             maxHeight: height,
             borderRadius: BORDER_RADIUS,
             borderWidth: 1,
+            backgroundColor: "white",
+            elevation: 10, // Android
+            shadowColor: "#000", // iOS
+            shadowOpacity: 0.15,
+            shadowRadius: 6,
+            shadowOffset: { width: 0, height: 4 },
           }}
         >
           {children}

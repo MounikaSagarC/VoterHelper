@@ -4,10 +4,8 @@ import { logoutUser } from "@/services/api/auth";
 import { userProfile } from "@/services/api/profile";
 import { useAuthStore } from "@/store/auth_store";
 import { useProfilestore } from "@/store/profile_store";
-import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
-import { useFocusEffect } from "expo-router";
-import { router, useNavigation } from "expo-router";
+import { useFocusEffect, router } from "expo-router";
 import { useCallback } from "react";
 import {
   Image,
@@ -15,16 +13,14 @@ import {
   Platform,
   ScrollView,
   Text,
-  TouchableOpacity,
   View,
+  StyleSheet,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
 
 export default function ProfileScreen() {
   const setActive = useProfilestore((s) => s.setActive);
   const isActive = useProfilestore((s) => s.isActive);
-
   const { logout } = useAuthStore();
 
   const { data } = useQuery({
@@ -41,7 +37,7 @@ export default function ProfileScreen() {
   useFocusEffect(
     useCallback(() => {
       return () => {
-        setActive(false); // close ChangePassword when tab loses focus
+        setActive(false);
       };
     }, [])
   );
@@ -52,72 +48,70 @@ export default function ProfileScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={100}
     >
-      <View className="flex-1 px-4 bg-[#E5E7EB]">
+      <View style={styles.container}>
         <SafeAreaView>
           <ScrollView
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
             {/* Profile Header */}
-            <View className="flex flex-row items-center gap-5 pb-10">
+            <View style={styles.profileHeader}>
               <Image
                 source={{ uri: "https://i.pravatar.cc/150?img=12" }}
-                className="w-28 h-28 rounded-full border-2"
+                style={styles.avatar}
               />
 
-              <View className="">
-                <Text className="text-xl font-semibold text-gray-900">
-                  {data?.firstName}
-                </Text>
-                <Text className="text-gray-500 mb-4">{data?.emailAddress}</Text>
+              <View>
+                <Text style={styles.name}>{data?.firstName}</Text>
+                <Text style={styles.email}>{data?.emailAddress}</Text>
               </View>
             </View>
 
-            <View className="bg-white rounded-2xl px-5">
+            {/* Menu */}
+            <View style={styles.card}>
               <MenuItem
                 icon="person-outline"
                 label="Edit Profile"
                 arrowicon="chevron-forward"
-                onPress={() =>( router.push("/editProfile"))}
+                onPress={() => router.push("/editProfile")}
               />
 
-              <View className="border-t-2 border-gray-200">
+              <View style={styles.divider}>
                 <MenuItem
                   icon="location-outline"
                   label="Manage Addresses"
                   arrowicon="chevron-forward"
-                  onPress={() => {
-                    router.push("/adress");
-                  }}
+                  onPress={() => router.push("/adress")}
                 />
               </View>
 
-              <View className="border-t-2 border-gray-200">
+              <View style={styles.divider}>
                 <MenuItem
                   icon="settings-outline"
                   label="Settings"
                   arrowicon="chevron-forward"
-                  onPress={() => {
-                    router.push("/settings");
-                  }}
+                  onPress={() => router.push("/settings")}
                 />
               </View>
 
-              <View className="border-t-2 border-gray-200">
+              <View style={styles.divider}>
                 <MenuItem
                   icon="lock-closed-outline"
                   label="Change Password"
                   arrowicon={isActive ? "chevron-down" : "chevron-forward"}
                   onPress={() => setActive(!isActive)}
                 />
+
                 {isActive && (
-                  <View className="border-2 border-gray-200 rounded-lg mb-3 p-5">
+                  <View style={styles.changePasswordBox}>
                     <ChangePassword />
                   </View>
                 )}
               </View>
             </View>
-            <View className="bg-white mt-5 px-5 rounded-2xl">
+
+            {/* Logout */}
+            <View style={styles.logoutCard}>
               <MenuItem
                 icon="log-out-outline"
                 label="Logout"
@@ -130,3 +124,54 @@ export default function ProfileScreen() {
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 16,
+    backgroundColor: "#E5E7EB",
+  },
+  profileHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 20,
+    paddingBottom: 40,
+  },
+  avatar: {
+    width: 112,
+    height: 112,
+    borderRadius: 56,
+    borderWidth: 2,
+  },
+  name: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#111827",
+  },
+  email: {
+    color: "#6B7280",
+    marginBottom: 16,
+  },
+  card: {
+    backgroundColor: "#ffffff",
+    borderRadius: 16,
+    paddingHorizontal: 20,
+  },
+  divider: {
+    borderTopWidth: 2,
+    borderTopColor: "#E5E7EB",
+  },
+  changePasswordBox: {
+    borderWidth: 2,
+    borderColor: "#E5E7EB",
+    borderRadius: 8,
+    marginBottom: 12,
+    padding: 20,
+  },
+  logoutCard: {
+    backgroundColor: "#ffffff",
+    marginTop: 20,
+    paddingHorizontal: 20,
+    borderRadius: 16,
+  },
+});

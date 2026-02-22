@@ -1,39 +1,41 @@
-import SwipeableAddressRow from "@/components/Cards";
+import { SwipeableCard } from "@/components/Cards/SwipeableCard";
+import { SwipeToDeleteCard } from "@/components/Cards/SwipeToDelete";
+import FloatingActionButton from "@/components/FloatingButton";
+import { Icon } from "@/components/ui/icon";
 import { getAddress } from "@/services/api/profile";
 import { useDeleteAddressMutation } from "@/services/mutations/profile_mutation";
 import { AddressType } from "@/services/schemas/profileSchema";
 import { useAddressStore } from "@/store/addressStore";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
-import { LinearGradient } from "expo-linear-gradient";
-import { router, useNavigation } from "expo-router";
+import { router } from "expo-router";
+import { Edit } from "lucide-react-native";
 import { useRef } from "react";
 import {
   ActivityIndicator,
   Animated,
   Pressable,
   ScrollView,
+  StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 
 const Address = () => {
   const deleteAddressMutation = useDeleteAddressMutation();
   const setEditingAddress = useAddressStore((s) => s.setEditingAddress);
-  
-
 
   const { data, isLoading, error, refetch } = useQuery<AddressType[]>({
     queryKey: ["getAddress"],
     queryFn: getAddress,
   });
 
-  const addresses = data??[];
+  const addresses = data ?? [];
 
   const sortedAddresses = [...addresses].sort(
-  (a, b) => Number(b.isPrimary) - Number(a.isPrimary)
-);
-
+    (a, b) => Number(b.isPrimary) - Number(a.isPrimary),
+  );
 
   const handleEditAddress = (address: AddressType) => {
     setEditingAddress(address);
@@ -56,37 +58,18 @@ const Address = () => {
   };
 
   const handleDeleteAddress = async (addressId: number | undefined) => {
-    if (addressId === undefined) {
-      return;
-    }
+    if (addressId === undefined) return;
     try {
       deleteAddressMutation.mutate(addressId);
       await refetch();
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
-  const handlePressIn = () => {
-    Animated.spring(scaleAnim, {
-      toValue: 0.9,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const handlePressOut = () => {
-    Animated.spring(scaleAnim, {
-      toValue: 1,
-      friction: 3,
-      tension: 40,
-      useNativeDriver: true,
-    }).start();
-  };
-
   if (isLoading) {
     return (
-      <View className="flex-1 justify-center items-center">
+      <View style={styles.center}>
         <ActivityIndicator size="large" color="#3b82f6" />
       </View>
     );
@@ -94,68 +77,125 @@ const Address = () => {
 
   if (error) {
     return (
-      <View className="flex-1 justify-center items-center">
-        <Text className="text-red-500">Error loading addresses</Text>
+      <View style={styles.center}>
+        <Text style={styles.errorText}>Error loading addresses</Text>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-slate-100">
+    <View style={styles.container}>
       <ScrollView
-        className="flex-1  p-4 "
-        contentContainerStyle={{ paddingBottom: 120 }}
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
       >
-        <Text className="font-semibold text-xl my-3">Saved Addresses</Text>
+        <Text style={styles.heading}>Saved Addresses</Text>
+
         {data && data.length > 0 ? (
-          sortedAddresses.map((address, index) => (
-            <SwipeableAddressRow
-              key={address.id ?? index}
-              index={index}
-              address={address}
-              onEdit={handleEditAddress}
-              onDelete={handleDeleteAddress}
-            />
+          sortedAddresses.map((address) => (
+            <SwipeToDeleteCard
+              key={address.id}
+              onDelete={() => handleDeleteAddress(address.id)}
+            >
+              <View style={styles.cardRow}>
+                <View style={styles.cardLeft}>
+                  <Ionicons name="location-outline" size={24} />
+
+                  <View style={styles.addressText}>
+                    <Text style={styles.addressTitle}>
+                      {address.addressLine1}
+                    </Text>
+                    <Text style={styles.addressTitle}>
+                      {address.addressLine2}
+                    </Text>
+                    <Text style={styles.addressSubtitle}>
+                      {address.city}, {address.zipCode}
+                    </Text>
+                  </View>
+                </View>
+
+                <TouchableOpacity
+                  onPress={() => handleEditAddress(address)}
+                >
+                  <Icon as={Edit} size={20} color="#3b82f6" />
+                </TouchableOpacity>
+              </View>
+            </SwipeToDeleteCard>
           ))
         ) : (
-          <View className="flex-1 justify-center items-center mt-10">
-            <Text className="text-gray-500 text-lg">No addresses found</Text>
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyText}>No addresses found</Text>
           </View>
         )}
       </ScrollView>
-      <Animated.View
-        style={{
-          transform: [{ scale: scaleAnim }],
-        }}
-        className="absolute bottom-6 right-6"
-      >
-        <Pressable
-          onPress={handleAddAddress}
-          onPressIn={handlePressIn}
-          onPressOut={handlePressOut}
-        >
-          <LinearGradient
-            colors={["#22d3ee", "#06b6d4", "#0891b2"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            className="w-16 h-16 items-center justify-center p-4"
-            style={{
-              elevation: 12,
-              shadowColor: "#0891b2",
-              shadowOffset: { width: 0, height: 8 },
-              shadowOpacity: 0.4,
-              shadowRadius: 10,
-              borderRadius: 9999,
-            }}
-          >
-            {/* Glossy highlight */}
-            <View className="absolute top-2 left-3 w-8 h-4 bg-white/30 rounded-full" />
-            <AntDesign name="plus" size={26} color="white" />
-          </LinearGradient>
-        </Pressable>
-      </Animated.View>
+
+      <FloatingActionButton onPress={handleAddAddress}>
+        <AntDesign name="plus" size={26} color="white" />
+      </FloatingActionButton>
     </View>
   );
 };
 
 export default Address;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f1f5f9", // bg-slate-100
+  },
+  scroll: {
+    flex: 1,
+    padding: 16,
+  },
+  scrollContent: {
+    paddingBottom: 120,
+  },
+  heading: {
+    fontSize: 20,
+    fontWeight: "600",
+    marginVertical: 12,
+  },
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  errorText: {
+    color: "#ef4444",
+  },
+  deleteBtn: {
+    backgroundColor: "#ef4444",
+    padding: 12,
+    borderTopRightRadius: 8,
+    borderBottomRightRadius: 8,
+  },
+  cardRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  cardLeft: {
+    flexDirection: "row",
+    flex: 1,
+  },
+  addressText: {
+    marginLeft: 8,
+    flex: 1,
+  },
+  addressTitle: {
+    fontWeight: "600",
+  },
+  addressSubtitle: {
+    color: "#4b5563", // text-gray-600
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 40,
+  },
+  emptyText: {
+    color: "#6b7280",
+    fontSize: 18,
+  },
+});

@@ -2,7 +2,13 @@ import { MenuItem } from "@/lib/helpers/profileHelper";
 import { router } from "expo-router";
 import { X } from "lucide-react-native";
 import React from "react";
-import { Modal, ScrollView, TouchableOpacity, View } from "react-native";
+import {
+  Modal,
+  ScrollView,
+  TouchableOpacity,
+  View,
+  StyleSheet,
+} from "react-native";
 
 interface TagsBottomSheetProps {
   visible: boolean;
@@ -20,7 +26,6 @@ export const TagsBottomSheet: React.FC<TagsBottomSheetProps> = ({
   const handleNavigate = (path: string) => {
     onClose(); // 👈 close sheet first
 
-    // small delay = smoother animation
     setTimeout(() => {
       router.push(path as any);
     }, 200);
@@ -33,21 +38,19 @@ export const TagsBottomSheet: React.FC<TagsBottomSheetProps> = ({
       transparent
       onRequestClose={onClose}
     >
-      <View className="flex-1 justify-end bg-black/50">
-        <TouchableOpacity className="flex-1" onPress={onClose} />
-        <View className="bg-white rounded-t-3xl max-h-[50%]">
+      <View style={styles.overlay}>
+        <TouchableOpacity style={styles.backdrop} onPress={onClose} />
+
+        <View style={styles.sheet}>
           {/* Header */}
-          <View className="flex-row justify-end items-end p-4 border-b border-gray-100">
-            <TouchableOpacity
-              onPress={onClose}
-              className="p-1 bg-gray-300 rounded-full"
-            >
+          <View style={styles.header}>
+            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
               <X size={20} color="#374151" />
             </TouchableOpacity>
           </View>
 
-          <ScrollView className="p-4">
-            <View className="bg-white rounded-2xl px-5">
+          <ScrollView style={styles.scroll}>
+            <View style={styles.menuContainer}>
               <MenuItem
                 icon="person-outline"
                 label="Parties"
@@ -55,45 +58,48 @@ export const TagsBottomSheet: React.FC<TagsBottomSheetProps> = ({
                 onPress={() => handleNavigate("/(admin)/party")}
               />
 
-              <View className="border-t-2 border-gray-200">
+              <View style={styles.divider}>
                 <MenuItem
                   icon="location-outline"
                   label="Categories"
                   arrowicon="chevron-forward"
-                  onPress={() => {
-                    handleNavigate("/(admin)/category");
-                  }}
+                  onPress={() => handleNavigate("/(admin)/category")}
                 />
               </View>
 
-              <View className="border-t-2 border-gray-200">
+              <View style={styles.divider}>
                 <MenuItem
                   icon="settings-outline"
                   label="Questions"
                   arrowicon="chevron-forward"
-                  onPress={() => {
-                    router.push("/settings");
-                  }}
+                  onPress={() => router.push("/settings")}
                 />
               </View>
-              <View className="border-t-2 border-gray-200">
+
+              <View style={styles.divider}>
+                <MenuItem
+                  icon="settings-outline"
+                  label="Candidates"
+                  arrowicon="chevron-forward"
+                  onPress={() => handleNavigate("/(admin)/candidate")}
+                />
+              </View>
+
+              <View style={styles.divider}>
                 <MenuItem
                   icon="settings-outline"
                   label="Office Types"
                   arrowicon="chevron-forward"
-                  onPress={() => {
-                    router.push("/settings");
-                  }}
+                  onPress={() => handleNavigate("/(admin)/officeTypes")}
                 />
               </View>
-              <View className="border-t-2 border-gray-200">
+
+              <View style={styles.divider}>
                 <MenuItem
                   icon="settings-outline"
                   label="Data Sources"
                   arrowicon="chevron-forward"
-                  onPress={() => {
-                    router.push("/settings");
-                  }}
+                  onPress={() => handleNavigate("/(admin)/sources")}
                 />
               </View>
             </View>
@@ -103,3 +109,45 @@ export const TagsBottomSheet: React.FC<TagsBottomSheetProps> = ({
     </Modal>
   );
 };
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  backdrop: {
+    flex: 1,
+  },
+  sheet: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: "50%",
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "flex-end",
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f3f4f6",
+  },
+  closeBtn: {
+    padding: 4,
+    backgroundColor: "#d1d5db",
+    borderRadius: 999,
+  },
+  scroll: {
+    padding: 16,
+  },
+  menuContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    paddingHorizontal: 20,
+  },
+  divider: {
+    borderTopWidth: 2,
+    borderTopColor: "#e5e7eb",
+  },
+});

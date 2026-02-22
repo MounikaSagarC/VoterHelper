@@ -1,11 +1,17 @@
 import React, { useEffect } from "react";
-import { View, Text, TouchableOpacity, Modal, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Modal,
+  Pressable,
+  StyleSheet,
+} from "react-native";
 import { BlurView } from "expo-blur";
-import { InputField } from "./InputField";
 import { useForm } from "react-hook-form";
 import { partySchema } from "@/services/schemas/admin_schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { usePartyMutations } from "@/services/mutations/admin_mutation";
+import { InputField } from "../ui/InputField";
 
 type PartyForm = {
   partyCode: string;
@@ -27,12 +33,7 @@ export default function PartyModal({
   initialData,
   onSubmitForm,
 }: Props) {
-
-  const {
-    control,
-    handleSubmit,
-    reset,
-  } = useForm<PartyForm>({
+  const { control, handleSubmit, reset } = useForm<PartyForm>({
     defaultValues: {
       partyCode: "",
       partyName: "",
@@ -40,7 +41,6 @@ export default function PartyModal({
     resolver: zodResolver(partySchema),
   });
 
-  // Load data in edit mode
   useEffect(() => {
     if (mode === "edit" && initialData) {
       reset(initialData);
@@ -51,28 +51,26 @@ export default function PartyModal({
 
   return (
     <Modal visible={visible} transparent animationType="fade">
-      <View className="flex-1 justify-center items-center">
-
+      <View style={styles.overlay}>
         {/* Background */}
-        <Pressable onPress={onClose} className="absolute inset-0 bg-black/40" />
-        <BlurView intensity={20} tint="dark" className="absolute inset-0" />
+        <Pressable style={styles.backdrop} onPress={onClose} />
+        <BlurView intensity={20} tint="dark" style={styles.blur} />
 
         {/* Modal Card */}
-        <View className="w-[90%] max-w-[420px] bg-white rounded-2xl p-5 shadow-2xl">
-
+        <View style={styles.card}>
           {/* Header */}
-          <View className="flex-row justify-between items-center">
-            <Text className="text-lg font-semibold">
+          <View style={styles.header}>
+            <Text style={styles.title}>
               {mode === "edit" ? "Edit Party" : "Create Party"}
             </Text>
 
             <TouchableOpacity onPress={onClose}>
-              <Text className="text-xl font-bold">×</Text>
+              <Text style={styles.close}>×</Text>
             </TouchableOpacity>
           </View>
 
           {/* Form */}
-          <View className="mt-4 gap-3">
+          <View style={styles.form}>
             <InputField
               label="Party Code"
               placeholder="Enter party code"
@@ -89,19 +87,78 @@ export default function PartyModal({
           </View>
 
           {/* Footer */}
-          <View className="flex-row justify-center gap-3 mt-6 ">
+          <View style={styles.footer}>
             <TouchableOpacity
               onPress={handleSubmit(onSubmitForm)}
-              className="bg-blue-600 px-4 py-2 rounded-2xl self-center"
+              style={styles.submitBtn}
             >
-              <Text className="text-white">
+              <Text style={styles.submitText}>
                 {mode === "edit" ? "Update" : "Save"}
               </Text>
             </TouchableOpacity>
           </View>
-
         </View>
       </View>
     </Modal>
   );
 }
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.4)",
+  },
+  blur: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  card: {
+    width: "90%",
+    maxWidth: 420,
+    backgroundColor: "#ffffff",
+    borderRadius: 16,
+    padding: 20,
+    elevation: 10, // Android
+    shadowColor: "#000", // iOS
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  close: {
+    fontSize: 24,
+    fontWeight: "700",
+  },
+  form: {
+    marginTop: 16,
+    gap: 12,
+  },
+  footer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 12,
+    marginTop: 24,
+  },
+  submitBtn: {
+    backgroundColor: "#2563EB",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 16,
+    alignSelf: "center",
+  },
+  submitText: {
+    color: "#ffffff",
+  },
+});

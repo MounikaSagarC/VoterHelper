@@ -1,24 +1,19 @@
-import SourceModal from "@/components/screens/SourceModal";
+import SourceModal from "@/components/Modal/SourceModal";
 import { Icon } from "@/components/ui/icon";
-import PartyModal from "@/components/ui/Modal";
-import { fetchParties } from "@/services/api/party";
 import { fetchSources } from "@/services/api/sources";
 import {
-  useInActivatePartyMutation,
-  usePartyMutations,
   useSourceMutations,
 } from "@/services/mutations/admin_mutation";
 // import { usePartyMutations } from "@/services/mutations/party_mutation"; // ✅ ADD THIS
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
-import { Edit, Trash } from "lucide-react-native";
+import { Edit } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
   Pressable,
-  Switch,
   Text,
   View,
 } from "react-native";
@@ -27,17 +22,14 @@ const DataSource = () => {
   // ✅ Modal states
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<"create" | "edit">("create");
-  const [selectedParty, setSelectedParty] = useState<any>(null);
+  const [selectedSource, setSelectedSource] = useState<any>(null);
 
-  // Animations
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
-  // Mutations
-//   const  inActivatePartyMutate  = useInActivatePartyMutation();
   const { createSourceMutate, updateSourceMutate, deleteSourceMutate } = useSourceMutations(); // ✅
 
   // Switch state
-  const [partyState, setPartyState] = useState<Record<number, boolean>>({});
+  const [sourceState, setSourceState] = useState<Record<number, boolean>>({});
 
   const handlePressIn = () => {
     Animated.spring(scaleAnim, {
@@ -70,7 +62,7 @@ const DataSource = () => {
       data.forEach((p: any) => {
         state[p.id] = p.isActive;
       });
-      setPartyState(state);
+      setSourceState(state);
     }
   }, [data]);
 
@@ -149,7 +141,7 @@ const DataSource = () => {
                     size={20}
                     className="self-center"
                     onPress={() => {
-                      setSelectedParty(source);
+                      setSelectedSource(source);
                       setMode("edit");
                       setOpen(true);
                     }}
@@ -175,7 +167,7 @@ const DataSource = () => {
       >
         <Pressable
           onPress={() => {
-            setSelectedParty(null);
+            setSelectedSource(null);
             setMode("create");
             setOpen(true);
           }}
@@ -197,11 +189,11 @@ const DataSource = () => {
         onClose={() => setOpen(false)}
         mode={mode}
         initialData={
-          selectedParty
+          selectedSource
             ? {
-                name: selectedParty.name,
-                url: selectedParty.url,
-                description: selectedParty.description,
+                name: selectedSource.name,
+                url: selectedSource.url,
+                description: selectedSource.description,
               }
             : undefined
         }
@@ -211,7 +203,7 @@ const DataSource = () => {
           } else {
             const payload = {
               ...formData,
-              id: selectedParty.id,
+              id: selectedSource.id,
             };
 
             console.log("UPDATE PAYLOAD:", payload); // DEBUG

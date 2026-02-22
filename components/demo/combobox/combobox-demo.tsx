@@ -7,59 +7,42 @@ import {
   ComboboxValue,
   OptionType,
 } from "@/components/ui/combobox";
+import { StyleSheet } from "react-native";
 
-// For clarity, define a type for the country data that includes searchValue
 type Option = {
   label: string;
   value: string;
 };
 
-interface combobxOptionsProps {
+interface ComboboxOptionsProps {
   options: Option[];
   value: OptionType | null;
   onChange: (value: OptionType | null) => void;
   placeholder?: string;
-  emptyText?: string;
-  className?: string;
-  contentClassName?: string;
-  itemClassssName?: string;
 }
 
 export function ComboboxSearch({
   options,
   value,
   onChange,
-  className,
   placeholder,
-}: combobxOptionsProps) {
+}: ComboboxOptionsProps) {
   return (
     <Combobox value={value} onValueChange={onChange}>
-      <ComboboxTrigger
-        style={{height:40}}
-        className={`
-          ${className}
-          px-3 mt-2
-          w-full
-          border-0 border-gray-300
-          rounded-lg
-          bg-white
-          text-sm
-          focus:ring-2 focus:ring-blue-500
-        `}
-      >
+      <ComboboxTrigger style={styles.trigger}>
         <ComboboxValue
           placeholder={placeholder || "Select option"}
-          style={{fontSize:15}}
+          style={styles.valueText}
         />
       </ComboboxTrigger>
 
-      <ComboboxContent className="bg-gray-200 max-h-32 overflow-auto rounded-sm shadow-md">
-        <ComboboxList className="text-sm">
+      <ComboboxContent >
+        <ComboboxList>
           {options.map((option) => (
             <ComboboxItem
               key={option.value}
               value={option.value}
-              className="m-0 py-1 px-2 rounded-md !text-sm"
+              style={styles.item}
             >
               {option.label}
             </ComboboxItem>
@@ -69,3 +52,24 @@ export function ComboboxSearch({
     </Combobox>
   );
 }
+
+const styles = StyleSheet.create({
+  trigger: {
+    height: 40,
+    marginTop: 8,
+    paddingHorizontal: 12,
+    width: "100%",
+    borderWidth: 1,
+    borderRadius: 8,
+    backgroundColor: "#ffffff",
+  },
+  valueText: {
+    fontSize: 15,
+  },
+
+  item: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+  },
+});

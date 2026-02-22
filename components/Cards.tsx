@@ -187,7 +187,6 @@ const SwipeableAddressRow = ({
             </View>
           </View>
         </View>
-        <View></View>
         <TouchableOpacity
           onPress={() => onEdit(address, index)}
           className="p2"
