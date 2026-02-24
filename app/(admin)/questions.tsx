@@ -1,242 +1,303 @@
+import Card from "@/components/Cards/Card";
 import { SwipeToDeleteCard } from "@/components/Cards/SwipeToDelete";
 import FloatingActionButton from "@/components/FloatingButton";
-import OfficeModal from "@/components/Modal/OfficeModal";
-import { deleteOfficeType, getOfficeTypes } from "@/services/api/officeType";
-import { useOfficeTypeMutattions } from "@/services/mutations/office_mutation";
-import { OfficeType } from "@/services/schemas/admin_schema";
+import QuestionModal from "@/components/Modal/QuestionModal";
+import Dropdown from "@/components/ui/dropdown";
+import { Icon } from "@/components/ui/icon";
+import { getStates } from "@/services/api/profile";
+import { getQuestionsByState } from "@/services/api/questions";
+import { useQuestionMutation } from "@/services/mutations/question_mutation";
+import { Question } from "@/services/schemas/admin_schema";
 import { AntDesign } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
-import { MoreVertical, Pencil } from "lucide-react-native";
+import { Edit } from "lucide-react-native";
 import { useState } from "react";
 import {
+  ActivityIndicator,
   FlatList,
   Pressable,
   StyleSheet,
   Text,
-  TouchableWithoutFeedback,
   View,
 } from "react-native";
 
 const OfferCard = () => {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<"create" | "edit">("create");
-  const [selectedOffice, setSelectedOffice] = useState<OfficeType | null>(null);
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
+    null,
+  );
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [selectedState, setSelectedState] = useState<string>("");
 
-  const { createOfficeTypeMutate, updateOfficeTypeMutate, deleteOfficeTypeMutate } =
-    useOfficeTypeMutattions();
+  const { createQuestionMutate, updateQuestionMutate, deleteQuestionMutate } =
+    useQuestionMutation();
 
-  const handlePress = () => {
-    setSelectedOffice(null);
+  const { data: states } = useQuery({
+    queryKey: ["states"],
+    queryFn: getStates,
+  });
+
+  const { data: question, isLoading } = useQuery({
+    queryKey: ["questions", selectedState || ""],
+    queryFn: () => {
+      return getQuestionsByState(selectedState);
+    },
+  });
+
+  console.log("questionsData", question, "selectedState", selectedState);
+
+  const normalizeQuestions = (data: any) =>
+    Array.isArray(data) ? data : data ? [data] : [];
+
+  const questions = normalizeQuestions(question?.data);
+
+  const handleAdd = () => {
+    setSelectedQuestion(null);
     setMode("create");
     setOpen(true);
   };
 
-  const handleDeleteCategory = async (addressId: number | undefined) => {
-    console.log("Attempting to delete category with ID:", addressId); // DEBUG
-    if (addressId === undefined) {
-      return;
-    }
-    try {
-      deleteOfficeTypeMutate.mutate(addressId);
-    } catch (error) {
-      console.error("Error deleting office type:", error);
-    }
+  const handleDelete = (id?: number) => {
+    if (!id) return;
+    deleteQuestionMutate.mutate(id);
   };
 
-  const { data: officeTypes } = useQuery({
-    queryKey: ["officeTypes"],
-    queryFn: getOfficeTypes,
-  });
+  const stateOptions = [
+    { label: "All States", value: "" },
+    ...(states?.map((s: any) => ({
+      label: s.state,
+      value: s.code,
+    })) ?? []),
+  ];
 
-  const renderItem = ({ item: officeType }: { item: OfficeType }) => {
-    const isMenuOpen = openMenuId !== null && openMenuId === officeType.id;
+  if (isLoading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="#2563EB" />
+      </View>
+    );
+  }
+
+  console.log("states api:", states);
+  console.log("dropdown options:", stateOptions);
+
+  const renderItem = ({ item }: { item: Question }) => {
+    const isMenuOpen = openMenuId === item.id;
 
     return (
-      <SwipeToDeleteCard key={officeType.id ?? ""} onDelete={() => handleDeleteCategory(officeType.id)}>
-        <TouchableWithoutFeedback onPress={() => setOpenMenuId(null)}>
-          <View style={styles.card}>
-            {/* Header */}
-            <View style={styles.header}>
-              <View>
-                <Text style={styles.amount}>{officeType.name}</Text>
+      <SwipeToDeleteCard onDelete={() => handleDelete(item.id)}>
+        <Card style={{ marginBottom: 20 }}>
+          {/* HEADER */}
+          <View style={styles.header}>
+            <View style={styles.headerLeft}>
+              <Text style={styles.amount}>{item.categoryName}</Text>
+
+              {item.stateCode && (
                 <View style={styles.statusBadge}>
-                  <Text style={styles.statusText}>{officeType.officeType}</Text>
+                  <Text style={styles.statusText}>{item.stateCode}</Text>
                 </View>
-              </View>
-
-              {/* Three-dot menu */}
-              <View style={{ position: "relative" }}>
-                <Pressable
-                  onPress={() =>
-                    setOpenMenuId(isMenuOpen ? null : (officeType.id ?? null))
-                  }
-                  hitSlop={10}
-                >
-                  <MoreVertical size={20} color="#374151" />
-                </Pressable>
-
-                {isMenuOpen && (
-                  <View style={styles.menu}>
-                    <Pressable
-                      style={styles.menuItem}
-                      onPress={() => {
-                        setOpenMenuId(null);
-                        setSelectedOffice(officeType);
-                        setMode("edit");
-                        setOpen(true);
-                      }}
-                    >
-                      <Pencil size={16} color="#374151" />
-                      <Text style={styles.menuText}>Edit</Text>
-                    </Pressable>
-
-                    {/* <Pressable
-                      style={styles.menuItem}
-                      onPress={() => {
-                        setOpenMenuId(null);
-                        console.log("Switch:", officeType.id);
-                      }}
-                    >
-                      <ToggleRight size={16} color="#374151" />
-                      <Text style={styles.menuText}>Switch</Text>
-                    </Pressable> */}
-                  </View>
-                )}
-              </View>
+              )}
             </View>
 
-            {/* Divider */}
-            <View style={styles.divider} />
-
-            {/* Details */}
-            <View style={styles.row}>
-              <Text style={styles.label}>Term Length</Text>
-              <Text style={styles.value}>{officeType.termLength}</Text>
-            </View>
-
-            <View style={styles.row}>
-              <Text style={styles.label}>Jurisdiction Level</Text>
-              <Text style={styles.value}>{officeType.jurisdictionLevel}</Text>
-            </View>
+            {/* MENU */}
+            <Icon
+              as={Edit}
+              size={20}
+              onPress={() => {
+                setSelectedQuestion(item);
+                setMode("edit");
+                setOpen(true);
+              }}
+            />
           </View>
-        </TouchableWithoutFeedback>
+
+          {/* CONTENT */}
+          <Pressable onPress={() => setOpenMenuId(null)}>
+            <Text style={styles.label}>{item.text}</Text>
+            <Text style={styles.value}>{item.explanation}</Text>
+          </Pressable>
+        </Card>
       </SwipeToDeleteCard>
     );
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <>
+      {/* 🔽 SORT FILTER */}
+      <View style={styles.filterBar}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+          <Text>Filter By State:</Text>
+          <Dropdown
+            value={selectedState}
+            options={stateOptions}
+            onChange={setSelectedState}
+            placeholder="State"
+            maxHeight={80} // 👈 CONTROL DROPDOWN HEIGHT HERE
+            width={160}
+          />
+        </View>
+      </View>
+      {/* LIST */}
       <FlatList
-        data={officeTypes}
-        keyExtractor={(item) => item.id?.toString() ?? ""}
-        contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
+        data={questions}
+        keyExtractor={(item) => String(item.id)}
         renderItem={renderItem}
+        contentContainerStyle={{ padding: 16 }}
+        keyboardShouldPersistTaps="handled"
+        refreshing={isLoading}
       />
 
-      <FloatingActionButton onPress={handlePress}>
+      {/* FAB */}
+      <FloatingActionButton onPress={handleAdd}>
         <AntDesign name="plus" size={26} color="white" />
       </FloatingActionButton>
 
-      <OfficeModal
+      {/* MODAL */}
+      <QuestionModal
         visible={open}
         onClose={() => setOpen(false)}
         mode={mode}
-        initialData={selectedOffice ?? undefined}
+        initialData={selectedQuestion ?? undefined}
         onSubmitForm={(formData) => {
+          // Convert categoryId to number before sending
+          const payload = {
+            ...formData,
+            categoryId: formData.categoryId
+              ? Number(formData.categoryId)
+              : undefined,
+          };
+
           if (mode === "create") {
-            createOfficeTypeMutate.mutate(formData);
+            createQuestionMutate.mutate(payload);
           } else {
-            updateOfficeTypeMutate.mutate({
-              officeTypeId: formData.id,
-              name: formData.name,
-              description: formData.description,
-              displayOrder: formData.displayOrder,
+            updateQuestionMutate.mutate({
+              questionId: payload.id,
+              text: payload.text,
+              explanation: payload.explanation,
+              categoryId: payload.categoryId, // now a number
+              electionId: payload.electionId,
+              stateCode: payload.stateCode,
             });
           }
-          setOpen(false);
+          setOpen(false)
         }}
       />
-    </View>
+    </>
   );
 };
 
 export default OfferCard;
 
+/* ---------------- STYLES ---------------- */
+
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    elevation: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+  filterBar: {
+    paddingHorizontal: 16,
+    paddingTop: 10,
+    paddingBottom: 4,
   },
+
+  dropdownWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-end",
+    gap: 8,
+    backgroundColor: "#F9FAFB",
+    borderRadius: 10,
+    paddingHorizontal: 8,
+  },
+
+  picker: {
+    width: 160,
+    height: 50,
+    color: "#111827",
+  },
+
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+  },
+
+  sortButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-end",
+    gap: 6,
+  },
+
+  sortText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#6B7280",
+  },
+
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
+    marginBottom: 12,
   },
+
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+
   amount: {
     fontSize: 22,
     fontWeight: "700",
     color: "#111827",
   },
+
   statusBadge: {
-    marginTop: 6,
     backgroundColor: "#FEF3C7",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
-    alignSelf: "flex-start",
   },
+
   statusText: {
     fontSize: 12,
     fontWeight: "600",
     color: "#92400E",
   },
-  divider: {
-    height: 1,
-    backgroundColor: "#E5E7EB",
-    marginVertical: 12,
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 8,
-  },
+
   label: {
-    fontSize: 13,
-    color: "#6B7280",
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#787774",
+    marginBottom: 6,
   },
+
   value: {
-    fontSize: 13,
-    fontWeight: "600",
+    fontSize: 16,
+    fontWeight: "400",
     color: "#111827",
   },
+
   menu: {
     position: "absolute",
     top: 24,
     right: 0,
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
-    paddingVertical: 6,
     width: 140,
     elevation: 6,
     shadowColor: "#000",
     shadowOpacity: 0.15,
     shadowRadius: 6,
   },
+
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    padding: 12,
     gap: 8,
   },
+
   menuText: {
     fontSize: 14,
     color: "#374151",

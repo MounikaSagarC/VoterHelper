@@ -2,21 +2,16 @@ import Card from "@/components/Cards/Card";
 import { SwipeToDeleteCard } from "@/components/Cards/SwipeToDelete";
 import FloatingActionButton from "@/components/FloatingButton";
 import CategoryModal from "@/components/Modal/CategoryModal";
+import { Icon } from "@/components/ui/icon";
 // import { Card } from "@/components/ui/card";
 import { fetchCategories } from "@/services/api/category";
 import { useCategoryMutations } from "@/services/mutations/category_mutation";
 import { Category } from "@/services/schemas/admin_schema";
 import { AntDesign } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
-import { Pencil } from "lucide-react-native";
-import React from "react";
-import {
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Edit } from "lucide-react-native";
+import React, { useEffect, useState } from "react";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 
 type Item = {
   id: number;
@@ -31,7 +26,12 @@ export default function TopicsCardList() {
   const [selectedCategory, setSelectedCategory] =
     React.useState<Category | null>(null);
   const [open, setOpen] = React.useState(false);
-  const { createCategoryMutate, updateCategoryMutate, deleteCategoryMutate } = useCategoryMutations();
+  const [categoryState, setCategoryState] = useState<Record<number, boolean>>(
+    {},
+  );
+
+  const { createCategoryMutate, updateCategoryMutate, deleteCategoryMutate } =
+    useCategoryMutations();
 
   const { data: categories } = useQuery({
     queryKey: ["categories"],
@@ -44,23 +44,37 @@ export default function TopicsCardList() {
     setOpen(true);
   };
 
+  useEffect(() => {
+    if (categories && Object.keys(categoryState).length === 0) {
+      const state: Record<number, boolean> = {};
+      categories.forEach((p: Category) => {
+        if (p.id !== undefined) {
+          state[p.id] = p.status ?? true;
+        }
+      });
+      setCategoryState(state);
+    }
+  }, [categoryState]);
+
+  const handleToggle = (id: number) => {
+    console.log("button clicked");
+    setCategoryState((prev) => ({ ...prev, [id]: !prev[id] }));
+    deleteCategoryMutate.mutate(id);
+  };
+
   const handleDeleteCategory = async (addressId: number | undefined) => {
-    console.log("Attempting to delete category with ID:", addressId); // DEBUG
     if (addressId === undefined) {
       return;
     }
     try {
       deleteCategoryMutate.mutate(addressId);
       // await refetch();
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const renderItem = ({ item }: { item: Category }) => {
     return (
-      <SwipeToDeleteCard
-        onDelete={() => handleDeleteCategory(item.id)}
-      >
+      <SwipeToDeleteCard onDelete={() => handleDeleteCategory(item.id)}>
         <Card>
           {/* Header */}
           <View style={styles.header}>
@@ -72,16 +86,20 @@ export default function TopicsCardList() {
               <Text style={styles.title}>{item.name}</Text>
             </View>
 
-            <View style={styles.actions}>
-              <TouchableOpacity
+            <View style={styles.actionCell}>
+              <Icon
+                as={Edit}
+                size={20}
                 onPress={() => {
                   setSelectedCategory(item);
                   setMode("edit");
                   setOpen(true);
                 }}
-              >
-                <Pencil size={18} color="#2563EB" />
-              </TouchableOpacity>
+              />
+              {/* <Switch
+                value={categoryState[item.id]}
+                onValueChange={() => handleToggle(item.id!)}
+              /> */}
             </View>
           </View>
 
@@ -185,5 +203,13 @@ const styles = StyleSheet.create({
     color: "#4b5563",
     marginTop: 12,
     lineHeight: 20,
+  },
+
+  actionCell: {
+    flex: 1, // same as headerCell
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    gap: 16,
   },
 });

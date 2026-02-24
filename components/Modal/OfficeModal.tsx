@@ -11,7 +11,6 @@ import {
   Modal,
   Pressable,
   StyleSheet,
-  Switch,
   Text,
   TouchableOpacity,
   View,
@@ -33,11 +32,13 @@ const officeTypeOptions = [
   { label: "Legislative", value: "legislative" },
   { label: "Administration", value: "administration" },
 ];
-
-const jurisdictionOptions = [
-  { label: "Federal", value: "federal" },
-  { label: "State", value: "state" },
-  { label: "Local", value: "local" },
+const termLengthOptions = [
+  { label: "1", value: "1" },
+  { label: "2", value: "2" },
+  { label: "3", value: "3" },
+  { label: "4", value: "4" },
+  { label: "5", value: "5" },
+  { label: "6", value: "6" },
 ];
 
 export default function OfficeModal({
@@ -55,7 +56,7 @@ export default function OfficeModal({
         officeType: "executive",
         jurisdictionLevel: "federal",
         termLength: 0,
-        isPartisan: true,
+        status: true,
       },
     },
   );
@@ -65,22 +66,26 @@ export default function OfficeModal({
     queryFn: fetchElectionLevels,
   });
 
+  console.log("electionLevels",electionLevels)
+
   const formattedLevels = electionLevels?.map((lvl: string) => ({
-    label: lvl.charAt(0).toUpperCase() + lvl.slice(1), // Capitalize first letter
+    label: lvl.toUpperCase(), // Capitalize first letter
     value: lvl,
   }));
 
+  console.log("formattedLevels",formattedLevels)
+
   useEffect(() => {
-  reset(
-    initialData ?? {
-      name: "",
-      officeType: "executive",
-      jurisdictionLevel: "federal",
-      termLength: 0,
-      isPartisan: true,
-    }
-  );
-}, [initialData, mode, reset]);
+    reset(
+      initialData ?? {
+        name: "",
+        officeType: "executive",
+        jurisdictionLevel: "federal",
+        termLength: 0,
+        isPartisan: true,
+      },
+    );
+  }, [initialData, mode, reset]);
 
   return (
     <Modal visible={visible} transparent animationType="fade">
@@ -92,7 +97,7 @@ export default function OfficeModal({
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.title}>
-              {mode === "edit" ? "Edit Office" : "Create Office"}
+              {mode === "edit" ? "Edit OfficeType" : "Add OfficeType"}
             </Text>
             <TouchableOpacity onPress={onClose}>
               <Text style={styles.close}>×</Text>
@@ -106,6 +111,7 @@ export default function OfficeModal({
               label="Office Name"
               placeholder="Enter office name"
               name="name"
+              required
               control={control}
             />
             {/* Dropdown 1 */}
@@ -122,7 +128,7 @@ export default function OfficeModal({
                   onSelect={(o) =>
                     setValue(
                       "officeType",
-                      o.value as "administration" | "legislative" | "executive",
+                      o.value as "administrative" | "legislative" | "executive",
                     )
                   }
                 />
@@ -152,26 +158,25 @@ export default function OfficeModal({
             />
 
             {/* Input 3 */}
-            <InputField
-              label="Term Length (Years)"
-              placeholder="Enter term length"
-              name="termLength"
-              keyboardType="numeric"
-              control={control}
-              onChangeText={(text: string) =>
-                setValue("termLength", Number(text))
-              }
-            />
-
-            {/* Switch */}
             <Controller
               control={control}
-              name="isPartisan"
-              render={({ field: { value, onChange } }) => (
-                <View style={styles.switchRow}>
-                  <Text style={styles.switchLabel}>Is Partisan</Text>
-                  <Switch value={value} onValueChange={onChange} />
-                </View>
+              name="termLength"
+              render={({ field: { value } }) => (
+                <FormCombo
+                  label="Term Length"
+                  value={
+                    termLengthOptions.find(
+                      (opt) => Number(opt.value) === value,
+                    ) ?? null
+                  }
+                  options={termLengthOptions}
+                  onSelect={(o) =>
+                    setValue(
+                      "termLength",
+                      Number(o.value) as 1 | 2 | 3 | 4 | 5 | 6,
+                    )
+                  }
+                />
               )}
             />
           </View>

@@ -1,35 +1,33 @@
 import SourceModal from "@/components/Modal/SourceModal";
-import { Icon } from "@/components/ui/icon";
 import { fetchSources } from "@/services/api/sources";
-import {
-  useSourceMutations,
-} from "@/services/mutations/admin_mutation";
-// import { usePartyMutations } from "@/services/mutations/party_mutation"; // ✅ ADD THIS
-import { AntDesign, Ionicons } from "@expo/vector-icons";
+import { useSourceMutations } from "@/services/mutations/admin_mutation";
+import { Source } from "@/services/schemas/admin_schema";
+import { AntDesign } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
-import { Edit } from "lucide-react-native";
+import { MoreVertical, Pencil } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
   Pressable,
+  StyleSheet,
+  Switch,
   Text,
   View,
 } from "react-native";
 
 const DataSource = () => {
-  // ✅ Modal states
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [selectedSource, setSelectedSource] = useState<any>(null);
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [sourceState, setSourceState] = useState<Record<number, boolean>>({});
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
-  const { createSourceMutate, updateSourceMutate, deleteSourceMutate } = useSourceMutations(); // ✅
-
-  // Switch state
-  const [sourceState, setSourceState] = useState<Record<number, boolean>>({});
+  const { createSourceMutate, updateSourceMutate, deleteSourceMutate } =
+    useSourceMutations();
 
   const handlePressIn = () => {
     Animated.spring(scaleAnim, {
@@ -47,123 +45,95 @@ const DataSource = () => {
     }).start();
   };
 
-  // Fetch parties
   const { data, isLoading } = useQuery({
     queryKey: ["sources"],
     queryFn: fetchSources,
   });
 
-  console.log("Fetched sources:", data);
-
-  // Initialize switch state
   useEffect(() => {
-    if (data) {
+    if (data && Object.keys(sourceState).length === 0) {
       const state: Record<number, boolean> = {};
-      data.forEach((p: any) => {
-        state[p.id] = p.isActive;
+      data.forEach((p: Source) => {
+        state[p.id] = p.status;
       });
       setSourceState(state);
     }
   }, [data]);
 
-  // Toggle active/inactive
-  const handleDelete = (id: number) => {
+  const handleToggle = (id: number) => {
+    setSourceState((prev) => ({ ...prev, [id]: !prev[id] }));
     deleteSourceMutate.mutate(id);
-  }
+  };
 
   if (isLoading) {
     return (
-      <View className="flex-1 justify-center items-center">
+      <View style={styles.loader}>
         <ActivityIndicator size="large" color="#3b82f6" />
       </View>
     );
   }
 
+  // Only the return JSX and styles are changed to card format
   return (
-    <View className="flex-1 px-10 gap-10">
-      {/* HEADER */}
-      <View className="rounded-2xl mt-10">
-        <LinearGradient
-          colors={["#0cc48b", "#0D9488", "#0E7490"]}
-          start={{ x: 0.6, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          className="rounded-3xl h-24 p-3 mb-2 shadow-xl"
-        >
-          <Text className="text-white font-bold text-3xl mt-5 ml-5">
-            Parties
-          </Text>
-        </LinearGradient>
-      </View>
+    <View style={styles.container}>
+      {data?.length ? (
+        data.map((source: any) => {
+          const isMenuOpen = openMenuId !== null && openMenuId === source.id;
 
-      {/* TABLE */}
-      <View className="bg-white rounded-2xl shadow-xl overflow-hidden">
-        {/* Header Row */}
-        <LinearGradient
-          colors={["#0cc48b", "#0D9488", "#0E7490"]}
-          start={{ x: 0.6, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          className="flex-row justify-between items-center h-16 px-4"
-        >
-          <Text className="grid grid-cols-4 text-white font-bold text-sm">NAME</Text>
-          <Text className="grid grid-cols-46 text-white font-bold text-sm">
-             URL
-          </Text>
-          <Text className="grid grid-cols-4 text-white font-bold text-sm ">
-            DESCRIPTION
-          </Text>
-          <Text className="grid grid-cols-4 text-white font-bold text-sm ">
-            ACTION
-          </Text>
-        </LinearGradient>
+          return (
+            <View key={source.id} style={styles.card}>
+              {/* Card Header */}
+              <View style={styles.cardHeader}>
+                <Text style={styles.cardTitle}>{source.name}</Text>
+                <Pressable
+                  onPress={() => setOpenMenuId(isMenuOpen ? null : source.id)}
+                  hitSlop={10}
+                >
+                  <MoreVertical size={20} color="#374151" />
+                </Pressable>
+              </View>
 
-        {/* Rows */}
-        {data?.length ? (
-          data.map((source: any) => (
-            <View
-              key={source.id}
-              className="flex-row justify-between items-center px-4 py-4 border-b border-gray-200"
-            >
-              <Text className="grid grid-cols-4 text-gray-900 font-medium">
-                {source.name}
-              </Text>
+              {/* Card Content */}
+              <Text style={styles.cardUrl}>{source.url}</Text>
+              <Text style={styles.cardDescription}>{source.description}</Text>
 
-              <Text className="grid grid-cols-4 text-gray-700 text-center">
-                {source.url}
-              </Text>
-              <Text className="grid grid-cols-4 text-gray-700 text-center">
-                {source.description}
-              </Text>
-
-              <Pressable className="grid grid-cols-4 flex-row gap-4 mr-5">
-                {/* EDIT */}
-                  <Icon
-                    as={Edit}
-                    size={20}
-                    className="self-center"
+              {/* Card Actions */}
+              {isMenuOpen && (
+                <Pressable style={styles.menu} onPress={() => {}}>
+                  <Pressable
+                    style={styles.menuItem}
                     onPress={() => {
+                      setOpenMenuId(null);
                       setSelectedSource(source);
                       setMode("edit");
                       setOpen(true);
                     }}
-                  />
+                  >
+                    <Pencil size={16} color="#374151" />
+                    <Text style={styles.menuText}>Edit</Text>
+                  </Pressable>
 
-                {/* DELETE */}
-                <Ionicons name="trash-outline" color='red' size={20} onPress={() => handleDelete(source.id)}/>
-                
-              </Pressable>
+                  <View style={styles.actions}>
+                    <Text>Status:</Text>
+                    <Switch
+                      value={sourceState[source.id]}
+                      onValueChange={() => handleToggle(source.id!)}
+                    />
+                  </View>
+                </Pressable>
+              )}
             </View>
-          ))
-        ) : (
-          <View className="items-center mt-10">
-            <Text>No sources found</Text>
-          </View>
-        )}
-      </View>
+          );
+        })
+      ) : (
+        <View style={styles.emptyState}>
+          <Text>No sources found</Text>
+        </View>
+      )}
 
-      {/* FLOATING ADD BUTTON */}
+      {/* Floating Add Button */}
       <Animated.View
-        style={{ transform: [{ scale: scaleAnim }] }}
-        className="absolute bottom-6 right-6 rounded-full"
+        style={[styles.fabWrapper, { transform: [{ scale: scaleAnim }] }]}
       >
         <Pressable
           onPress={() => {
@@ -176,14 +146,14 @@ const DataSource = () => {
         >
           <LinearGradient
             colors={["#22d3ee", "#06b6d4", "#0891b2"]}
-            className="w-16 h-16 items-center justify-center rounded-full"
+            style={styles.fab}
           >
             <AntDesign name="plus" size={26} color="white" />
           </LinearGradient>
         </Pressable>
       </Animated.View>
 
-      {/* MODAL */}
+      {/* Modal */}
       <SourceModal
         visible={open}
         onClose={() => setOpen(false)}
@@ -201,16 +171,11 @@ const DataSource = () => {
           if (mode === "create") {
             createSourceMutate.mutate(formData);
           } else {
-            const payload = {
+            updateSourceMutate.mutate({
               ...formData,
               id: selectedSource.id,
-            };
-
-            console.log("UPDATE PAYLOAD:", payload); // DEBUG
-
-            updateSourceMutate.mutate(payload);
+            });
           }
-
           setOpen(false);
         }}
       />
@@ -219,3 +184,119 @@ const DataSource = () => {
 };
 
 export default DataSource;
+
+// Styles
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    gap: 16,
+  },
+    menuText: {
+    fontSize: 14,
+    color: "#374151",
+    fontWeight: "500",
+  },
+    menu: {
+    position: "absolute",
+    top: 24,
+    right: 0,
+    backgroundColor: "white",
+    padding:10,
+    borderRadius: 12,
+    paddingVertical: 6,
+    width: 140,
+    elevation: 6,
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+  },
+    menuItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    gap: 8,
+  },
+    actions: {
+    width: 64,
+    flexDirection: "row",
+    alignItems:"center",
+    gap: 16,
+    marginRight: 20,
+    marginLeft:10
+  },
+  loader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 16,
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    gap: 12,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#111827",
+  },
+  cardUrl: {
+    fontSize: 14,
+    color: "#2563eb",
+  },
+  cardDescription: {
+    fontSize: 14,
+    color: "#374151",
+  },
+  cardActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 8,
+  },
+  editButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#3b82f6",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    gap: 6,
+  },
+  editText: {
+    color: "#fff",
+    fontWeight: "500",
+  },
+  statusToggle: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  emptyState: {
+    alignItems: "center",
+    marginTop: 40,
+  },
+  fabWrapper: {
+    position: "absolute",
+    bottom: 24,
+    right: 24,
+  },
+  fab: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});

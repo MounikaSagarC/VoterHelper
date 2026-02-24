@@ -1,3 +1,4 @@
+import Card from "@/components/Cards/Card";
 import { SwipeableCard } from "@/components/Cards/SwipeableCard";
 import { SwipeToDeleteCard } from "@/components/Cards/SwipeToDelete";
 import FloatingActionButton from "@/components/FloatingButton";
@@ -97,7 +98,7 @@ const Address = () => {
               key={address.id}
               onDelete={() => handleDeleteAddress(address.id)}
             >
-              <View style={styles.cardRow}>
+              <Card style={styles.cardRow}>
                 <View style={styles.cardLeft}>
                   <Ionicons name="location-outline" size={24} />
 
@@ -119,7 +120,7 @@ const Address = () => {
                 >
                   <Icon as={Edit} size={20} color="#3b82f6" />
                 </TouchableOpacity>
-              </View>
+              </Card>
             </SwipeToDeleteCard>
           ))
         ) : (
@@ -180,6 +181,7 @@ const styles = StyleSheet.create({
   },
   addressText: {
     marginLeft: 8,
+    gap:10,
     flex: 1,
   },
   addressTitle: {

@@ -11,6 +11,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  StyleSheet,
 } from "react-native";
 
 import { InputField } from "@/components/ui/InputField";
@@ -30,7 +31,6 @@ const EditProfile = () => {
     defaultValues: formData,
   });
 
-  /* 1️⃣ Store → Form (ONCE) */
   useEffect(() => {
     if (formData && !hydrated.current) {
       reset(formData);
@@ -38,7 +38,6 @@ const EditProfile = () => {
     }
   }, [formData, reset]);
 
-  /* 2️⃣ Form → Store (LIVE) */
   const watchedValues = useWatch({ control });
 
   useEffect(() => {
@@ -63,112 +62,89 @@ const EditProfile = () => {
     }
   }, [data, updateForm]);
 
-  const hydratedRef = useRef(false);
-
-  useEffect(() => {
-    if (data && !hydratedRef.current) {
-      updateForm({
-        ...data,
-        showEmailPublicly: !!data.showEmailPublicly,
-        showRealNamePublicly: !!data.showRealNamePublicly,
-        showAgePublicly: !!data.showAgePublicly,
-      });
-
-      hydratedRef.current = true;
-    }
-  }, [data, updateForm]);
-
-  console.log("profile data", data);
-
   const onSubmit = (formData: ProfileTypes) => {
     updateProfileMutation.mutate(formData, {
-      onSuccess: () => {
-        updateForm(formData);
-      },
+      onSuccess: () => updateForm(formData),
     });
     navigation.goBack();
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
-      <View className="px-4 pt-6 pb-10">
+    <ScrollView style={styles.container}>
+      <View style={styles.inner}>
         {/* Avatar */}
-        <View className="items-center mb-8">
-          <Pressable onPress={() => {}} className="relative">
+        <View style={styles.avatarWrapper}>
+          <Pressable style={styles.avatarPressable}>
             <Image
               source={{ uri: "https://i.pravatar.cc/150?img=12" }}
-              className="w-28 h-28 rounded-full"
+              style={styles.avatar}
             />
-
-            <View className="absolute bottom-1 right-1 bg-indigo-600 p-2 rounded-full">
+            <View style={styles.cameraIcon}>
               <Ionicons name="camera" size={16} color="white" />
             </View>
           </Pressable>
         </View>
 
         {/* Form */}
-        <View className="gap-5">
-          <View className="flex flex-row gap-4 justify-between">
-            <View className="flex-1">
-              <InputField
-                label="First Name"
-                name="firstName"
-                control={control}
-              />
+        <View style={styles.form}>
+          <View style={styles.row}>
+            <View style={styles.flex1}>
+              <InputField label="First Name" name="firstName" control={control} />
             </View>
-            <View className="flex-1">
+            <View style={styles.flex1}>
               <InputField label="Last Name" name="lastName" control={control} />
             </View>
           </View>
-          <View className="flex flex-row justify-between gap-4">
-            <View className="flex-1">
+
+          <View style={styles.row}>
+            <View style={styles.flex1}>
               <InputField label="Mobile" name="phoneNumber" control={control} />
             </View>
-            <View className="flex-1">
+            <View style={styles.flex1}>
               <InputField label="Nick Name" name="nickname" control={control} />
             </View>
           </View>
 
           <InputField
-            className="h-36 mb-5 flex justify-start items-start"
             label="Bio"
             name="bio"
             control={control}
+            // style={styles.bio}
           />
-          <View className="mt-24">
-            <Text className="font-semibold">Date of Birth</Text>
-            <View className="flex gap-4 mt-2 flex-row">
-              <View className="flex-1">
+
+          <View style={styles.dobSection}>
+            <Text style={styles.sectionTitle}>Date of Birth</Text>
+            <View style={styles.row}>
+              <View style={styles.flex1}>
                 <InputField
                   name="birthYear"
-                  placeholder={data?.birthYear.toString()}
-                  control={control}
                   label="Year"
-                  className="w-30"
+                  placeholder={data?.birthYear?.toString()}
+                  control={control}
                 />
               </View>
-              <View className="flex-1">
+              <View style={styles.flex1}>
                 <InputField
                   name="birthMonth"
-                  placeholder={data?.birthMonth.toString()}
-                  control={control}
                   label="Month"
-                  className="w-full"
+                  placeholder={data?.birthMonth?.toString()}
+                  control={control}
                 />
               </View>
-              <View className="flex-1">
+              <View style={styles.flex1}>
                 <InputField
                   name="ageRange"
-                  control={control}
                   label="Age Range"
                   placeholder="18-30"
-                  className="w-full"
+                  control={control}
                 />
               </View>
             </View>
           </View>
-          <View className="flex-row gap-3">
-            <View className="flex-1 flex-row items-center  rounded-md">
+
+          {/* Toggles */}
+          <View style={styles.toggleRow}>
+            <View style={styles.toggleItem}>
               <Text>Show Email</Text>
               <Controller
                 control={control}
@@ -179,8 +155,8 @@ const EditProfile = () => {
               />
             </View>
 
-            <View className="flex-1 flex-row items-center rounded-md">
-              <Text>Show RealName</Text>
+            <View style={styles.toggleItem}>
+              <Text>Show Real Name</Text>
               <Controller
                 control={control}
                 name="showRealNamePublicly"
@@ -190,32 +166,114 @@ const EditProfile = () => {
               />
             </View>
           </View>
-          <View className="flex-1 flex-row items-center  rounded-md ">
+
+          <View style={styles.toggleSingle}>
             <Text>Show Age</Text>
             <Controller
               control={control}
               name="showAgePublicly"
               render={({ field: { value, onChange } }) => (
-                <Switch value={value} onValueChange={(v) => onChange(v)} />
+                <Switch value={value ?? false} onValueChange={onChange} />
               )}
             />
           </View>
         </View>
 
         {/* Save */}
-        <Pressable>
-          <TouchableOpacity className="bg-blue-400 py-4 rounded-xl mt-5">
-            <Text
-              className="font-semibold text-white self-center"
-              onPress={handleSubmit(onSubmit)}
-            >
-              Submit
-            </Text>
-          </TouchableOpacity>
-        </Pressable>
+        <TouchableOpacity
+          style={styles.submitButton}
+          onPress={handleSubmit(onSubmit)}
+        >
+          <Text style={styles.submitText}>Submit</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
 };
 
 export default EditProfile;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#F9FAFB", // gray-50
+  },
+  inner: {
+    paddingHorizontal: 16,
+    paddingTop: 24,
+    paddingBottom: 40,
+  },
+
+  avatarWrapper: {
+    alignItems: "center",
+    marginBottom: 32,
+  },
+  avatarPressable: {
+    position: "relative",
+  },
+  avatar: {
+    width: 112,
+    height: 112,
+    borderRadius: 56,
+  },
+  cameraIcon: {
+    position: "absolute",
+    bottom: 4,
+    right: 4,
+    backgroundColor: "#4F46E5", // indigo-600
+    padding: 8,
+    borderRadius: 999,
+  },
+
+  form: {
+    gap: 20,
+  },
+  row: {
+    flexDirection: "row",
+    gap: 16,
+    justifyContent: "space-between",
+  },
+  flex1: {
+    flex: 1,
+  },
+
+  bio: {
+    height: 144,
+    marginBottom: 20,
+  },
+
+  dobSection: {
+    marginTop: 96,
+  },
+  sectionTitle: {
+    fontWeight: "600",
+  },
+
+  toggleRow: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  toggleItem: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  toggleSingle: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+
+  submitButton: {
+    backgroundColor: "#60A5FA", // blue-400
+    paddingVertical: 16,
+    borderRadius: 16,
+    marginTop: 20,
+  },
+  submitText: {
+    color: "white",
+    fontWeight: "600",
+    alignSelf: "center",
+  },
+});

@@ -1,10 +1,9 @@
 import React, { useEffect } from "react";
-import { View, Text, TouchableOpacity, Modal, Pressable } from "react-native";
+import { View, Text, TouchableOpacity, Modal, Pressable, StyleSheet } from "react-native";
 import { BlurView } from "expo-blur";
 import { useForm } from "react-hook-form";
-import { partySchema, sourceSchema } from "@/services/schemas/admin_schema";
+import { Source, sourceSchema } from "@/services/schemas/admin_schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { usePartyMutations } from "@/services/mutations/admin_mutation";
 import { InputField } from "../ui/InputField";
 
 type sourceForm = {
@@ -17,8 +16,8 @@ type Props = {
   visible: boolean;
   onClose: () => void;
   mode?: "create" | "edit";
-  initialData?: sourceForm;
-  onSubmitForm: (data: sourceForm) => void;
+  initialData?: Source;
+  onSubmitForm: (data: Source) => void;
 };
 
 export default function SourceModal({
@@ -28,12 +27,7 @@ export default function SourceModal({
   initialData,
   onSubmitForm,
 }: Props) {
-
-  const {
-    control,
-    handleSubmit,
-    reset,
-  } = useForm<sourceForm>({
+  const { control, handleSubmit, reset } = useForm<Source>({
     defaultValues: {
       name: "",
       url: "",
@@ -42,7 +36,6 @@ export default function SourceModal({
     resolver: zodResolver(sourceSchema),
   });
 
-  // Load data in edit mode
   useEffect(() => {
     if (mode === "edit" && initialData) {
       reset(initialData);
@@ -53,39 +46,37 @@ export default function SourceModal({
 
   return (
     <Modal visible={visible} transparent animationType="fade">
-      <View className="flex-1 justify-center items-center">
-
+      <View style={styles.container}>
         {/* Background */}
-        <Pressable onPress={onClose} className="absolute inset-0 bg-black/40" />
-        <BlurView intensity={20} tint="dark" className="absolute inset-0" />
+        <Pressable onPress={onClose} style={styles.backdrop} />
+        <BlurView intensity={20} tint="dark" style={styles.blur} />
 
         {/* Modal Card */}
-        <View className="w-[90%] max-w-[420px] bg-white rounded-2xl p-5 shadow-2xl">
-
+        <View style={styles.modalCard}>
           {/* Header */}
-          <View className="flex-row justify-between items-center">
-            <Text className="text-lg font-semibold">
+          <View style={styles.header}>
+            <Text style={styles.headerText}>
               {mode === "edit" ? "Edit Source" : "Create Source"}
             </Text>
-
             <TouchableOpacity onPress={onClose}>
-              <Text className="text-xl font-bold">×</Text>
+              <Text style={styles.closeButton}>×</Text>
             </TouchableOpacity>
           </View>
 
           {/* Form */}
-          <View className="mt-4 gap-3">
+          <View style={styles.form}>
             <InputField
               label="Source Name"
               placeholder="Enter source name"
               name="name"
+              required
               control={control}
             />
-
             <InputField
               label="Source URL"
               placeholder="Enter source URL"
               name="url"
+              required
               control={control}
             />
             <InputField
@@ -97,19 +88,87 @@ export default function SourceModal({
           </View>
 
           {/* Footer */}
-          <View className="flex-row justify-center gap-3 mt-6 ">
+          <View style={styles.footer}>
             <TouchableOpacity
               onPress={handleSubmit(onSubmitForm)}
-              className="bg-blue-600 px-4 py-2 rounded-2xl self-center"
+              style={styles.submitButton}
             >
-              <Text className="text-white">
+              <Text style={styles.submitButtonText}>
                 {mode === "edit" ? "Update" : "Save"}
               </Text>
             </TouchableOpacity>
           </View>
-
         </View>
       </View>
     </Modal>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  backdrop: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "rgba(0,0,0,0.4)",
+  },
+  blur: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  modalCard: {
+    width: "90%",
+    maxWidth: 420,
+    backgroundColor: "#ffffff",
+    borderRadius: 24,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  headerText: {
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  closeButton: {
+    fontSize: 24,
+    fontWeight: "700",
+  },
+  form: {
+    marginTop: 16,
+    gap: 12, // Note: 'gap' works in RN 0.71+, otherwise use marginBottom for each InputField
+  },
+  footer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 24,
+    gap: 12,
+  },
+  submitButton: {
+    backgroundColor: "#2563eb", // Tailwind blue-600
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 24,
+    alignSelf: "center",
+  },
+  submitButtonText: {
+    color: "#ffffff",
+    textAlign: "center",
+  },
+});

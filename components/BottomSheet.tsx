@@ -1,4 +1,5 @@
 import { MenuItem } from "@/lib/helpers/profileHelper";
+import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { X } from "lucide-react-native";
 import React from "react";
@@ -72,7 +73,7 @@ export const TagsBottomSheet: React.FC<TagsBottomSheetProps> = ({
                   icon="settings-outline"
                   label="Questions"
                   arrowicon="chevron-forward"
-                  onPress={() => router.push("/settings")}
+                  onPress={() => handleNavigate("/(admin)/questions")}
                 />
               </View>
 

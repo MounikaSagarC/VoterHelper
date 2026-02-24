@@ -29,3 +29,8 @@ export async function logoutUser(){
     const res = await api.post(`/v1/auth/logout`)
     return res.data
 }
+
+export async function refreshToken(){
+  const res = await api.get("/v1/auth/refresh")
+  return res.data
+}

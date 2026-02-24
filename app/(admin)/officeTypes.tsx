@@ -1,17 +1,18 @@
 import { SwipeToDeleteCard } from "@/components/Cards/SwipeToDelete";
 import FloatingActionButton from "@/components/FloatingButton";
 import OfficeModal from "@/components/Modal/OfficeModal";
-import { deleteOfficeType, getOfficeTypes } from "@/services/api/officeType";
+import { getOfficeTypes } from "@/services/api/officeType";
 import { useOfficeTypeMutattions } from "@/services/mutations/office_mutation";
 import { OfficeType } from "@/services/schemas/admin_schema";
 import { AntDesign } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { MoreVertical, Pencil } from "lucide-react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FlatList,
   Pressable,
   StyleSheet,
+  Switch,
   Text,
   TouchableWithoutFeedback,
   View,
@@ -22,9 +23,13 @@ const OfferCard = () => {
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [selectedOffice, setSelectedOffice] = useState<OfficeType | null>(null);
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [officeState, setOfficeState] = useState<Record<number, boolean>>({});
 
-  const { createOfficeTypeMutate, updateOfficeTypeMutate, deleteOfficeTypeMutate } =
-    useOfficeTypeMutattions();
+  const {
+    createOfficeTypeMutate,
+    updateOfficeTypeMutate,
+    deleteOfficeTypeMutate,
+  } = useOfficeTypeMutattions();
 
   const handlePress = () => {
     setSelectedOffice(null);
@@ -33,7 +38,6 @@ const OfferCard = () => {
   };
 
   const handleDeleteCategory = async (addressId: number | undefined) => {
-    console.log("Attempting to delete category with ID:", addressId); // DEBUG
     if (addressId === undefined) {
       return;
     }
@@ -49,11 +53,32 @@ const OfferCard = () => {
     queryFn: getOfficeTypes,
   });
 
+  useEffect(() => {
+    if (officeTypes) {
+      const state: Record<number, boolean> = {};
+      officeTypes.forEach((p) => {
+        state[p.id] = p.status ?? false; // make sure status exists
+      });
+      setOfficeState(state);
+    }
+  }, [officeTypes]);
+
+  const handleToggle = (id: number) => {
+    console.log("button clicked");
+    setOfficeState((prev) => ({ ...prev, [id]: !prev[id] }));
+    deleteOfficeTypeMutate.mutate(id);
+  };
+
+  console.log("OfficeTypes",officeTypes)
+
   const renderItem = ({ item: officeType }: { item: OfficeType }) => {
     const isMenuOpen = openMenuId !== null && openMenuId === officeType.id;
 
     return (
-      <SwipeToDeleteCard key={officeType.id ?? ""} onDelete={() => handleDeleteCategory(officeType.id)}>
+      <SwipeToDeleteCard
+        key={officeType.id ?? ""}
+        onDelete={() => handleDeleteCategory(officeType.id)}
+      >
         <TouchableWithoutFeedback onPress={() => setOpenMenuId(null)}>
           <View style={styles.card}>
             {/* Header */}
@@ -77,7 +102,7 @@ const OfferCard = () => {
                 </Pressable>
 
                 {isMenuOpen && (
-                  <View style={styles.menu}>
+                  <Pressable style={styles.menu} onPress={() => {}}>
                     <Pressable
                       style={styles.menuItem}
                       onPress={() => {
@@ -91,17 +116,14 @@ const OfferCard = () => {
                       <Text style={styles.menuText}>Edit</Text>
                     </Pressable>
 
-                    {/* <Pressable
-                      style={styles.menuItem}
-                      onPress={() => {
-                        setOpenMenuId(null);
-                        console.log("Switch:", officeType.id);
-                      }}
-                    >
-                      <ToggleRight size={16} color="#374151" />
-                      <Text style={styles.menuText}>Switch</Text>
-                    </Pressable> */}
-                  </View>
+                    <View style={styles.actions}>
+                      <Text>Status:</Text>
+                      <Switch
+                        value={officeState[officeType.id]}
+                        onValueChange={() => handleToggle(officeType.id!)}
+                      />
+                    </View>
+                  </Pressable>
                 )}
               </View>
             </View>
@@ -118,6 +140,11 @@ const OfferCard = () => {
             <View style={styles.row}>
               <Text style={styles.label}>Jurisdiction Level</Text>
               <Text style={styles.value}>{officeType.jurisdictionLevel}</Text>
+            </View>
+
+            <View style={styles.row}>
+              <Text style={styles.label}>Status</Text>
+              <Text style={styles.value}>{officeType.status?"Active":"InActive"}</Text>
             </View>
           </View>
         </TouchableWithoutFeedback>
@@ -152,6 +179,7 @@ const OfferCard = () => {
               name: formData.name,
               description: formData.description,
               displayOrder: formData.displayOrder,
+              status: formData.status,
             });
           }
           setOpen(false);
@@ -184,6 +212,14 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "700",
     color: "#111827",
+  },
+  actions: {
+    width: 64,
+    flexDirection: "row",
+    alignItems:"center",
+    gap: 16,
+    marginRight: 20,
+    marginLeft:10
   },
   statusBadge: {
     marginTop: 6,
@@ -221,7 +257,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 24,
     right: 0,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "white",
+    padding:10,
     borderRadius: 12,
     paddingVertical: 6,
     width: 140,

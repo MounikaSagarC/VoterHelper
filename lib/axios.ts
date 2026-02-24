@@ -20,21 +20,32 @@ class ApiError extends Error {
   }
 }
 
+let isRefreshing = false;
+let refreshQueue: ((token: string) => void)[] = [];
+
+function onRefreshed(token: string) {
+  refreshQueue.forEach((cb) => cb(token));
+  refreshQueue = [];
+}
+
 function attachTokenInterceptor(instance: AxiosInstance) {
   instance.interceptors.request.use(
     (config) => {
       // Skip auth routes
-      if (config.url?.includes("/login") || config.url?.includes("/register")) {
+      if (
+        config.url?.includes("/login") ||
+        config.url?.includes("/register") ||
+        config.url?.includes("/refresh")
+      ) {
         return config;
       }
 
       const { accessToken } = useAuthStore.getState();
 
-      if (!accessToken) {
-        return Promise.reject(new Error("No access token found"));
+      if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
       }
 
-      config.headers.Authorization = `Bearer ${accessToken}`;
       return config;
     },
     (error) => Promise.reject(error),
@@ -44,12 +55,62 @@ function attachTokenInterceptor(instance: AxiosInstance) {
 function attachErrorInterceptor(instance: AxiosInstance) {
   instance.interceptors.response.use(
     (response) => response,
-    (error) => {
+    async (error) => {
       const status = error?.response?.status ?? 0;
       const message =
         error?.response?.data?.message ??
         error?.message ??
         "Something went wrong";
+
+      const originalRequest = error.config;
+
+      // 🔁 ADDITION: refresh token handling (minimal)
+      if (status === 401 && !originalRequest?._retry) {
+        if (isRefreshing) {
+          return new Promise((resolve) => {
+            refreshQueue.push((token) => {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+              resolve(instance(originalRequest));
+            });
+          });
+        }
+
+        originalRequest._retry = true;
+        isRefreshing = true;
+
+        try {
+          const { refreshToken } = useAuthStore.getState();
+          if (!refreshToken) throw new Error("No refresh token");
+
+          const res = await axios.get(
+            `${process.env.EXPO_PUBLIC_API_URL}/v1/auth/refresh`,
+            {
+              headers: {
+                Authorization: `Bearer ${refreshToken}`,
+              },
+            }
+          );
+
+          const { accessToken } = res.data;
+
+          useAuthStore.setState({
+            accessToken,
+            isAuthenticated: true,
+          });
+
+          isRefreshing = false;
+          onRefreshed(accessToken);
+
+          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+          return instance(originalRequest);
+        } catch (e) {
+          isRefreshing = false;
+          refreshQueue = [];
+          useAuthStore.getState().logout();
+        }
+      }
+
+      // ⬇️ ORIGINAL LOGIC — UNCHANGED ⬇️
 
       if (error.code === "ECONNABORTED") {
         return Promise.reject(
@@ -84,7 +145,7 @@ function attachErrorInterceptor(instance: AxiosInstance) {
 
 function createApiClient(): AxiosInstance {
   const instance = axios.create({
-    baseURL:process.env.EXPO_PUBLIC_API_URL,
+    baseURL: process.env.EXPO_PUBLIC_API_URL,
     ...defaultConfigs,
   });
 

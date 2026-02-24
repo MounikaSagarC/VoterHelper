@@ -5,12 +5,12 @@ import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   ImageBackground,
-  Pressable,
   ScrollView,
   Switch,
   Text,
   TouchableOpacity,
   View,
+  StyleSheet,
 } from "react-native";
 
 import {
@@ -18,13 +18,11 @@ import {
   useStateMutation,
   useZipcodeMutation,
 } from "@/services/mutations/address_mutation";
-
 import {
   usePostAddressMutation,
   useUpdateAddressMutation,
 } from "@/services/mutations/profile_mutation";
 
-import Map from "@/components/screens/Map";
 import { InputField } from "@/components/ui/InputField";
 import { FormCombo } from "@/lib/helpers/formCombo";
 import { addressSchema, AddressType } from "@/services/schemas/profileSchema";
@@ -76,15 +74,23 @@ const AddressForm = () => {
     reset: resetStore,
   } = useAddressStore();
 
-  const selectedState = states.find((s) => s.value === stateId) ?? null;
+  const stateOptions =
+  states?.map((item: any) => ({
+    label: item.state,
+    value: String(item.id),
+  })) ?? [];
+
+  console.log("state",states)
+
+  const selectedState = stateOptions.find((s) => s.value === stateId) ?? null;
   const selectedCounty = counties.find((c) => c.value === countyId) ?? null;
   const selectedCity = cities.find((ci) => ci.value === cityId) ?? null;
   const selectedZipcode = zipcodes.find((z) => z.value === zipcode) ?? null;
 
+  console.log(selectedState)
+
   const { mutate: fetchStates } = useStateMutation();
-
   const { mutate: fetchCounties } = useCountyMutation();
-
   const { mutate: fetchZipcodes } = useZipcodeMutation();
 
   const { postAddressMutate } = usePostAddressMutation();
@@ -124,45 +130,54 @@ const AddressForm = () => {
   }, [isEditMode]);
 
   useEffect(() => {
-    if (!isEditMode || !parsedAddress) return;
-    if (hydratedRef.current.state) return;
-
+    if (!isEditMode || !parsedAddress || hydratedRef.current.state) return;
     hydratedRef.current.state = true;
-
     reset(parsedAddress);
     selectState(parsedAddress.state);
     setValue("state", parsedAddress.state);
-  }, [isEditMode, parsedAddress]);
+  }, [parsedAddress]);
 
   useEffect(() => {
-    if (!isEditMode || !parsedAddress) return;
-    if (!stateId || !counties.length) return;
-    if (hydratedRef.current.county) return;
+    if (
+      !isEditMode ||
+      !parsedAddress ||
+      !stateId ||
+      !counties.length ||
+      hydratedRef.current.county
+    )
+      return;
 
     hydratedRef.current.county = true;
-
     selectCounty(parsedAddress.county);
     setValue("county", parsedAddress.county);
   }, [stateId, counties]);
 
   useEffect(() => {
-    if (!isEditMode || !parsedAddress) return;
-    if (!countyId || !Object.keys(zipCodeMap).length) return;
-    if (hydratedRef.current.city) return;
+    if (
+      !isEditMode ||
+      !parsedAddress ||
+      !countyId ||
+      !Object.keys(zipCodeMap).length ||
+      hydratedRef.current.city
+    )
+      return;
 
     hydratedRef.current.city = true;
-
     selectCity(parsedAddress.city);
     setValue("city", parsedAddress.city);
   }, [countyId, zipCodeMap]);
 
   useEffect(() => {
-    if (!isEditMode || !parsedAddress) return;
-    if (!cityId || !zipcodes.length) return;
-    if (hydratedRef.current.zip) return;
+    if (
+      !isEditMode ||
+      !parsedAddress ||
+      !cityId ||
+      !zipcodes.length ||
+      hydratedRef.current.zip
+    )
+      return;
 
     hydratedRef.current.zip = true;
-
     selectZipcode(parsedAddress.zipCode);
     setValue("zipCode", parsedAddress.zipCode);
   }, [cityId, zipcodes]);
@@ -176,19 +191,19 @@ const AddressForm = () => {
           id: parsedAddress.id,
           data,
         });
-
-        router.back();
       } else {
         await postAddressMutate.mutateAsync(data);
         reset();
-        router.back();
       }
+
+      router.back();
     } catch (error: unknown) {
       const message = isAxiosError(error)
         ? error.response?.data?.message || error.message
         : error instanceof Error
-          ? error.message
-          : "Something went wrong";
+        ? error.message
+        : "Something went wrong";
+
       setError("root", { message });
     } finally {
       setLoading(false);
@@ -196,159 +211,211 @@ const AddressForm = () => {
   };
 
   return (
-  <ImageBackground
-    source={require("@/assets/images/maps.webp")} // your image
-    style={{ flex: 1 }}
-    imageStyle={{ opacity: 0.7 }} // light opacity
-    resizeMode="cover"
-  >
-    {/* Optional overlay for better readability */}
-    <View style={{ flex: 1, backgroundColor: "rgba(255,255,255,0.85)" }}>
-      <View className="mt-5 flex-1">
-        <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-          <View className="px-3 gap-4">
-            {/* Address Line 1 */}
-            <InputField
-              label="Address Line 1"
-              name="addressLine1"
-              control={control}
-              required
-            />
-
-            <InputField
-              label="Address Line 2"
-              name="addressLine2"
-              control={control}
-            />
-
-            {/* State + County */}
-            <View className="flex flex-row gap-6">
-              <View className="flex-1">
-                <Controller
-                  control={control}
-                  name="state"
-                  render={({ fieldState: { error } }) => (
-                    <View>
-                      <FormCombo
-                        label="State"
-                        value={selectedState}
-                        options={states}
-                        onSelect={(o) => {
-                          selectState(o.value);
-                          setValue("state", o.value);
-                        }}
-                      />
-                      {error && (
-                        <Text className="text-red-500">{error.message}</Text>
-                      )}
-                    </View>
-                  )}
-                />
-              </View>
-
-              <View className="flex-1">
-                <Controller
-                  control={control}
-                  name="county"
-                  render={({ fieldState: { error } }) => (
-                    <View>
-                      <FormCombo
-                        label="County"
-                        value={selectedCounty}
-                        options={counties}
-                        onSelect={(o) => {
-                          selectCounty(o.value);
-                          setValue("county", o.value);
-                        }}
-                      />
-                      {error && (
-                        <Text className="text-red-500">{error.message}</Text>
-                      )}
-                    </View>
-                  )}
-                />
-              </View>
-            </View>
-
-            {/* City + Zip */}
-            <View className="flex flex-row gap-6">
-              <Controller
+    <ImageBackground
+      source={require("@/assets/images/maps.webp")}
+      style={styles.bg}
+      imageStyle={styles.bgImage}
+      resizeMode="cover"
+    >
+      <View style={styles.overlay}>
+        <View style={styles.wrapper}>
+          <ScrollView contentContainerStyle={styles.scroll}>
+            <View style={styles.form}>
+              <InputField
+                label="Address Line 1"
+                name="addressLine1"
                 control={control}
-                name="city"
-                render={({ fieldState: { error } }) => (
-                  <View className="flex-1">
-                    <FormCombo
-                      label="City"
-                      value={selectedCity}
-                      options={cities}
-                      onSelect={(o) => {
-                        selectCity(o.value);
-                        setValue("city", o.value);
-                      }}
-                    />
-                    {error && (
-                      <Text className="text-red-500">{error.message}</Text>
-                    )}
-                  </View>
-                )}
+                required
               />
 
-              <Controller
+              <InputField
+                label="Address Line 2"
+                name="addressLine2"
                 control={control}
-                name="zipCode"
-                render={({ fieldState: { error } }) => (
-                  <View className="flex-1">
-                    <FormCombo
-                      label="Zip Code"
-                      value={selectedZipcode}
-                      options={zipcodes}
-                      onSelect={(o) => {
-                        selectZipcode(o.value);
-                        setValue("zipCode", o.value);
-                      }}
-                    />
-                    {error && (
-                      <Text className="text-red-500">{error.message}</Text>
-                    )}
-                  </View>
-                )}
               />
-            </View>
 
-            {/* Primary Switch */}
-            <Controller
-              control={control}
-              name="isPrimary"
-              render={({ field: { value, onChange } }) => (
-                <View className="flex flex-row-reverse items-center justify-end">
-                  <Text>Set as Primary Address</Text>
-                  <Switch value={value} onValueChange={onChange} />
+              <View style={styles.row}>
+                <View style={styles.flex1}>
+                  <Controller
+                    control={control}
+                    name="state"
+                    render={({ fieldState: { error } }) => (
+                      <>
+                        <FormCombo
+                          label="State"
+                          value={selectedState}
+                          options={stateOptions}
+                          onSelect={(o) => {
+                            selectState(o.value);
+                            setValue("state", o.value);
+                          }}
+                        />
+                        {error && (
+                          <Text style={styles.error}>{error.message}</Text>
+                        )}
+                      </>
+                    )}
+                  />
                 </View>
+
+                <View style={styles.flex1}>
+                  <Controller
+                    control={control}
+                    name="county"
+                    render={({ fieldState: { error } }) => (
+                      <>
+                        <FormCombo
+                          label="County"
+                          value={selectedCounty}
+                          options={counties}
+                          onSelect={(o) => {
+                            selectCounty(o.value);
+                            setValue("county", o.value);
+                          }}
+                        />
+                        {error && (
+                          <Text style={styles.error}>{error.message}</Text>
+                        )}
+                      </>
+                    )}
+                  />
+                </View>
+              </View>
+
+              <View style={styles.row}>
+                <View style={styles.flex1}>
+                  <Controller
+                    control={control}
+                    name="city"
+                    render={({ fieldState: { error } }) => (
+                      <>
+                        <FormCombo
+                          label="City"
+                          value={selectedCity}
+                          options={cities}
+                          onSelect={(o) => {
+                            selectCity(o.value);
+                            setValue("city", o.value);
+                          }}
+                        />
+                        {error && (
+                          <Text style={styles.error}>{error.message}</Text>
+                        )}
+                      </>
+                    )}
+                  />
+                </View>
+
+                <View style={styles.flex1}>
+                  <Controller
+                    control={control}
+                    name="zipCode"
+                    render={({ fieldState: { error } }) => (
+                      <>
+                        <FormCombo
+                          label="Zip Code"
+                          value={selectedZipcode}
+                          options={zipcodes}
+                          onSelect={(o) => {
+                            selectZipcode(o.value);
+                            setValue("zipCode", o.value);
+                          }}
+                        />
+                        {error && (
+                          <Text style={styles.error}>{error.message}</Text>
+                        )}
+                      </>
+                    )}
+                  />
+                </View>
+              </View>
+
+              <Controller
+                control={control}
+                name="isPrimary"
+                render={({ field: { value, onChange } }) => (
+                  <View style={styles.primaryRow}>
+                    <Text>Set as Primary Address</Text>
+                    <Switch value={value} onValueChange={onChange} />
+                  </View>
+                )}
+              />
+
+              <TouchableOpacity
+                style={styles.submit}
+                onPress={handleSubmit(onSubmit)}
+                disabled={loading}
+              >
+                <Text style={styles.submitText}>
+                  {loading ? "Saving..." : "Submit"}
+                </Text>
+              </TouchableOpacity>
+
+              {errors.root?.message && (
+                <Text style={styles.errorCenter}>
+                  {errors.root.message}
+                </Text>
               )}
-            />
-
-            <TouchableOpacity
-              className="bg-blue-500 py-4 rounded-xl mt-5"
-              onPress={handleSubmit(onSubmit)}
-              disabled={loading}
-            >
-              <Text className="font-semibold text-white self-center">
-                {loading ? "Saving..." : "Submit"}
-              </Text>
-            </TouchableOpacity>
-
-            {errors.root?.message && (
-              <Text className="text-red-500 self-center">
-                {errors.root.message}
-              </Text>
-            )}
-          </View>
-        </ScrollView>
+            </View>
+          </ScrollView>
+        </View>
       </View>
-    </View>
-  </ImageBackground>
-);
-
+    </ImageBackground>
+  );
 };
 
 export default AddressForm;
+
+const styles = StyleSheet.create({
+  bg: {
+    flex: 1,
+  },
+  bgImage: {
+    opacity: 0.7,
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(255,255,255,0.85)",
+  },
+  wrapper: {
+    marginTop: 20,
+    flex: 1,
+  },
+  scroll: {
+    paddingBottom: 40,
+  },
+  form: {
+    paddingHorizontal: 12,
+    gap: 16,
+  },
+  row: {
+    flexDirection: "row",
+    gap: 24,
+  },
+  flex1: {
+    flex: 1,
+  },
+  primaryRow: {
+    flexDirection: "row-reverse",
+    alignItems: "center",
+    justifyContent: "flex-end",
+  },
+  submit: {
+    backgroundColor: "#3B82F6", // blue-500
+    paddingVertical: 16,
+    borderRadius: 16,
+    marginTop: 20,
+  },
+  submitText: {
+    color: "white",
+    fontWeight: "600",
+    alignSelf: "center",
+  },
+  error: {
+    color: "#EF4444",
+  },
+  errorCenter: {
+    color: "#EF4444",
+    alignSelf: "center",
+  },
+});

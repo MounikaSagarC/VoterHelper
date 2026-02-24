@@ -34,7 +34,7 @@ export const FormCombo = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 12,
+    marginBottom: 1,
   },
   labelRow: {
     flexDirection: "row",

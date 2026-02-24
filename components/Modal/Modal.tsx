@@ -61,7 +61,7 @@ export default function PartyModal({
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.title}>
-              {mode === "edit" ? "Edit Party" : "Create Party"}
+              {mode === "edit" ? "Update Party" : "Add Party"}
             </Text>
 
             <TouchableOpacity onPress={onClose}>
@@ -75,6 +75,7 @@ export default function PartyModal({
               label="Party Code"
               placeholder="Enter party code"
               name="partyCode"
+              required
               control={control}
             />
 
@@ -82,6 +83,7 @@ export default function PartyModal({
               label="Party Name"
               placeholder="Enter party name"
               name="partyName"
+              required
               control={control}
             />
           </View>
@@ -132,6 +134,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    borderBottomWidth:1,
+    borderColor:"gray"
   },
   title: {
     fontSize: 18,
@@ -143,7 +147,7 @@ const styles = StyleSheet.create({
   },
   form: {
     marginTop: 16,
-    gap: 12,
+    gap: 22,
   },
   footer: {
     flexDirection: "row",

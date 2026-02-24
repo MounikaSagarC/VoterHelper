@@ -1,6 +1,5 @@
 import FloatingBackground from "@/components/Background";
 import { InputField } from "@/components/ui/InputField";
-import "@/global.css";
 import { signUp } from "@/services/api/auth";
 import {
   registerformSchema,
@@ -11,7 +10,13 @@ import { isAxiosError } from "axios";
 import { Link } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Image, Pressable, Text, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { RadioButton } from "react-native-paper";
 
 export default function Signup() {
@@ -29,7 +34,7 @@ export default function Signup() {
       lastName: "",
       email: "",
       password: "",
-      role: "VOTER", // 👈 CRITICAL
+      role: "VOTER",
     },
   });
 
@@ -41,129 +46,116 @@ export default function Signup() {
       const message = isAxiosError(error)
         ? error.response?.data?.message || error.message
         : error instanceof Error
-          ? error.message
-          : "An error occurred while logging in";
+        ? error.message
+        : "An error occurred while logging in";
       setError("root", { message });
     }
   };
 
   return (
-    <View className="flex-1 bg-cyan-200">
-      <View className="flex-1 bg-[#9becf2]/20 justify-center items-center">
+    <View style={styles.root}>
+      <View style={styles.container}>
         <FloatingBackground />
 
-        {/* Glassmorphism Login Form */}
-        <View className="bg-white/30 border border-white/30 backdrop-blur-xl rounded-2xl px-6 pt-8  pb-10 mx-3">
-          <View className="gap-4">
-            <View>
+        {/* Glass Card */}
+        <View style={styles.card}>
+          <View style={styles.formGap}>
+            <View style={styles.header}>
               <Image
-                style={{
-                  width: 300,
-                  height: 80,
-                  resizeMode: "contain",
-                }}
                 source={require("../../assets/images/image__3.png")}
+                style={styles.logo}
               />
-              <Text className="self-center font-medium text-black mt-1">
-                Create an Account
-              </Text>
+              <Text style={styles.title}>Create an Account</Text>
             </View>
+
             {/* First Name */}
-            <View className="flex flex-col justify-start mt-5">
-              <View className="flex flex-row  border-white/30 rounded-3xl gap-2 px-2">
-                <InputField
-                  // icon="email"
-                  label="First Name"
-                  name="firstName"
-                  control={control}
-                  className="w-[300]"
-                />
-              </View>
+            <View style={styles.fieldWrapper}>
+              <InputField
+                label="First Name"
+                name="firstName"
+                control={control}
+                // style={styles.inputWidth}
+              />
             </View>
+
             {/* Last Name */}
-            <View className="flex flex-col justify-start">
-              <View className="flex flex-row  border-white/30 rounded-3xl gap-2 px-2">
-
-                <InputField
-                  // icon="email"
-                  label="Last Name"
-                  name="lastName"
-                  control={control}
-                  className="w-[300]"
-                />
-              </View>
-            </View>
-            {/* Email Field */}
-            <View className="flex flex-col justify-start">
-              <View className="flex flex-row  border-white/30 rounded-3xl gap-2 px-2">
-                <InputField
-                  // icon="email"
-                  label="Email Address"
-                  name="email"
-                  control={control}
-                  className="w-[300]"
-                />
-              </View>
-            </View>
-            {/* Password Field */}
-            <View className="flex flex-col justify-start">
-              <View className="flex flex-row justify-between rounded-3xl gap-2 px-2 bg-white/10">
-                <View className="flex flex-row flex-1">
-                  <InputField
-                  // icon="email"
-                  label="Password"
-                  name="password"
-                  pwdIcon={true}
-                  control={control}
-                  className="w-[300]"
-                />
-                </View>
-              </View>
+            <View style={styles.fieldWrapper}>
+              <InputField
+                label="Last Name"
+                name="lastName"
+                control={control}
+                // style={styles.inputWidth}
+              />
             </View>
 
-            <View className="flex flex-col justify-start">
-              <View className="flex flex-row justify-between rounded-2xl px-3 bg-white/10 ">
-                <View className="flex flex-row flex-1 items-center">
-                  <Text className="font-semibold text-lg">Register as:</Text>
+            {/* Email */}
+            <View style={styles.fieldWrapper}>
+              <InputField
+                label="Email Address"
+                name="email"
+                control={control}
+                // style={styles.inputWidth}
+              />
+            </View>
 
-                  <Controller
-                    control={control}
-                    name="role"
-                    render={({ field: { value, onChange } }) => (
-                      <RadioButton.Group value={value} onValueChange={onChange}>
-                        <View className="flex flex-row">
-                          <RadioButton.Item label="Voter" value="ROLE_USER" />
-                          <RadioButton.Item
-                            label="Candidate"
-                            value="ROLE_CANDIDATE"
-                          />
-                        </View>
-                      </RadioButton.Group>
-                    )}
-                  />
-                </View>
-              </View>
+            {/* Password */}
+            <View style={styles.passwordWrapper}>
+              <InputField
+                label="Password"
+                name="password"
+                pwdIcon
+                control={control}
+                // style={styles.inputWidth}
+              />
+            </View>
+
+            {/* Role Selection */}
+            <View style={styles.roleContainer}>
+              <Text style={styles.roleLabel}>Register as:</Text>
+
+              <Controller
+                control={control}
+                name="role"
+                render={({ field: { value, onChange } }) => (
+                  <RadioButton.Group
+                    value={value}
+                    onValueChange={onChange}
+                  >
+                    <View style={styles.radioRow}>
+                      <RadioButton.Item
+                        label="Voter"
+                        value="ROLE_USER"
+                      />
+                      <RadioButton.Item
+                        label="Candidate"
+                        value="ROLE_CANDIDATE"
+                      />
+                    </View>
+                  </RadioButton.Group>
+                )}
+              />
             </View>
           </View>
-          <Text className="text-black mt-2 self-end">Forgot Password ?</Text>
-          {/* Button */}
+
+          <Text style={styles.forgot}>Forgot Password ?</Text>
+
+          {/* Submit Button */}
           <Pressable
             onPress={handleSubmit(onSubmit)}
-            className="bg-blue-400 py-4 rounded-xl mt-5"
+            style={styles.button}
           >
-            <Text className="text-center text-white font-bold text-lg">
-              Sign Up
-            </Text>
+            <Text style={styles.buttonText}>Sign Up</Text>
           </Pressable>
+
           {errors.root?.message && (
-            <Text className="text-red-500 self-center">
+            <Text style={styles.errorText}>
               {errors.root.message}
             </Text>
           )}
 
-          <Text className="text-center mt-3 text-black">
+          <Text style={styles.footerText}>
             Already in VoterHelper?{" "}
-            <Link href={"/(auth)/login"} className="underline px-5 mx-5">
+            <Link href="/(auth)/login" style={styles.link}>
               Sign In
             </Link>
           </Text>
@@ -172,3 +164,101 @@ export default function Signup() {
     </View>
   );
 }
+
+/* ---------------- STYLES ---------------- */
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: "#A5F3FC", // cyan-200
+  },
+  container: {
+    flex: 1,
+    backgroundColor: "rgba(155, 236, 242, 0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  card: {
+    backgroundColor: "rgba(255,255,255,0.3)",
+    borderColor: "rgba(255,255,255,0.3)",
+    borderWidth: 1,
+    borderRadius: 16,
+    paddingHorizontal: 24,
+    paddingTop: 32,
+    paddingBottom: 40,
+    marginHorizontal: 12,
+  },
+  formGap: {
+    gap: 16,
+  },
+  header: {
+    alignItems: "center",
+  },
+  logo: {
+    width: 300,
+    height: 80,
+    resizeMode: "contain",
+  },
+  title: {
+    marginTop: 4,
+    fontWeight: "500",
+    color: "#000",
+  },
+  fieldWrapper: {
+    marginTop: 8,
+    paddingHorizontal: 8,
+  },
+  passwordWrapper: {
+    paddingHorizontal: 8,
+    borderRadius: 24,
+    backgroundColor: "rgba(255,255,255,0.1)",
+  },
+  inputWidth: {
+    width: 300,
+  },
+  roleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.1)",
+  },
+  roleLabel: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginRight: 8,
+  },
+  radioRow: {
+    flexDirection: "row",
+  },
+  forgot: {
+    marginTop: 8,
+    alignSelf: "flex-end",
+    color: "#000",
+  },
+  button: {
+    backgroundColor: "#60A5FA",
+    paddingVertical: 16,
+    borderRadius: 12,
+    marginTop: 20,
+  },
+  buttonText: {
+    textAlign: "center",
+    color: "#FFF",
+    fontSize: 18,
+    fontWeight: "700",
+  },
+  errorText: {
+    color: "red",
+    alignSelf: "center",
+    marginTop: 8,
+  },
+  footerText: {
+    textAlign: "center",
+    marginTop: 12,
+    color: "#000",
+  },
+  link: {
+    textDecorationLine: "underline",
+  },
+});

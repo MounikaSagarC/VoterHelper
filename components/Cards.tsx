@@ -38,7 +38,6 @@ const SwipeableAddressRow = ({
 
   const { isVisible, open, close } = useAlertDialog();
 
-  console.log(getStateLabel(address.state), getCountyLabel(address.county));
 
   useEffect(() => {
     const listenerId = translateX.addListener(({ value }) => {

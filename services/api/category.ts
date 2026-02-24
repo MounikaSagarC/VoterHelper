@@ -3,6 +3,7 @@ import { Category } from "../schemas/admin_schema";
 
 export const fetchCategories = async () => {
   const res = await api.get(`/v1/admin/categories`);
+  console.log("categories",res.data.data)
   return res.data.data;
 }
 

@@ -68,7 +68,7 @@ const PartyScreen = () => {
   return (
     <View style={styles.container}>
       {/* HEADER */}
-      <View style={styles.headerWrapper}>
+      {/* <View style={styles.headerWrapper}>
         <LinearGradient
           colors={["#0cc48b", "#0D9488", "#0E7490"]}
           start={{ x: 0.6, y: 0 }}
@@ -77,7 +77,7 @@ const PartyScreen = () => {
         >
           <Text style={styles.headerText}>Parties</Text>
         </LinearGradient>
-      </View>
+      </View> */}
 
       {/* TABLE */}
       <View style={styles.table}>
@@ -90,7 +90,7 @@ const PartyScreen = () => {
         >
           <Text style={styles.codeHeader}>PARTY CODE</Text>
           <Text style={styles.nameHeader}>PARTY NAME</Text>
-          <Text style={styles.actionHeader}>ACTIONS</Text>
+          <Text style={styles.actionHeader}>ACTION</Text>
         </LinearGradient>
 
         {/* Rows */}
@@ -196,6 +196,7 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
   table: {
+    marginTop:40,
     backgroundColor: "#fff",
     borderRadius: 16,
     overflow: "hidden",

@@ -6,9 +6,11 @@ import { deleteQuestion, postQuestion, updateQuestion } from "../api/questions"
 export const useQuestionMutation = () => {
 
   const createQuestionMutate = useMutation({
+
     mutationFn : postQuestion,
     onSuccess : ()=>{
-        queryclient.invalidateQueries({queryKey: ["officeTypes"]})
+        console.log("mutaion hitt")
+        queryclient.invalidateQueries({queryKey: ["questions"]})
     }
     })
 
@@ -18,7 +20,7 @@ export const useQuestionMutation = () => {
             return updateQuestion(payload); // ✅ send full object
           },
         onSuccess : ()=>{
-            queryclient.invalidateQueries({queryKey: ["officeTypes"]})
+            queryclient.invalidateQueries({queryKey: ["questions"]})
         }
         })
 

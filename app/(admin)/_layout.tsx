@@ -4,9 +4,13 @@ import { Stack } from 'expo-router'
 
 const Adminlayout = () => {
   return (
-   <Stack >
-    <Stack.Screen name="party" options={{headerShown:true,title:"Manage Parties",headerBackVisible:true}} />
-    <Stack.Screen name="sources" options={{headerShown:true,title:"Manage Sources",headerBackVisible:true}} />
+   <Stack screenOptions={{headerShown:true}}>
+    <Stack.Screen name="party" options={{title:"Manage Parties",headerBackVisible:true}} />
+    <Stack.Screen name="sources" options={{title:"Manage Sources",headerBackVisible:true}} />
+    <Stack.Screen name="candidate" options={{title:"Candidates",headerBackVisible:true}} />
+    <Stack.Screen name="category" options={{title:"Categories",headerBackVisible:true}} />
+    <Stack.Screen name="officeTypes" options={{title:"Office Types",headerBackVisible:true}} />
+    <Stack.Screen name="questions" options={{title:"Questions",headerBackVisible:true}} />
    </Stack>
   )
 }

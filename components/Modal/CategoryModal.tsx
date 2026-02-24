@@ -38,15 +38,19 @@ export default function CategoryModal({
       name: "",
       description: "",
       displayOrder: 0,
+      status: true,
     },
     resolver: zodResolver(categorySchema),
   });
 
   useEffect(() => {
     if (mode === "edit" && initialData) {
-      reset(initialData);
+      reset({
+        ...initialData,
+        displayOrder: String(initialData.displayOrder) as any,
+      });
     } else {
-      reset({ name: "", description: "", displayOrder: 0 });
+      reset({ name: "", description: "", displayOrder: 0, status: true });
     }
   }, [mode, initialData, reset]);
 
@@ -62,7 +66,7 @@ export default function CategoryModal({
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.title}>
-              {mode === "edit" ? "Edit Party" : "Create Party"}
+              {mode === "edit" ? "Update Category" : "AddCategory"}
             </Text>
 
             <TouchableOpacity onPress={onClose}>
@@ -76,6 +80,7 @@ export default function CategoryModal({
               label=" Name"
               placeholder="Enter category name"
               name="name"
+              required
               control={control}
             />
 
@@ -144,6 +149,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    borderBottomWidth: 1,
+    borderColor: "gray",
   },
   title: {
     fontSize: 18,

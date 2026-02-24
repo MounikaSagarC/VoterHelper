@@ -61,7 +61,7 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, Props>(
 
         <Animated.View
           {...panResponder.panHandlers}
-          style={[styles.card, { transform: [{ translateX }] }]}
+          style={[{ transform: [{ translateX }] }]}
         >
           {children}
         </Animated.View>

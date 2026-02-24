@@ -20,13 +20,11 @@ type InputFieldProps<T extends FieldValues> = {
 export function InputField<T extends FieldValues>({
   label,
   name,
-  value,
   icon,
   pwdIcon,
   control,
   placeholder,
   required,
-  className,
   keyboardType,
   onChangeText,
 }: InputFieldProps<T>) {
@@ -61,10 +59,13 @@ export function InputField<T extends FieldValues>({
               )}
 
               <TextInput
-                value={value}
-                onChangeText={onChangeText ? onChangeText : onChange}
+                value={value} // controller value only
+                onChangeText={(text) => {
+                  onChange(text);
+                  if (onChangeText) onChangeText(text);
+                }}
                 placeholder={placeholder ?? `Enter ${label}`}
-                secureTextEntry={!!icon && showPassword}
+                secureTextEntry={pwdIcon && showPassword} // only for password fields
                 style={styles.input}
                 keyboardType={keyboardType}
               />
@@ -96,7 +97,7 @@ export function InputField<T extends FieldValues>({
 const styles = StyleSheet.create({
   wrapper: {
     flexDirection: "column",
-    gap: 8,
+    gap: 2,
     marginBottom: 8,
     height: 56,
   },
