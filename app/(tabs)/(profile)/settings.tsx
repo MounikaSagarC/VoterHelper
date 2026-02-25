@@ -2,7 +2,13 @@ import { useProfileMutation } from "@/services/mutations/profile_mutation";
 import { ProfileTypes } from "@/services/schemas/profileSchema";
 import { useProfilestore } from "@/store/profile_store";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { ScrollView, Switch, Text, View } from "react-native";
+import {
+  ScrollView,
+  Switch,
+  Text,
+  View,
+  StyleSheet,
+} from "react-native";
 
 const SettingRow = ({
   icon,
@@ -15,13 +21,13 @@ const SettingRow = ({
   description?: string;
   rightComponent?: React.ReactNode;
 }) => (
-  <View className="flex-row items-center justify-between bg-white rounded-xl px-4 py-3 mb-3 shadow-sm">
-    <View className="flex-row items-start flex-1 gap-3">
+  <View style={styles.settingRow}>
+    <View style={styles.leftContainer}>
       {icon}
-      <View className="flex-1">
-        <Text className="font-semibold text-gray-800">{title}</Text>
+      <View style={styles.textContainer}>
+        <Text style={styles.title}>{title}</Text>
         {description && (
-          <Text className="text-gray-500 text-xs mt-1">{description}</Text>
+          <Text style={styles.description}>{description}</Text>
         )}
       </View>
     </View>
@@ -34,17 +40,13 @@ export default function SettingsScreen() {
   const { formData, updateForm } = useProfilestore();
 
   const updateSetting = (partial: Partial<ProfileTypes>) => {
-  const updated = { ...formData, ...partial };
-  updateForm(updated);
-
-  updateProfileMutation.mutate({ data: updated });
-};
-
-  
+    const updated = { ...formData, ...partial };
+    updateForm(updated);
+    updateProfileMutation.mutate({ data: updated });
+  };
 
   return (
-    <ScrollView className="flex-1 bg-gray-100 px-4 pt-4">
-      {/* Push Notifications */}
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <SettingRow
         icon={<Ionicons name="mail-outline" size={22} />}
         title="Show Email"
@@ -59,7 +61,6 @@ export default function SettingsScreen() {
         }
       />
 
-      {/* Crash Reporting */}
       <SettingRow
         icon={<MaterialIcons name="person" size={22} />}
         title="Show Real Name"
@@ -74,7 +75,6 @@ export default function SettingsScreen() {
         }
       />
 
-      {/* Keep Screen On */}
       <SettingRow
         icon={<Ionicons name="person-add-sharp" size={22} />}
         title="Show Age"
@@ -82,11 +82,57 @@ export default function SettingsScreen() {
         rightComponent={
           <Switch
             value={formData.showAgePublicly ?? false}
-            onValueChange={(value) => updateSetting({ showAgePublicly: value })}
+            onValueChange={(value) =>
+              updateSetting({ showAgePublicly: value })
+            }
           />
         }
       />
-
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#F3F4F6", // gray-100
+  },
+  content: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+  },
+  settingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  leftContainer: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    flex: 1,
+    gap: 12,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  title: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#1F2937", // gray-800
+  },
+  description: {
+    fontSize: 12,
+    color: "#6B7280", // gray-500
+    marginTop: 4,
+  },
+});

@@ -2,7 +2,7 @@ import { TagsBottomSheet } from "@/components/BottomSheet";
 import { useMenuSheetStore } from "@/store/bottomSheetStore";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
-import { Text, View } from "react-native";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 
 export default function TabLayout() {
   const { open, toggle, close } = useMenuSheetStore();
@@ -10,10 +10,24 @@ export default function TabLayout() {
     <>
       <Tabs
         screenOptions={{
-          tabBarStyle: { height: 60},
-          headerShown: false,
+          tabBarStyle: { height: 60 },
+          headerShown: true,
           tabBarActiveTintColor: "#2563eb",
-          tabBarLabelPosition: "below-icon", // Forces label under icon
+          tabBarLabelPosition: "below-icon",
+
+          headerLeft: () => (
+            <View style={{ marginLeft: 12 }}>
+              <Image
+                source={require("../../assets/images/image__3.png")}
+                style={{
+                  width: 180,
+                  height: 70,
+                  marginBottom:20,
+                  resizeMode: "contain",
+                }}
+              />
+            </View>
+          ),
         }}
       >
         <Tabs.Screen
@@ -21,9 +35,21 @@ export default function TabLayout() {
           options={{
             title: "Home",
             headerShown: true,
-            // tabBarLabelPosition: "below-icon",
-            headerTitle: "Welcome to VoterHelper",
-
+            headerRight: () => (
+              <TouchableOpacity style={{ marginRight: 12 }}>
+                <Image
+                  source={{
+                    uri: "https://randomuser.me/api/portraits/women/44.jpg",
+                  }}
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 18,
+                  }}
+                />
+              </TouchableOpacity>
+            ),
+            headerTitle:"",
             tabBarIcon: ({ focused }) => {
               return (
                 <View

@@ -1,32 +1,29 @@
-import { SwipeToDeleteCard } from "@/components/Cards/SwipeToDelete";
+import ScreenWrapper from "@/components/ScreenWraper";
 import SearchBar from "@/components/SearchBar";
 import Dropdown from "@/components/ui/dropdown";
 import LetterAvatar from "@/components/ui/User";
-import { getCandidates } from "@/services/api/candidate";
-import { getStates } from "@/services/api/profile";
-import { useDeleteCandidateMutation } from "@/services/mutations/candidate_mutation";
-import { Candidate } from "@/services/schemas/admin_schema";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getUsers } from "@/services/api/users";
+import { useDeleteUserMutation } from "@/services/mutations/user_mutation";
+import { UserType } from "@/services/schemas/admin_schema";
+import { useQuery } from "@tanstack/react-query";
+import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Pressable,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 import { Switch } from "react-native-gesture-handler";
 
-const OfferCard = () => {
-  const { deleteCandidateMutate } = useDeleteCandidateMutation();
-  const [selectedState, setSelectedState] = useState<string>("ALL");
+const Users = () => {
+  const { deleteUserMutation } = useDeleteUserMutation();
+  const [selectStatus, setSelectedStatus] = useState<string>("ALL");
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState(query);
-  const [candidateState, setCandidateState] = useState<Record<number, boolean>>(
-    {},
-  );
-
-  const queryClient = useQueryClient();
+  const [userState, setUserState] = useState<Record<number, boolean>>({});
 
   // Debounce search input
   useEffect(() => {
@@ -36,51 +33,44 @@ const OfferCard = () => {
 
   // Fetch candidates
   const {
-    data: candidates,
+    data: users,
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ["candidates", selectedState, debouncedQuery],
-    queryFn: () =>
-      getCandidates({ stateCode: selectedState, query: debouncedQuery }),
+    queryKey: ["users", selectStatus, debouncedQuery],
+    queryFn: () => getUsers({ status: selectStatus, query: debouncedQuery }),
   });
 
-  // Fetch states
-  const { data: states } = useQuery({
-    queryKey: ["states"],
-    queryFn: getStates,
-  });
-
-  const stateOptions = [
-    { label: "All States", value: "ALL" },
-    ...(states?.map((s: any) => ({ label: s.state, value: s.code })) ?? []),
+  const statusOptions = [
+    { label: "All", value: "ALL" },
+    { label: "Active", value: "ACTIVE" },
+    { label: "InActive", value: "INACTIVE" },
   ];
 
-  const handleDeleteCategory = (candidateId: number | undefined) => {
-    if (!candidateId) return;
-    deleteCandidateMutate.mutate(candidateId);
+  const handleDeleteCategory = (userId: number | undefined) => {
+    if (!userId) return;
+    deleteUserMutation.mutate(userId);
   };
 
   useEffect(() => {
-    if (candidates) {
+    if (users) {
       const state: Record<number, boolean> = {};
-      candidates.forEach((p: Candidate) => {
+      users.forEach((p: UserType) => {
         if (p.id !== undefined) {
-          state[p.id] = p.candidateInActive ?? false;
+          state[p.id] = p.accountNonLocked ?? false;
         }
       });
-      setCandidateState(state);
+      setUserState(state);
     }
-  }, [candidates]);
+  }, [users]);
 
   const handleToggle = (id: number) => {
-
-    setCandidateState((prev) => {
+    setUserState((prev) => {
       const next = { ...prev, [id]: !prev[id] };
       return next;
     });
 
-    deleteCandidateMutate.mutate(id);
+    deleteUserMutation.mutate(id);
   };
 
   if (isLoading) {
@@ -91,32 +81,34 @@ const OfferCard = () => {
     );
   }
 
-  const renderItem = ({ item }: { item: Candidate }) => {
+  const renderItem = ({ item }: { item: UserType }) => {
     return (
-      <SwipeToDeleteCard
-        key={item.id}
-        onDelete={() => handleDeleteCategory(item.id)}
+      <Pressable
+        onPress={() =>
+          router.push({
+            pathname: "/userModal",
+            params: {user: JSON.stringify(item),title: `${item.firstName} Profile`,},
+          })
+        }
       >
         <View style={styles.card}>
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.candidateInfo}>
-              <LetterAvatar userName={item.fullName} />
+              <LetterAvatar userName={item.firstName} />
               <View>
-                <Text style={styles.amount}>{item.fullName}</Text>
+                <Text style={styles.amount}>{item.firstName}</Text>
                 <View style={styles.statusBadge}>
-                  <Text style={styles.statusText}>
-                    {item.incumbentChallenge}
-                  </Text>
+                  <Text style={styles.statusText}>{item.roleName}</Text>
                 </View>
               </View>
             </View>
 
             <Switch
-              value={item.id !== undefined ? candidateState[item.id] : false}
+              value={item.id !== undefined ? userState[item.id] : false}
               onValueChange={(value) => {
                 if (item.id !== undefined) {
-                  handleToggle(item.id);
+                  handleToggle(item.userId);
                 }
               }}
             />
@@ -127,23 +119,15 @@ const OfferCard = () => {
 
           {/* Label + Value rows */}
           <View style={styles.row}>
-            <Text style={styles.label}>Party</Text>
-            <Text style={styles.value}>{item.partyName}</Text>
+            <Text style={styles.label}>Email Address</Text>
+            <Text style={styles.value}>{item.email}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Office Type</Text>
-            <Text style={styles.value}>{item.officeTypeName}</Text>
+            <Text style={styles.label}>Phone Number</Text>
+            <Text style={styles.value}>{item.phoneNumber}</Text>
           </View>
-          {item.election?.electionDate && (
-            <View style={styles.row}>
-              <Text style={styles.label}>Election Date</Text>
-              <Text style={styles.value}>
-                {new Date(item.election.electionDate).toLocaleDateString()}
-              </Text>
-            </View>
-          )}
         </View>
-      </SwipeToDeleteCard>
+      </Pressable>
     );
   };
 
@@ -170,9 +154,9 @@ const OfferCard = () => {
         >
           <Text>Filter By State:</Text>
           <Dropdown
-            value={selectedState}
-            options={stateOptions}
-            onChange={setSelectedState}
+            value={selectStatus}
+            options={statusOptions}
+            onChange={setSelectedStatus}
             placeholder="State"
             maxHeight={80}
             width={160}
@@ -181,7 +165,7 @@ const OfferCard = () => {
       </View>
 
       <FlatList
-        data={candidates || []}
+        data={users || []}
         keyExtractor={(item) => item.id?.toString() || Math.random().toString()}
         renderItem={renderItem}
         contentContainerStyle={{ padding: 16 }}
@@ -191,7 +175,7 @@ const OfferCard = () => {
   );
 };
 
-export default OfferCard;
+export default Users;
 
 const styles = StyleSheet.create({
   card: {
@@ -263,4 +247,5 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#111827",
   },
+
 });

@@ -13,7 +13,6 @@ export const useOfficeTypeMutattions = () => {
 
     const updateOfficeTypeMutate = useMutation({
         mutationFn: (payload: any) => {
-            console.log("UPDATE OFFICE TYPE MUTATION CALLED WITH:", payload);
             return updateOfficeType(payload); // ✅ send full object
           },
         onSuccess : ()=>{
@@ -23,11 +22,9 @@ export const useOfficeTypeMutattions = () => {
 
     const deleteOfficeTypeMutate = useMutation({
         mutationFn: (id: number) =>{
-            console.log("DELETE OFFICE TYPE MUTATION CALLED WITH ID:", id);
             return deleteOfficeType(id);
         },
         onSuccess : ()=>{
-            console.log("Office Type deleted, invalidating office types query...");
             queryclient.invalidateQueries({queryKey: ["officeTypes"]})
         }
         })

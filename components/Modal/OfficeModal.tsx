@@ -66,14 +66,12 @@ export default function OfficeModal({
     queryFn: fetchElectionLevels,
   });
 
-  console.log("electionLevels",electionLevels)
 
   const formattedLevels = electionLevels?.map((lvl: string) => ({
     label: lvl.toUpperCase(), // Capitalize first letter
     value: lvl,
   }));
 
-  console.log("formattedLevels",formattedLevels)
 
   useEffect(() => {
     reset(

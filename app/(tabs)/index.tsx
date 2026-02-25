@@ -1,3 +1,4 @@
+import DashboardScreen from "@/components/screens/AdminScreen";
 import HomeScreen from "@/components/screens/HomeScreen";
 import SearchBar from "@/components/SearchBar";
 import { useIsAdmin } from "@/lib/helpers/auth";
@@ -11,7 +12,9 @@ const Index = () => {
   return (
     <>
       {isAdmin ? (
-        <Text>Helloooo</Text>
+        <>
+        <DashboardScreen/>
+        </>
       ) 
       : (
         <>

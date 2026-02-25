@@ -10,14 +10,12 @@ export const useQuestionMutation = () => {
 
     mutationFn : postQuestion,
     onSuccess : ()=>{
-        console.log("mutaion hitt")
         queryclient.invalidateQueries({queryKey: ["questions"]})
     }
     })
 
     const updateQuestionMutate = useMutation({
         mutationFn: (payload: Question) => {
-            console.log("UPDATE QUESTION MUTATION CALLED WITH:", payload);
             return updateQuestion(payload); // ✅ send full object
           },
         onSuccess : ()=>{
@@ -27,11 +25,9 @@ export const useQuestionMutation = () => {
 
     const deleteQuestionMutate = useMutation({
         mutationFn: (id: number) =>{
-            console.log("DELETE QUESTION MUTATION CALLED WITH ID:", id);
             return deleteQuestion(id);
         },
         onSuccess : ()=>{
-            console.log("Question deleted, invalidating questions query...");
             queryclient.invalidateQueries({queryKey: ["questions"]})
         }
         })

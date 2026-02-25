@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
   },
 
   statusBadge: {
-    backgroundColor: "#FEF3C7",
+    backgroundColor: "#b0e8dd",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#92400E",
+    color: "#0a5e4e",
   },
 
   label: {

@@ -1,7 +1,7 @@
 import { MenuItem } from "@/lib/helpers/profileHelper";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { X } from "lucide-react-native";
+import { Building, CircleQuestionMark, Database, FileQuestionIcon, GraduationCapIcon, MailQuestionIcon, MenuIcon, TagIcon, Users2Icon, X } from "lucide-react-native";
 import React from "react";
 import {
   Modal,
@@ -53,7 +53,7 @@ export const TagsBottomSheet: React.FC<TagsBottomSheetProps> = ({
           <ScrollView style={styles.scroll}>
             <View style={styles.menuContainer}>
               <MenuItem
-                icon="person-outline"
+                icon={TagIcon}
                 label="Parties"
                 arrowicon="chevron-forward"
                 onPress={() => handleNavigate("/(admin)/party")}
@@ -61,7 +61,15 @@ export const TagsBottomSheet: React.FC<TagsBottomSheetProps> = ({
 
               <View style={styles.divider}>
                 <MenuItem
-                  icon="location-outline"
+                  icon={Users2Icon}
+                  label="Users"
+                  arrowicon="chevron-forward"
+                  onPress={() => handleNavigate("/(admin)/users")}
+                />
+              </View>
+              <View style={styles.divider}>
+                <MenuItem
+                  icon={MenuIcon}
                   label="Categories"
                   arrowicon="chevron-forward"
                   onPress={() => handleNavigate("/(admin)/category")}
@@ -70,7 +78,7 @@ export const TagsBottomSheet: React.FC<TagsBottomSheetProps> = ({
 
               <View style={styles.divider}>
                 <MenuItem
-                  icon="settings-outline"
+                  icon={CircleQuestionMark}
                   label="Questions"
                   arrowicon="chevron-forward"
                   onPress={() => handleNavigate("/(admin)/questions")}
@@ -79,7 +87,7 @@ export const TagsBottomSheet: React.FC<TagsBottomSheetProps> = ({
 
               <View style={styles.divider}>
                 <MenuItem
-                  icon="settings-outline"
+                  icon={GraduationCapIcon}
                   label="Candidates"
                   arrowicon="chevron-forward"
                   onPress={() => handleNavigate("/(admin)/candidate")}
@@ -88,7 +96,7 @@ export const TagsBottomSheet: React.FC<TagsBottomSheetProps> = ({
 
               <View style={styles.divider}>
                 <MenuItem
-                  icon="settings-outline"
+                  icon={Building}
                   label="Office Types"
                   arrowicon="chevron-forward"
                   onPress={() => handleNavigate("/(admin)/officeTypes")}
@@ -97,7 +105,7 @@ export const TagsBottomSheet: React.FC<TagsBottomSheetProps> = ({
 
               <View style={styles.divider}>
                 <MenuItem
-                  icon="settings-outline"
+                  icon={Database}
                   label="Data Sources"
                   arrowicon="chevron-forward"
                   onPress={() => handleNavigate("/(admin)/sources")}

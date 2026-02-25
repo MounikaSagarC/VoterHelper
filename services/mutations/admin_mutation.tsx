@@ -31,7 +31,6 @@ export const usePartyMutations = () => {
 
 const updatePartyMutate = useMutation({
   mutationFn: (payload: any) => {
-    console.log("UPDATE PARTY MUTATION CALLED WITH:", payload);
     return updateParty(payload); // ✅ send full object
   },
   onSuccess: () => {
@@ -53,7 +52,6 @@ export const useSourceMutations = () => {
 
 const updateSourceMutate = useMutation({
   mutationFn: (payload: any) => {
-    console.log("UPDATE SOURCE MUTATION CALLED WITH:", payload);
     return updateSource(payload); // ✅ send full object
   },
   onSuccess: () => {
@@ -63,7 +61,6 @@ const updateSourceMutate = useMutation({
 
 const deleteSourceMutate = useMutation({
   mutationFn: (id: number) => {
-    console.log("DELETE SOURCE MUTATION CALLED WITH ID:", id);
     return deleteSource(id); // ✅ send full object
   },
   onSuccess: () => {

@@ -13,7 +13,6 @@ export const useCategoryMutations = () => {
 
     const updateCategoryMutate = useMutation({
         mutationFn: (payload: any) => {
-            console.log("UPDATE CATEGORY MUTATION CALLED WITH:", payload);
             return updateCategory(payload); // ✅ send full object
           },
         onSuccess : ()=>{
@@ -23,11 +22,9 @@ export const useCategoryMutations = () => {
 
     const deleteCategoryMutate = useMutation({
         mutationFn: (id: number) =>{
-            console.log("DELETE CATEGORY MUTATION CALLED WITH ID:", id);
             return deleteCategory(id);
         },
         onSuccess : ()=>{
-            console.log("Category deleted, invalidating categories query...");
             queryclient.invalidateQueries({queryKey: ["categories"]})
         }
         })

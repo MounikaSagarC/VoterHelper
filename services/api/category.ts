@@ -18,7 +18,6 @@ export const updateCategory = async (category: {
   displayOrder: number;
 }) => {
   const res = await api.put(`/v1/admin/categories`,category);
-  console.log("API RESPONSE:", res.data); // DEBUG
   return res.data;
 }
 

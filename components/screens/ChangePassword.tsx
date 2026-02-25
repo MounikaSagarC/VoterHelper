@@ -24,9 +24,7 @@ const ChangePassword = () => {
   } = useForm({
     resolver: zodResolver(changePasswordSchema),
   });
-  console.log("ChangePassword Rendered");
   const onSubmit = (data: PasswordTypes) => {
-    console.log("Form Data:", data);
     changePasswordMutate.mutate(data, {
       onError: (error: any) => {
         const message = isAxiosError(error)

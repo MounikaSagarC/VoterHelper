@@ -80,14 +80,12 @@ const AddressForm = () => {
     value: String(item.id),
   })) ?? [];
 
-  console.log("state",states)
 
   const selectedState = stateOptions.find((s) => s.value === stateId) ?? null;
   const selectedCounty = counties.find((c) => c.value === countyId) ?? null;
   const selectedCity = cities.find((ci) => ci.value === cityId) ?? null;
   const selectedZipcode = zipcodes.find((z) => z.value === zipcode) ?? null;
 
-  console.log(selectedState)
 
   const { mutate: fetchStates } = useStateMutation();
   const { mutate: fetchCounties } = useCountyMutation();

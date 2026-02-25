@@ -85,9 +85,33 @@ export const questionSchema = z.object({
   stateCode: z.string().nonempty("StateCode required"),
 });
 
+export const userSchema = z.object({
+  userId : z.uuid(),
+  email : z.email(),
+  id : z.number(),
+  firstName : z.string(),
+  lastName : z.string(),
+  nickName : z.string(),
+  phoneNumber : z.string(),
+  ageRange : z.string(),
+  birthYear : z.number(),
+  birthMonth : z.number(),
+  bio : z.string(),
+  profilePictureUrl : z.string().optional(),
+  profilePublic : z.boolean().default(true),
+  showEmailPublicly : z.boolean().default(true),
+  showRealNamePublicly : z.boolean().default(true),
+  showAgePublicly : z.boolean().default(true),
+  accountNonLocked : z.boolean().default(true),
+  sysCreatedTime : z.date(),
+  sysUpdatedTime : z.date(),
+  roleName : z.string()
+})
+
 export type Party = z.infer<typeof partySchema>;
 export type Source = z.infer<typeof sourceSchema>;
 export type Category = z.infer<typeof categorySchema>;
 export type Candidate = z.infer<typeof candidateSchema>;
 export type OfficeType = z.infer<typeof officeTypeSchema>;
 export type Question = z.infer<typeof questionSchema>;
+export type UserType = z.infer<typeof userSchema>

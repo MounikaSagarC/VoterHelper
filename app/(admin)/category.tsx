@@ -57,7 +57,6 @@ export default function TopicsCardList() {
   }, [categoryState]);
 
   const handleToggle = (id: number) => {
-    console.log("button clicked");
     setCategoryState((prev) => ({ ...prev, [id]: !prev[id] }));
     deleteCategoryMutate.mutate(id);
   };

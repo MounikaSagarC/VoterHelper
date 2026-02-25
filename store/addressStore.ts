@@ -99,8 +99,6 @@ export const useAddressStore = create<AddressStore>((set, get) => ({
   selectZipcode: (zipcode) => set({ zipcode }),
 
   getStateLabel: (id) => {
-  console.log("id:", id);
-  console.log("states:", get().states);
   return get().states.find((s) => s.value === id)?.label ?? id;
 },
 

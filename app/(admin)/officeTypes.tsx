@@ -64,12 +64,10 @@ const OfferCard = () => {
   }, [officeTypes]);
 
   const handleToggle = (id: number) => {
-    console.log("button clicked");
     setOfficeState((prev) => ({ ...prev, [id]: !prev[id] }));
     deleteOfficeTypeMutate.mutate(id);
   };
 
-  console.log("OfficeTypes",officeTypes)
 
   const renderItem = ({ item: officeType }: { item: OfficeType }) => {
     const isMenuOpen = openMenuId !== null && openMenuId === officeType.id;
@@ -223,16 +221,16 @@ const styles = StyleSheet.create({
   },
   statusBadge: {
     marginTop: 6,
-    backgroundColor: "#FEF3C7",
+    backgroundColor: "#b0e8dd",
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: 20,
     alignSelf: "flex-start",
   },
   statusText: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#92400E",
+    color: "#0a5e4e",
   },
   divider: {
     height: 1,

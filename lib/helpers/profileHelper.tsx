@@ -1,3 +1,4 @@
+import { Icon } from "@/components/ui/icon";
 import { Ionicons } from "@expo/vector-icons";
 import { Text, TouchableOpacity, View, StyleSheet } from "react-native";
 
@@ -14,7 +15,7 @@ export const MenuItem = ({
 }) => (
   <TouchableOpacity onPress={onPress} style={styles.container}>
     <View style={styles.left}>
-      <Ionicons name={icon} size={20} color="#111827" />
+      <Icon as={icon} size={20} color="#111827" />
       <Text style={styles.label}>{label}</Text>
     </View>
     <Ionicons name={arrowicon} size={18} color="#9CA3AF" />
