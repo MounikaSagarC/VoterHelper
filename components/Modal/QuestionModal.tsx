@@ -73,19 +73,20 @@ export default function OfficeModal({
       value: String(s.id), // store as string
     })) ?? []),
   ];
-  console.log("asdfghjk", categoryOptions);
 
   useEffect(() => {
-    if (categories) {
-      reset({
-        text: initialData?.text || "",
-        categoryId: initialData?.categoryId
-          ? String(initialData.categoryId)
-          : "",
-        stateCode: initialData?.stateCode || "",
-        explanation: initialData?.explanation || "",
-      });
-    }
+    if (!categories || !initialData) return;
+
+    const matchedCategory = categories.find(
+      (c:any) => c.name === initialData.categoryName,
+    );
+
+    reset({
+      text: initialData.text ?? "",
+      explanation: initialData.explanation ?? "",
+      stateCode: initialData.stateCode ?? "",
+      categoryId: matchedCategory ? String(matchedCategory.id) : "",
+    });
   }, [initialData, categories, reset]);
   return (
     <Modal visible={visible} transparent animationType="fade">

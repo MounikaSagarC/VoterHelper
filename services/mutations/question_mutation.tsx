@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query"
 import { queryclient } from "@/app/_layout"
 import { deleteOfficeType, postOfficeType, updateOfficeType } from "../api/officeType"
 import { deleteQuestion, postQuestion, updateQuestion } from "../api/questions"
+import { Question } from "../schemas/admin_schema"
 
 export const useQuestionMutation = () => {
 
@@ -15,7 +16,7 @@ export const useQuestionMutation = () => {
     })
 
     const updateQuestionMutate = useMutation({
-        mutationFn: (payload: any) => {
+        mutationFn: (payload: Question) => {
             console.log("UPDATE QUESTION MUTATION CALLED WITH:", payload);
             return updateQuestion(payload); // ✅ send full object
           },

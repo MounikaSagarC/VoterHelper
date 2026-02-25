@@ -45,8 +45,6 @@ const OfferCard = () => {
     },
   });
 
-  console.log("questionsData", question, "selectedState", selectedState);
-
   const normalizeQuestions = (data: any) =>
     Array.isArray(data) ? data : data ? [data] : [];
 
@@ -78,9 +76,6 @@ const OfferCard = () => {
       </View>
     );
   }
-
-  console.log("states api:", states);
-  console.log("dropdown options:", stateOptions);
 
   const renderItem = ({ item }: { item: Question }) => {
     const isMenuOpen = openMenuId === item.id;
@@ -160,27 +155,26 @@ const OfferCard = () => {
         mode={mode}
         initialData={selectedQuestion ?? undefined}
         onSubmitForm={(formData) => {
-          // Convert categoryId to number before sending
+          // Keep categoryId as string since the schema expects string type
+          // Use empty string as fallback to satisfy the "nonempty" requirement
           const payload = {
             ...formData,
-            categoryId: formData.categoryId
-              ? Number(formData.categoryId)
-              : undefined,
+            categoryId: formData.categoryId || "",
           };
 
           if (mode === "create") {
             createQuestionMutate.mutate(payload);
           } else {
             updateQuestionMutate.mutate({
-              questionId: payload.id,
+              questionId: selectedQuestion?.id,
               text: payload.text,
               explanation: payload.explanation,
-              categoryId: payload.categoryId, // now a number
+              categoryId: payload.categoryId,
               electionId: payload.electionId,
               stateCode: payload.stateCode,
             });
           }
-          setOpen(false)
+          setOpen(false);
         }}
       />
     </>

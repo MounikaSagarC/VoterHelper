@@ -50,7 +50,6 @@ export const updateProfile = async (data: ProfileTypes) => {
 export const getStates = async () => {
   const res = await api.get(`/v1/dropdown/state?id=${DEFAULT_COUNTRY_ID}`);
   const stateData = res.data.data;
-  console.log(stateData)
   return stateData
 };
 

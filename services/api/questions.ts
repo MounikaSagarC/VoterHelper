@@ -1,8 +1,8 @@
 import { api } from "@/lib/axios";
+import { Question } from "../schemas/admin_schema";
 
 export const getQuestions = async () => {
   const res = await api.get(`/v1/admin/questions`);
-  console.log("Questions:", res.data);
   return res.data.data;
 };
 export const postQuestion = async (questionData: any) => {
@@ -11,9 +11,9 @@ export const postQuestion = async (questionData: any) => {
   return res.data.data;
 };
 
-export const updateQuestion = async (questionData: any) => {
+export const updateQuestion = async (questionData: Question) => {
   console.log("Updating Question with data:", questionData);
-  const res = await api.put(`/v1/admin/questions/`, questionData);
+  const res = await api.put(`/v1/admin/questions`, questionData);
   console.log("Updated Question:", res.data);
   return res.data.data;
 };
@@ -36,7 +36,6 @@ export const getQuestionsByState = async (state: string) => {
     return res.data;
   } 
   const res = await api.get(`/v1/admin/questions/state?state=${state}`);
-    console.log("Questions:", res.data);
     return res.data;
   
 }
