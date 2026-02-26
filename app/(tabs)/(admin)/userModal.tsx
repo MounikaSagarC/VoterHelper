@@ -61,10 +61,10 @@ const ProfileScreen = () => {
           <Accordion icon="information-circle-outline" title="About">
             <InfoRow label="AgeRange" value={parsedUser.ageRange} />
             <InfoRow
-              label="DOB"
-              value={`${parsedUser.birthYear}/${parsedUser.birthMonth}`}
+              label="BirthYear/Month"
+              value={`${parsedUser.birthYear && parsedUser.birthMonth ? `${parsedUser.birthYear}/${parsedUser.birthMonth}` : "....."}`}
             />
-            <InfoRow label="bio" value={parsedUser.bio} />
+            <InfoRow label="Bio" value={parsedUser.bio} />
           </Accordion>
 
           <Accordion icon="lock-closed-outline" title="Privacy">

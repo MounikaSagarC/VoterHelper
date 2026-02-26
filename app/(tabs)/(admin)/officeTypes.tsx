@@ -1,3 +1,4 @@
+import Card from "@/components/Cards/Card";
 import { SwipeToDeleteCard } from "@/components/Cards/SwipeToDelete";
 import FloatingActionButton from "@/components/FloatingButton";
 import OfficeModal from "@/components/Modal/OfficeModal";
@@ -78,7 +79,7 @@ const OfferCard = () => {
         onDelete={() => handleDeleteCategory(officeType.id)}
       >
         <TouchableWithoutFeedback onPress={() => setOpenMenuId(null)}>
-          <View style={styles.card}>
+          <Card>
             {/* Header */}
             <View style={styles.header}>
               <View>
@@ -144,7 +145,7 @@ const OfferCard = () => {
               <Text style={styles.label}>Status</Text>
               <Text style={styles.value}>{officeType.status?"Active":"InActive"}</Text>
             </View>
-          </View>
+          </Card>
         </TouchableWithoutFeedback>
       </SwipeToDeleteCard>
     );

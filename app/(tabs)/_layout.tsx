@@ -135,7 +135,6 @@ export default function TabLayout() {
                     height: 40,
                     borderRadius: 26,
                     marginTop: 20,
-
                     backgroundColor: focused ? "white" : "transparent",
                     alignItems: "center",
                     justifyContent: "center",
@@ -153,6 +152,7 @@ export default function TabLayout() {
             },
           }}
         />
+        <Tabs.Screen name="(admin)" options={{href:null,headerShown:false, popToTopOnBlur:true}}/>
       </Tabs>
       <TagsBottomSheet
         visible={open}

@@ -17,19 +17,19 @@ const Card = ({ children, style, ...props }: CardProps) => {
 export default Card;
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "#ffffff",
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
+card: {
+  backgroundColor: "#ffffff",
+  borderRadius: 16,
+  padding: 16,
+  marginBottom: 16,
 
-    // Android
-    elevation: 3,
+  // Android shadow
+  elevation: 5,
 
-    // iOS
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
+  // iOS shadow
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.15,
+  shadowRadius: 6,
+},
 });

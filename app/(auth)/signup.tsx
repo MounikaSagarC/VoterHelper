@@ -39,8 +39,10 @@ export default function Signup() {
   });
 
   const onSubmit = async (data: RegisterFormSchemaTypes) => {
+    console.log(data)
     try {
       const res = await signUp(data);
+      console.log(res)
       return res.data;
     } catch (error: unknown) {
       const message = isAxiosError(error)

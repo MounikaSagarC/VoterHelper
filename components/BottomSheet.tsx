@@ -28,7 +28,7 @@ export const TagsBottomSheet: React.FC<TagsBottomSheetProps> = ({
     onClose(); // 👈 close sheet first
 
     setTimeout(() => {
-      router.push(path as any);
+      router.replace(path as any);
     }, 200);
   };
 
@@ -56,7 +56,7 @@ export const TagsBottomSheet: React.FC<TagsBottomSheetProps> = ({
                 icon={TagIcon}
                 label="Parties"
                 arrowicon="chevron-forward"
-                onPress={() => handleNavigate("/(admin)/party")}
+                onPress={() => handleNavigate("(tabs)/(admin)/party")}
               />
 
               <View style={styles.divider}>
@@ -64,7 +64,7 @@ export const TagsBottomSheet: React.FC<TagsBottomSheetProps> = ({
                   icon={Users2Icon}
                   label="Users"
                   arrowicon="chevron-forward"
-                  onPress={() => handleNavigate("/(admin)/users")}
+                  onPress={() => handleNavigate("(tabs)/(admin)/users")}
                 />
               </View>
               <View style={styles.divider}>
@@ -72,7 +72,7 @@ export const TagsBottomSheet: React.FC<TagsBottomSheetProps> = ({
                   icon={MenuIcon}
                   label="Categories"
                   arrowicon="chevron-forward"
-                  onPress={() => handleNavigate("/(admin)/category")}
+                  onPress={() => handleNavigate("(tabs)/(admin)/category")}
                 />
               </View>
 
@@ -81,7 +81,7 @@ export const TagsBottomSheet: React.FC<TagsBottomSheetProps> = ({
                   icon={CircleQuestionMark}
                   label="Questions"
                   arrowicon="chevron-forward"
-                  onPress={() => handleNavigate("/(admin)/questions")}
+                  onPress={() => handleNavigate("/(tabs)/(admin)/questions")}
                 />
               </View>
 
@@ -90,7 +90,7 @@ export const TagsBottomSheet: React.FC<TagsBottomSheetProps> = ({
                   icon={GraduationCapIcon}
                   label="Candidates"
                   arrowicon="chevron-forward"
-                  onPress={() => handleNavigate("/(admin)/candidate")}
+                  onPress={() => handleNavigate("(tabs)/(admin)/candidate")}
                 />
               </View>
 
@@ -99,7 +99,7 @@ export const TagsBottomSheet: React.FC<TagsBottomSheetProps> = ({
                   icon={Building}
                   label="Office Types"
                   arrowicon="chevron-forward"
-                  onPress={() => handleNavigate("/(admin)/officeTypes")}
+                  onPress={() => handleNavigate("(tabs)/(admin)/officeTypes")}
                 />
               </View>
 
@@ -108,7 +108,7 @@ export const TagsBottomSheet: React.FC<TagsBottomSheetProps> = ({
                   icon={Database}
                   label="Data Sources"
                   arrowicon="chevron-forward"
-                  onPress={() => handleNavigate("/(admin)/sources")}
+                  onPress={() => handleNavigate("(tabs)/(admin)/sources")}
                 />
               </View>
             </View>

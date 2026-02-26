@@ -1,4 +1,4 @@
-import ScreenWrapper from "@/components/ScreenWraper";
+import Card from "@/components/Cards/Card";
 import SearchBar from "@/components/SearchBar";
 import Dropdown from "@/components/ui/dropdown";
 import LetterAvatar from "@/components/ui/User";
@@ -38,13 +38,25 @@ const Users = () => {
     refetch,
   } = useQuery({
     queryKey: ["users", selectStatus, debouncedQuery],
-    queryFn: () => getUsers({ status: selectStatus, query: debouncedQuery }),
+    queryFn: async () => {
+      console.log("Fetching users with:", {
+        status: selectStatus,
+        query: debouncedQuery,
+      });
+
+      const response = await getUsers({
+        status: selectStatus,
+        query: debouncedQuery,
+      });
+
+      return response?.filter((user: any) => user.roleName !== "Super Admin");
+    },
   });
 
   const statusOptions = [
-    { label: "All", value: "ALL" },
-    { label: "Active", value: "ACTIVE" },
-    { label: "InActive", value: "INACTIVE" },
+    { label: "ALL", value: "ALL" },
+    { label: "Active", value: "TRUE" },
+    { label: "InActive", value: "FALSE" },
   ];
 
   const handleDeleteCategory = (userId: number | undefined) => {
@@ -87,11 +99,14 @@ const Users = () => {
         onPress={() =>
           router.push({
             pathname: "/userModal",
-            params: {user: JSON.stringify(item),title: `${item.firstName} Profile`,},
+            params: {
+              user: JSON.stringify(item),
+              title: `${item.firstName} Profile`,
+            },
           })
         }
       >
-        <View style={styles.card}>
+        <Card>
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.candidateInfo}>
@@ -126,7 +141,7 @@ const Users = () => {
             <Text style={styles.label}>Phone Number</Text>
             <Text style={styles.value}>{item.phoneNumber}</Text>
           </View>
-        </View>
+        </Card>
       </Pressable>
     );
   };
@@ -152,12 +167,11 @@ const Users = () => {
             gap: 8,
           }}
         >
-          <Text>Filter By State:</Text>
+          <Text>Filter By Status:</Text>
           <Dropdown
             value={selectStatus}
             options={statusOptions}
             onChange={setSelectedStatus}
-            placeholder="State"
             maxHeight={80}
             width={160}
           />
@@ -178,17 +192,6 @@ const Users = () => {
 export default Users;
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
   filterBar: {
     paddingHorizontal: 16,
     paddingTop: 10,
@@ -247,5 +250,4 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#111827",
   },
-
 });

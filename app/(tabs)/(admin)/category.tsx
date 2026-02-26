@@ -74,7 +74,7 @@ export default function TopicsCardList() {
   const renderItem = ({ item }: { item: Category }) => {
     return (
       <SwipeToDeleteCard onDelete={() => handleDeleteCategory(item.id)}>
-        <Card>
+        <Card style={{marginHorizontal:10}}>
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.leftGroup}>

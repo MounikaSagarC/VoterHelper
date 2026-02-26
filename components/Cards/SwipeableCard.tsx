@@ -74,7 +74,7 @@ SwipeableCard.displayName = "SwipeableCard";
 
 const styles = StyleSheet.create({
   wrapper: {
-    overflow: "hidden",
+    // overflow: "hidden",
     borderRadius: 16,
     marginBottom: 10,
   },

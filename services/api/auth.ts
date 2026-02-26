@@ -6,6 +6,7 @@ import { encodeForLogin } from "@/lib/helpers/auth";
 
 export async function signUp(data:RegisterFormSchemaTypes){
   const res =await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/v1/user/register`,data)
+  console.log(res.data)
   return res.data.data
 }
 
@@ -19,6 +20,7 @@ export async function loginUser(data: Credentials) {
     `${process.env.EXPO_PUBLIC_API_URL}/v1/auth/login`,
     payload,
   );
+  console.log(res.data)
   if (res.data?.code !== 1) {
     throw new Error(res.data?.message || "Login failed");
   }

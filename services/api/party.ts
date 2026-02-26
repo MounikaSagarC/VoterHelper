@@ -2,12 +2,20 @@ import { api } from "@/lib/axios";
 import { Party } from "../schemas/admin_schema";
 
 export const fetchParties = async () => {
-  const res = await api.get(`/v1/admin/elections/party`);
-  return res.data.data;
-}
+  try {
+    console.log("hit fetchParty");
+    const res = await api.get(`/v1/admin/elections/party`);
+    console.log("fetch Party api", res);
+    return res.data.data;
+  } catch (error: any) {
+    console.log("fetch Party error", error);
+    throw error; // IMPORTANT
+  }
+};
 
 export const createParty = async (party: Party) => {
   const res = await api.post(`/v1/admin/elections/party`, party);
+  console.log("updatePArty",res.data)
   return res.data.data;
 }
 

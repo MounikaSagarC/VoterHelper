@@ -1,9 +1,5 @@
-// import { EXPO_PUBLIC_API_URL } from "@/constants";
 import { useAuthStore } from "@/store/auth_store";
-import axios, {
-  AxiosInstance,
-  AxiosRequestConfig,
-} from "axios";
+import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 
 const defaultConfigs: AxiosRequestConfig = {
   headers: {
@@ -27,6 +23,7 @@ function onRefreshed(token: string) {
   refreshQueue.forEach((cb) => cb(token));
   refreshQueue = [];
 }
+
 
 function attachTokenInterceptor(instance: AxiosInstance) {
   instance.interceptors.request.use(
@@ -65,62 +62,77 @@ function attachErrorInterceptor(instance: AxiosInstance) {
       const originalRequest = error.config;
 
       // 🔁 ADDITION: refresh token handling (minimal)
-      if (status === 401 && !originalRequest?._retry) {
-        if (isRefreshing) {
-          return new Promise((resolve) => {
-            refreshQueue.push((token) => {
-              originalRequest.headers.Authorization = `Bearer ${token}`;
-              resolve(instance(originalRequest));
-            });
-          });
-        }
+      instance.interceptors.response.use(
+        (response) => response,
+        async (error) => {
+          const originalRequest = error.config;
+          const status = error.response?.status;
 
-        originalRequest._retry = true;
-        isRefreshing = true;
-
-        try {
-          const { refreshToken } = useAuthStore.getState();
-          if (!refreshToken) throw new Error("No refresh token");
-
-          const res = await axios.get(
-            `${process.env.EXPO_PUBLIC_API_URL}/v1/auth/refresh`,
-            {
-              headers: {
-                Authorization: `Bearer ${refreshToken}`,
-              },
+          if (status === 401 && !originalRequest?._retry) {
+            if (isRefreshing) {
+              return new Promise((resolve) => {
+                refreshQueue.push((token: string) => {
+                  originalRequest.headers.Authorization = `Bearer ${token}`;
+                  resolve(instance(originalRequest));
+                });
+              });
             }
-          );
 
-          const { accessToken } = res.data;
+            originalRequest._retry = true;
+            isRefreshing = true;
 
-          useAuthStore.setState({
-            accessToken,
-            isAuthenticated: true,
-          });
+            try {
+              const { refreshToken } = useAuthStore.getState();
+              if (!refreshToken) throw new Error("No refresh token");
 
-          isRefreshing = false;
-          onRefreshed(accessToken);
+              const res = await axios.get(
+                `${process.env.EXPO_PUBLIC_API_URL}/v1/auth/refresh`,
+                {
+                  headers: {
+                    Authorization: `Bearer ${refreshToken}`,
+                  },
+                },
+              );
 
-          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-          return instance(originalRequest);
-        } catch (e) {
-          isRefreshing = false;
-          refreshQueue = [];
-          useAuthStore.getState().logout();
-        }
-      }
+              const { accessToken } = res.data;
+
+              useAuthStore.setState({
+                accessToken,
+                isAuthenticated: true,
+              });
+
+              isRefreshing = false;
+              onRefreshed(accessToken);
+
+              originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+              return instance(originalRequest);
+            } catch (refreshError) {
+              isRefreshing = false;
+              refreshQueue = [];
+
+              useAuthStore.getState().logout();
+
+              // 🚨 THIS IS CRITICAL
+              return Promise.reject(refreshError);
+            }
+          }
+
+          // 🚨 ALSO REQUIRED
+          return Promise.reject(error);
+        },
+      );
 
       // ⬇️ ORIGINAL LOGIC — UNCHANGED ⬇️
 
       if (error.code === "ECONNABORTED") {
         return Promise.reject(
-          new ApiError("Timeout Error", "Request timed out. Please try again.")
+          new ApiError("Timeout Error", "Request timed out. Please try again."),
         );
       }
 
       if (error.code === "ERR_NETWORK" || status === 0) {
         return Promise.reject(
-          new ApiError("Network Error", "Network Error. Please try again.")
+          new ApiError("Network Error", "Network Error. Please try again."),
         );
       }
 
@@ -130,7 +142,7 @@ function attachErrorInterceptor(instance: AxiosInstance) {
 
       if ([401, 403].includes(status)) {
         return Promise.reject(
-          new ApiError("Unauthorized", "Session expired. Please login again.")
+          new ApiError("Unauthorized", "Session expired. Please login again."),
         );
       }
 
@@ -139,7 +151,7 @@ function attachErrorInterceptor(instance: AxiosInstance) {
       }
 
       return Promise.reject(new ApiError("Error", message));
-    }
+    },
   );
 }
 

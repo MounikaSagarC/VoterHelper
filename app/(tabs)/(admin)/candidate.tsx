@@ -1,3 +1,4 @@
+import Card from "@/components/Cards/Card";
 import { SwipeToDeleteCard } from "@/components/Cards/SwipeToDelete";
 import SearchBar from "@/components/SearchBar";
 import Dropdown from "@/components/ui/dropdown";
@@ -97,7 +98,7 @@ const OfferCard = () => {
         key={item.id}
         onDelete={() => handleDeleteCategory(item.id)}
       >
-        <View style={styles.card}>
+        <Card>
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.candidateInfo}>
@@ -142,7 +143,7 @@ const OfferCard = () => {
               </Text>
             </View>
           )}
-        </View>
+        </Card>
       </SwipeToDeleteCard>
     );
   };

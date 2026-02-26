@@ -5,17 +5,23 @@ import { userProfile } from "@/services/api/profile";
 import { useAuthStore } from "@/store/auth_store";
 import { useProfilestore } from "@/store/profile_store";
 import { useQuery } from "@tanstack/react-query";
-import { useFocusEffect, router } from "expo-router";
-import { LocationEdit, LockIcon, LogOutIcon, SettingsIcon, UserIcon } from "lucide-react-native";
+import { router, useFocusEffect } from "expo-router";
+import {
+  LocationEdit,
+  LockIcon,
+  LogOutIcon,
+  SettingsIcon,
+  UserIcon,
+} from "lucide-react-native";
 import { useCallback } from "react";
 import {
   Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StyleSheet,
   Text,
   View,
-  StyleSheet,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -29,10 +35,18 @@ export default function ProfileScreen() {
     queryFn: () => userProfile(),
   });
 
+  const userRole = useAuthStore((s) => s.userRole);
+  const isAdmin = userRole === "SUPER_ADMIN";
+
   async function handleSubmit() {
-    await logoutUser();
-    logout();
-    router.replace("/(auth)/login");
+    try {
+      await logoutUser();
+    } catch (e) {
+      console.log("Logout API failed, but clearing locally.");
+    } finally {
+      logout(); // clear store
+      router.replace("/(auth)/login");
+    }
   }
 
   useFocusEffect(
@@ -40,7 +54,7 @@ export default function ProfileScreen() {
       return () => {
         setActive(false);
       };
-    }, [])
+    }, []),
   );
 
   return (
@@ -67,58 +81,68 @@ export default function ProfileScreen() {
                 <Text style={styles.email}>{data?.emailAddress}</Text>
               </View>
             </View>
-
-            {/* Menu */}
-            <View style={styles.card}>
-              <MenuItem
-                icon={UserIcon}
-                label="Edit Profile"
-                arrowicon="chevron-forward"
-                onPress={() => router.push("/editProfile")}
-              />
-
-              <View style={styles.divider}>
+            {isAdmin ? (
+              <View style={styles.logoutCard}>
                 <MenuItem
-                  icon={LocationEdit}
-                  label="Manage Addresses"
-                  arrowicon="chevron-forward"
-                  onPress={() => router.push("/adress")}
+                  icon={LogOutIcon}
+                  label="Logout"
+                  onPress={handleSubmit}
                 />
               </View>
+            ) : (
+              <>
+                <View style={styles.card}>
+                  <MenuItem
+                    icon={UserIcon}
+                    label="Edit Profile"
+                    arrowicon="chevron-forward"
+                    onPress={() => router.push("/editProfile")}
+                  />
 
-              <View style={styles.divider}>
-                <MenuItem
-                  icon={SettingsIcon}
-                  label="Settings"
-                  arrowicon="chevron-forward"
-                  onPress={() => router.push("/settings")}
-                />
-              </View>
-
-              <View style={styles.divider}>
-                <MenuItem
-                  icon={LockIcon}
-                  label="Change Password"
-                  arrowicon={isActive ? "chevron-down" : "chevron-forward"}
-                  onPress={() => setActive(!isActive)}
-                />
-
-                {isActive && (
-                  <View style={styles.changePasswordBox}>
-                    <ChangePassword />
+                  <View style={styles.divider}>
+                    <MenuItem
+                      icon={LocationEdit}
+                      label="Manage Addresses"
+                      arrowicon="chevron-forward"
+                      onPress={() => router.push("/adress")}
+                    />
                   </View>
-                )}
-              </View>
-            </View>
+
+                  <View style={styles.divider}>
+                    <MenuItem
+                      icon={SettingsIcon}
+                      label="Settings"
+                      arrowicon="chevron-forward"
+                      onPress={() => router.push("/settings")}
+                    />
+                  </View>
+
+                  <View style={styles.divider}>
+                    <MenuItem
+                      icon={LockIcon}
+                      label="Change Password"
+                      arrowicon={isActive ? "chevron-down" : "chevron-forward"}
+                      onPress={() => setActive(!isActive)}
+                    />
+
+                    {isActive && (
+                      <View style={styles.changePasswordBox}>
+                        <ChangePassword />
+                      </View>
+                    )}
+                  </View>
+                </View>
+                <View style={styles.logoutCard}>
+                  <MenuItem
+                    icon={LogOutIcon}
+                    label="Logout"
+                    onPress={handleSubmit}
+                  />
+                </View>
+              </>
+            )}
 
             {/* Logout */}
-            <View style={styles.logoutCard}>
-              <MenuItem
-                icon={LogOutIcon}
-                label="Logout"
-                onPress={handleSubmit}
-              />
-            </View>
           </ScrollView>
         </SafeAreaView>
       </View>

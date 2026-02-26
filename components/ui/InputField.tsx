@@ -65,6 +65,7 @@ export function InputField<T extends FieldValues>({
                   if (onChangeText) onChangeText(text);
                 }}
                 placeholder={placeholder ?? `Enter ${label}`}
+                placeholderTextColor={"gray"}
                 secureTextEntry={pwdIcon && showPassword} // only for password fields
                 style={styles.input}
                 keyboardType={keyboardType}

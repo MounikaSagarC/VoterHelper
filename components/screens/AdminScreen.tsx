@@ -1,236 +1,288 @@
-import { useState } from "react";
+import React from "react";
 import {
-  Dimensions,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
   View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Dimensions,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons, Feather } from "@expo/vector-icons";
 
 const { width } = Dimensions.get("window");
 
-const CHART_WIDTH = width - 64;
-const CHART_HEIGHT = 160;
+const data = [
+  { date: "Feb 19, 2026", value: 50 },
+  { date: "Feb 20, 2026", value: 14 },
+  { date: "Feb 21, 2026", value: 51 },
+  { date: "Feb 22, 2026", value: 50 },
+  { date: "Feb 23, 2026", value: 28 },
+  { date: "Feb 24, 2026", value: 22 },
+  { date: "Feb 25, 2026", value: 34 },
+  { date: "Feb 26, 2026", value: 34 },
+];
 
-export default function DashboardScreen() {
-  const [active, setActive] = useState("Weekly");
-  const monthly = [20, 45, 35, 55, 48, 30, 25];
-  const weekly = [15, 30, 25, 40, 35, 28, 18];
-  const today = [10, 18, 15, 25, 20, 17, 12];
+const MAX = 55;
 
-  const data1 = [25, 45, 30, 55, 35, 20, 25];
-  const data2 = [35, 25, 28, 20, 40, 22, 18];
-
-  const buildPath = (data: number[]) => {
-    const max = Math.max(...data);
-    const min = Math.min(...data);
-
-    return data
-      .map((val, i) => {
-        const x = (i / (data.length - 1)) * CHART_WIDTH;
-        const y = CHART_HEIGHT - ((val - min) / (max - min)) * CHART_HEIGHT;
-        return `${i === 0 ? "M" : "L"}${x},${y}`;
-      })
-      .join(" ");
-  };
-
+export default function Dashboard() {
   return (
-    <SafeAreaView style={styles.container}>
-      {/* HEADER */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Admin Dashboard</Text>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      {/* TOP CARDS */}
+      <View style={styles.cardRow}>
+        <StatCard title="Total Voters" value="12,540" icon="user" />
+        <StatCard title="Total Candidates" value="348" icon="user" />
       </View>
 
-      {/* STATS */}
-      <View style={styles.row}>
-        <StatCard dark value="180" label="Total Products" percent={30} />
-        <StatCard value="210" label="Total Orders" percent={70} />
-      </View>
+      {/* MAIN CARD */}
+      <View style={styles.mainCard}>
+        {/* HEADER */}
+        <View style={styles.header}>
+          <View style={styles.row}>
+            <Ionicons name="calendar-outline" size={18} color="#0e9f6e" />
+            <Text style={styles.headerTitle}>Voters Registered</Text>
+          </View>
 
-      <View style={styles.row}>
-        <StatCard value="150" label="Total Clients" percent={70} />
-        <StatCard pink value="110" label="Revenue" percent={70} />
-      </View>
+          <View style={styles.toggle}>
+            <TouchableOpacity style={styles.activeToggle}>
+              <Ionicons name="stats-chart" size={16} color="#0e9f6e" />
+              <Text style={styles.activeToggleText}>Chart</Text>
+            </TouchableOpacity>
 
-      {/* REVENUE */}
-      <View style={styles.chartBox}>
-        <View style={styles.chartHeader}>
-          <Text style={styles.chartTitle}>Revenue</Text>
-
-          <View style={styles.tabs}>
-            {["Monthly", "Weekly", "Today"].map((t) => (
-              <TouchableOpacity
-                key={t}
-                onPress={() => setActive(t)}
-                style={[styles.tab, active === t && styles.activeTab]}
-              >
-                <Text
-                  style={[styles.tabText, active === t && styles.activeText]}
-                >
-                  {t}
-                </Text>
-              </TouchableOpacity>
-            ))}
+            <TouchableOpacity style={styles.toggleBtn}>
+              <Ionicons name="grid-outline" size={16} color="#555" />
+              <Text style={styles.toggleText}>Table</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
-        <BarGraph
-          data={
-            active === "Monthly"
-              ? monthly
-              : active === "Weekly"
-                ? weekly
-                : today
-          }
-        />
+        {/* FILTER BUTTONS */}
+        <View style={styles.filterRow}>
+          {["Today", "Last 7 days", "Last 30 days", "Custom range"].map(
+            (item, i) => (
+              <TouchableOpacity
+                key={i}
+                style={[
+                  styles.filterBtn,
+                  item === "Last 7 days" && styles.activeFilter,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.filterText,
+                    item === "Last 7 days" && styles.activeFilterText,
+                  ]}
+                >
+                  {item}
+                </Text>
+              </TouchableOpacity>
+            )
+          )}
+        </View>
+
+        {/* TOTAL */}
+        <Text style={styles.totalText}>
+          Total in selected period: <Text style={styles.bold}>283</Text>{" "}
+          registrations
+        </Text>
+
+        {/* CHART */}
+        {data.map((item, index) => (
+          <View key={index} style={styles.barRow}>
+            <Text style={styles.date}>{item.date}</Text>
+
+            <View style={styles.progressContainer}>
+              <LinearGradient
+                colors={["#10b981", "#0e9f6e"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={[
+                  styles.progressBar,
+                  { width: `${(item.value / MAX) * 100}%` },
+                ]}
+              />
+            </View>
+
+            <Text style={styles.value}>{item.value}</Text>
+          </View>
+        ))}
       </View>
-    </SafeAreaView>
+    </ScrollView>
   );
 }
 
-/* STAT CARD */
-const StatCard = ({ value, label, percent, dark, pink }: any) => (
-  <View style={[styles.card, dark && styles.darkCard]}>
-    <Text style={[styles.value, dark && { color: "#fff" }]}>{value}</Text>
-    <Text style={[styles.label, dark && { color: "#ccc" }]}>{label}</Text>
-
-    <View style={styles.progressBg}>
-      <View
-        style={[
-          styles.progressFill,
-          {
-            width: `${percent}%`,
-            backgroundColor: pink ? "#f1a7b6" : "#3b82f6",
-          },
-        ]}
-      />
-    </View>
-  </View>
-);
-
-const BarGraph = ({ data }: { data: number[] }) => {
-  const max = Math.max(...data);
-
+const StatCard = ({ title, value, icon }) => {
   return (
-    <View style={styles.barcontainer}>
-      {data.map((val, i) => {
-        const height = (val / max) * 140;
-
-        return (
-          <View key={i} style={styles.barWrapper}>
-            <View
-              style={[
-                styles.bar,
-                { height, backgroundColor: i === 3 ? "#000" : "#d1d5db" },
-              ]}
-            />
-            <Text style={styles.label}>
-              {["S", "M", "T", "W", "T", "F", "S"][i]}
-            </Text>
-          </View>
-        );
-      })}
-    </View>
+    <LinearGradient
+      colors={["#0e9f6e", "#0891b2"]}
+      style={styles.statCard}
+    >
+      <View>
+        <Text style={styles.statTitle}>{title}</Text>
+        <Text style={styles.statValue}>{value}</Text>
+      </View>
+      <Feather name={icon} size={36} color="#fff" />
+    </LinearGradient>
   );
 };
 
-/* STYLES */
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f1fdf9",
+    padding: 16,
+  },
+
+  cardRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 16,
+  },
+
+  statCard: {
+    width: width / 2 - 24,
+    borderRadius: 16,
+    padding: 16,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    elevation: 4,
+  },
+
+  statTitle: {
+    color: "#e6fffa",
+    fontSize: 14,
+  },
+
+  statValue: {
+    color: "#fff",
+    fontSize: 28,
+    fontWeight: "bold",
+    marginTop: 6,
+  },
+
+  mainCard: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 16,
+    elevation: 3,
+  },
+
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    padding: 16,
     alignItems: "center",
   },
 
-  title: { fontSize: 22, fontWeight: "700" },
-  avatar: { width: 40, height: 40, borderRadius: 20 },
-
   row: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
+    alignItems: "center",
   },
 
-  card: {
-    width: width / 2 - 24,
-    backgroundColor: "#8cdbd1",
-    padding: 14,
-    borderRadius: 14,
-    marginBottom: 14,
+  headerTitle: {
+    marginLeft: 8,
+    fontSize: 16,
+    fontWeight: "600",
   },
-  darkCard: { backgroundColor: "#8cdbd1" },
 
-  value: { fontSize: 20, fontWeight: "700" },
+  toggle: {
+    flexDirection: "row",
+    backgroundColor: "#f3f4f6",
+    borderRadius: 12,
+  },
 
-  progressBg: {
-    height: 6,
-    backgroundColor: "#e5e5e5",
+  toggleBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+
+  toggleText: {
+    marginLeft: 6,
+    color: "#555",
+  },
+
+  activeToggle: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+
+  activeToggleText: {
+    marginLeft: 6,
+    color: "#0e9f6e",
+    fontWeight: "600",
+  },
+
+  filterRow: {
+    flexDirection: "row",
+    marginTop: 14,
+    flexWrap: "wrap",
+    gap: 8,
+  },
+
+  filterBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    backgroundColor: "#f3f4f6",
+    borderRadius: 12,
+  },
+
+  filterText: {
+    color: "#555",
+  },
+
+  activeFilter: {
+    backgroundColor: "#0e9f6e",
+  },
+
+  activeFilterText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+
+  totalText: {
+    marginTop: 14,
+    color: "#333",
+  },
+
+  bold: {
+    fontWeight: "bold",
+  },
+
+  barRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 14,
+  },
+
+  date: {
+    width: 95,
+    fontSize: 12,
+    color: "#555",
+  },
+
+  progressContainer: {
+    flex: 1,
+    height: 14,
+    backgroundColor: "#f3f4f6",
     borderRadius: 10,
     overflow: "hidden",
+    marginHorizontal: 10,
   },
-  progressFill: {
+
+  progressBar: {
     height: "100%",
     borderRadius: 10,
   },
 
-  chartBox: {
-    margin: 16,
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 16,
-  },
-  chartHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 10,
-  },
-  chartTitle: { fontSize: 16, fontWeight: "700" },
-
-  tabs: {
-    flexDirection: "row",
-    backgroundColor: "#8cdbd1",
-    borderRadius: 10,
-  },
-  tab: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 10,
-  },
-  container: { flex: 1, backgroundColor: "#f5f5f5" },
-  activeTab: { backgroundColor: "#000" },
-
-  tabText: { fontSize: 12, color: "#16574e" },
-  activeText: { color: "#fff" },
-
-  bottomNav: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingVertical: 14,
-    backgroundColor: "#fff",
-    borderTopWidth: 1,
-    borderColor: "#eee",
-  },
-  navText: { fontSize: 12, color: "#555" },
-  barcontainer: {
-    height: 160,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-end",
-    marginTop: 20,
-  },
-  barWrapper: {
-    alignItems: "center",
-    flex: 1,
-  },
-  bar: {
-    width: 16,
-    borderRadius: 8,
-  },
-  label: {
-    marginTop: 6,
-    fontSize: 10,
-    color: "#777",
+  value: {
+    width: 30,
+    textAlign: "right",
+    fontWeight: "600",
   },
 });

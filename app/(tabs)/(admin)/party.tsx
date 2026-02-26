@@ -9,22 +9,23 @@ import {
 import { AntDesign } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
-import { Edit } from "lucide-react-native";
-import { useEffect, useRef, useState } from "react";
+import { Edit, Pencil } from "lucide-react-native";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Animated,
   Pressable,
+  StyleSheet,
   Switch,
   Text,
   View,
-  StyleSheet,
 } from "react-native";
+import { property } from "zod";
 
 const PartyScreen = () => {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [selectedParty, setSelectedParty] = useState<any>(null);
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
   const inActivatePartyMutate = useInActivatePartyMutation();
   const { createPartyMutate, updatePartyMutate } = usePartyMutations();
@@ -41,6 +42,8 @@ const PartyScreen = () => {
     queryKey: ["parties"],
     queryFn: fetchParties,
   });
+
+  console.log(data)
 
   useEffect(() => {
     if (data) {
@@ -67,18 +70,6 @@ const PartyScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* HEADER */}
-      {/* <View style={styles.headerWrapper}>
-        <LinearGradient
-          colors={["#0cc48b", "#0D9488", "#0E7490"]}
-          start={{ x: 0.6, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.headerGradient}
-        >
-          <Text style={styles.headerText}>Parties</Text>
-        </LinearGradient>
-      </View> */}
-
       {/* TABLE */}
       <View style={styles.table}>
         {/* Header Row */}
@@ -100,7 +91,6 @@ const PartyScreen = () => {
               <Text style={styles.codeText}>{party.partyCode}</Text>
 
               <Text style={styles.nameText}>{party.partyName}</Text>
-
               <Pressable style={styles.actions}>
                 {party.isActive && (
                   <Icon
@@ -196,7 +186,7 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
   table: {
-    marginTop:40,
+    marginTop: 40,
     backgroundColor: "#fff",
     borderRadius: 16,
     overflow: "hidden",
@@ -221,12 +211,38 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 12,
   },
+    menu: {
+    position: "absolute",
+    top: 24,
+    right: 0,
+    backgroundColor: "white",
+    padding:10,
+    borderRadius: 12,
+    paddingVertical: 6,
+    width: 140,
+    elevation: 6,
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+  },
   actionHeader: {
     width: 64,
     color: "#fff",
     fontWeight: "bold",
     fontSize: 12,
     textAlign: "right",
+  },
+    menuItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    gap: 8,
+  },
+  menuText: {
+    fontSize: 14,
+    color: "#374151",
+    fontWeight: "500",
   },
   row: {
     flexDirection: "row",

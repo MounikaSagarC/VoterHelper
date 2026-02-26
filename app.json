@@ -24,28 +24,35 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.chinnasagar.voterapp"
+      "package": "com.chinnadhi.voterapp"
     },
     "plugins": [
       "expo-router",
-      "expo-build-properties"
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
     },
-    "extra": {
-      "router": {},
-      "eas": {
-        "projectId": "c6b452da-6e04-47e5-8d26-ce5a4f193cf0"
-      }
-    },
-    "owner": "chinnasagar",
+    "owner": "chinnadhi",
     "runtimeVersion": {
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/c6b452da-6e04-47e5-8d26-ce5a4f193cf0"
+      "url": "https://u.expo.dev/ab19dbe5-1093-4a45-a17e-85ec26dec30a"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ab19dbe5-1093-4a45-a17e-85ec26dec30a"
+      }
     }
   }
 }
