@@ -1,12 +1,14 @@
 import DashboardScreen from "@/components/screens/AdminScreen";
 import HomeScreen from "@/components/screens/HomeScreen";
 import SearchBar from "@/components/SearchBar";
-import { useIsAdmin } from "@/lib/helpers/auth";
+import { useAuthStore } from "@/store/auth_store";
 import { useState } from "react";
 import { Text } from "react-native";
 
 const Index = () => {
-  const isAdmin = useIsAdmin();
+  const  userRole  = useAuthStore((s)=>(s.userRole)
+)
+  const isAdmin = (userRole === 'SUPER_ADMIN');
 
 
   return (

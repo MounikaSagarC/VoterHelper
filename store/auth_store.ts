@@ -38,6 +38,8 @@ const initialState: AuthState = {
   logout: () => {},
 };
 
+
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
@@ -73,3 +75,6 @@ export const useAuthStore = create<AuthState>()(
     },
   ),
 );
+
+// export const useIsAdmin = (userRole === "SUPER_ADMIN")
+

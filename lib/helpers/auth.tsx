@@ -1,4 +1,3 @@
-import { useAuthStore } from "@/store/auth_store";
 import { UserRole } from "@/store/types/api";
 
 export const extractRole = (decoded: any): UserRole | null => {
@@ -14,5 +13,4 @@ export function encodeForLogin(plainText: string): string {
   return btoa(unescape(encodeURIComponent(combined)))
 }
 
-export const useIsAdmin = () => useAuthStore((s) => s.userRole === "SUPER_ADMIN");
 

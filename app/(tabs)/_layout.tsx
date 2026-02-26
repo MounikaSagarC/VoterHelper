@@ -20,9 +20,8 @@ export default function TabLayout() {
               <Image
                 source={require("../../assets/images/image__3.png")}
                 style={{
-                  width: 180,
-                  height: 70,
-                  marginBottom:20,
+                  width: 70,
+                  height: 50,
                   resizeMode: "contain",
                 }}
               />
@@ -116,6 +115,7 @@ export default function TabLayout() {
           name="(profile)"
           options={{
             title: "Profile",
+            headerShown:false,
             popToTopOnBlur: true,
             tabBarLabel({ focused }) {
               return (

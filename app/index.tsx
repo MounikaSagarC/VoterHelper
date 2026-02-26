@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Dimensions,
   Pressable,
+  StyleSheet,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
@@ -20,8 +21,6 @@ export default function VoteLandingScreen() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideUpAnim = useRef(new Animated.Value(40)).current;
   const floatAnim = useRef(new Animated.Value(0)).current;
-  
-  
 
   useEffect(() => {
     Animated.parallel([
@@ -53,59 +52,112 @@ export default function VoteLandingScreen() {
   }, []);
 
   return (
-    <LinearGradient
-      colors={["#E8DDFF", "#73ebe7"]}
-      className="flex-1"
-    >
+    <LinearGradient colors={["#E8DDFF", "#73ebe7"]} style={styles.container}>
       {/* Header */}
-      <View className="flex-row items-center justify-between px-5 pt-28 h-10">
-        {/* Logo */}
+      <View style={styles.header}>
         <Image
           source={require("../assets/images/image__3.png")}
-          className="h-30 w-40"
+          style={styles.logo}
           resizeMode="contain"
         />
       </View>
 
       {/* Content */}
       <AnimatedView
-        className="flex-1 items-center justify-center px-5"
-        style={{
-          opacity: fadeAnim,
-          transform: [{ translateY: slideUpAnim }],
-        }}
+        style={[
+          styles.content,
+          { opacity: fadeAnim, transform: [{ translateY: slideUpAnim }] },
+        ]}
       >
         {/* Illustration */}
         <AnimatedImage
           source={require("../assets/images/background-removebg-preview.png")}
           resizeMode="contain"
-          className="mb-5"
-          style={{
-            width: width * 0.9,
-            height: 260,
-            transform: [{ translateY: floatAnim }],
-          }}
+          style={[
+            styles.illustration,
+            { transform: [{ translateY: floatAnim }] },
+          ]}
         />
 
         {/* Text */}
-        <Text className="text-2xl font-extrabold text-[#5B3FD9]">
-          The World`s Most Popular 
-        </Text>
-        <Text className="mb-2 text-2xl font-extrabold text-[#5B3FD9]">
-           Voting Guide
+        <Text style={styles.title}>The World`s Most Popular</Text>
+        <Text style={styles.title}>Voting Guide</Text>
+
+        <Text style={styles.subtitle}>
+          Find information about elections, political parties, candidates,
+          voting states, and political issues
         </Text>
 
-        <Text className="mb-8 text-center text-sm leading-5 text-[#7B6F9E]">
-          Find information about elections, political parties, candidates, voting states, and political issues
-        </Text>
-
-        {/* Buttons */}
+        {/* Button */}
         <Pressable>
-          <TouchableOpacity className="rounded-full bg-[#6B4EFF] px-6 py-3">
-            <Text className="font-semibold text-white" onPress={()=>{router.replace("/(auth)/login")}}>Get Started</Text>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => router.replace("/(auth)/login")}
+          >
+            <Text style={styles.buttonText}>Get Started</Text>
           </TouchableOpacity>
         </Pressable>
       </AnimatedView>
     </LinearGradient>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingTop: 112, // pt-28
+    height: 40,
+  },
+
+  logo: {
+    width: 160,
+    height: 120,
+  },
+
+  content: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 20,
+  },
+
+  illustration: {
+    width: width * 0.9,
+    height: 260,
+    marginBottom: 20,
+  },
+
+  title: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: "#5B3FD9",
+  },
+
+  subtitle: {
+    marginBottom: 32,
+    textAlign: "center",
+    fontSize: 14,
+    lineHeight: 20,
+    color: "#7B6F9E",
+  },
+
+  button: {
+    backgroundColor: "#6B4EFF",
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 999,
+  },
+
+  buttonText: {
+    color: "white",
+    fontWeight: "600",
+  },
+});
+

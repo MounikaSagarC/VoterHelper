@@ -6,6 +6,7 @@ import { useAuthStore } from "@/store/auth_store";
 import { useProfilestore } from "@/store/profile_store";
 import { useQuery } from "@tanstack/react-query";
 import { useFocusEffect, router } from "expo-router";
+import { LocationEdit, LockIcon, LogOutIcon, SettingsIcon, UserIcon } from "lucide-react-native";
 import { useCallback } from "react";
 import {
   Image,
@@ -70,7 +71,7 @@ export default function ProfileScreen() {
             {/* Menu */}
             <View style={styles.card}>
               <MenuItem
-                icon="person-outline"
+                icon={UserIcon}
                 label="Edit Profile"
                 arrowicon="chevron-forward"
                 onPress={() => router.push("/editProfile")}
@@ -78,7 +79,7 @@ export default function ProfileScreen() {
 
               <View style={styles.divider}>
                 <MenuItem
-                  icon="location-outline"
+                  icon={LocationEdit}
                   label="Manage Addresses"
                   arrowicon="chevron-forward"
                   onPress={() => router.push("/adress")}
@@ -87,7 +88,7 @@ export default function ProfileScreen() {
 
               <View style={styles.divider}>
                 <MenuItem
-                  icon="settings-outline"
+                  icon={SettingsIcon}
                   label="Settings"
                   arrowicon="chevron-forward"
                   onPress={() => router.push("/settings")}
@@ -96,7 +97,7 @@ export default function ProfileScreen() {
 
               <View style={styles.divider}>
                 <MenuItem
-                  icon="lock-closed-outline"
+                  icon={LockIcon}
                   label="Change Password"
                   arrowicon={isActive ? "chevron-down" : "chevron-forward"}
                   onPress={() => setActive(!isActive)}
@@ -113,7 +114,7 @@ export default function ProfileScreen() {
             {/* Logout */}
             <View style={styles.logoutCard}>
               <MenuItem
-                icon="log-out-outline"
+                icon={LogOutIcon}
                 label="Logout"
                 onPress={handleSubmit}
               />
