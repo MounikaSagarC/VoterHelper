@@ -153,6 +153,7 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen name="(admin)" options={{href:null,headerShown:false, popToTopOnBlur:true}}/>
+        <Tabs.Screen name="(users)" options={{href:null,headerShown:false, popToTopOnBlur:true}}/>
       </Tabs>
       <TagsBottomSheet
         visible={open}

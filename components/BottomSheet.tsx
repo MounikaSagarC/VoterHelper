@@ -1,14 +1,23 @@
 import { MenuItem } from "@/lib/helpers/profileHelper";
-import { Ionicons } from "@expo/vector-icons";
+import { useAuthStore } from "@/store/auth_store";
 import { router } from "expo-router";
-import { Building, CircleQuestionMark, Database, FileQuestionIcon, GraduationCapIcon, MailQuestionIcon, MenuIcon, TagIcon, Users2Icon, X } from "lucide-react-native";
+import {
+  Building,
+  CircleQuestionMark,
+  Database,
+  GraduationCapIcon,
+  MenuIcon,
+  TagIcon,
+  Users2Icon,
+  X,
+} from "lucide-react-native";
 import React from "react";
 import {
   Modal,
   ScrollView,
+  StyleSheet,
   TouchableOpacity,
   View,
-  StyleSheet,
 } from "react-native";
 
 interface TagsBottomSheetProps {
@@ -24,6 +33,9 @@ export const TagsBottomSheet: React.FC<TagsBottomSheetProps> = ({
   tags,
   topicName,
 }) => {
+  const userRole = useAuthStore((s) => s.userRole);
+  const isAdmin = userRole === "SUPER_ADMIN";
+
   const handleNavigate = (path: string) => {
     onClose(); // 👈 close sheet first
 
@@ -52,6 +64,8 @@ export const TagsBottomSheet: React.FC<TagsBottomSheetProps> = ({
 
           <ScrollView style={styles.scroll}>
             <View style={styles.menuContainer}>
+              {isAdmin ? (
+                <>
               <MenuItem
                 icon={TagIcon}
                 label="Parties"
@@ -111,6 +125,25 @@ export const TagsBottomSheet: React.FC<TagsBottomSheetProps> = ({
                   onPress={() => handleNavigate("(tabs)/(admin)/sources")}
                 />
               </View>
+                </>
+              ):(
+                <>
+                <View style={styles.divider}>
+                <MenuItem
+                  icon={Users2Icon}
+                  label="Elections"
+                  arrowicon="chevron-forward"
+                  onPress={() => handleNavigate("(tabs)/(users)/elections")}
+                />
+                <MenuItem
+                  icon={Users2Icon}
+                  label="Practice"
+                  arrowicon="chevron-forward"
+                  onPress={() => handleNavigate("(tabs)/(users)/practice")}
+                />
+              </View>
+                </>
+              )}
             </View>
           </ScrollView>
         </View>

@@ -11,17 +11,21 @@ export async function signUp(data:RegisterFormSchemaTypes){
 }
 
 export async function loginUser(data: Credentials) {
+  console.log("login api hit")
   const payload = {
     userName: encodeForLogin(data.userName),
     password: encodeForLogin(data.password),
   };
+  console.log("login payload",payload)
   
+  console.log("api",process.env.EXPO_PUBLIC_API_URL)
   const res = await axios.post(
     `${process.env.EXPO_PUBLIC_API_URL}/v1/auth/login`,
     payload,
   );
-  console.log(res.data)
+  console.log(res)
   if (res.data?.code !== 1) {
+    console.log(res.data)
     throw new Error(res.data?.message || "Login failed");
   }
   return res.data.data;

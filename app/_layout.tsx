@@ -10,20 +10,20 @@ export const queryclient = new QueryClient();
 
 export default function RootLayout() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  console.log(isAuthenticated);
 
   return (
-    <ProtectedRouteGuard>
-      <GestureHandlerRootView className="flex-1">
-        <QueryClientProvider client={queryclient}>
-          <ToastProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryClientProvider client={queryclient}>
+        <ToastProvider>
+          <ProtectedRouteGuard>
             <Stack screenOptions={{ headerShown: false }}>
               <Stack.Protected guard={isAuthenticated}>
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="(admin)" />
               </Stack.Protected>
+
               <Stack.Protected guard={!isAuthenticated}>
-                <Stack.Screen name="index" options={{ headerShown: false }} />
+                <Stack.Screen name="index" />
                 <Stack.Screen
                   name="login"
                   options={{
@@ -32,12 +32,12 @@ export default function RootLayout() {
                     animation: "fade",
                   }}
                 />
-                <Stack.Screen name="signup" options={{ headerShown: false }} />
+                <Stack.Screen name="signup" />
               </Stack.Protected>
             </Stack>
-          </ToastProvider>
-        </QueryClientProvider>
-      </GestureHandlerRootView>
-    </ProtectedRouteGuard>
+          </ProtectedRouteGuard>
+        </ToastProvider>
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }
