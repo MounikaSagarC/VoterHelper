@@ -27,6 +27,7 @@ import { InputField } from "@/components/ui/InputField";
 import { FormCombo } from "@/lib/helpers/formCombo";
 import { addressSchema, AddressType } from "@/services/schemas/profileSchema";
 import { useAddressStore } from "@/store/addressStore";
+import SwitchButton from "@/components/ui/SwitchButton";
 
 const AddressForm = () => {
   const { mode, address } = useLocalSearchParams();
@@ -334,7 +335,7 @@ const AddressForm = () => {
                 render={({ field: { value, onChange } }) => (
                   <View style={styles.primaryRow}>
                     <Text>Set as Primary Address</Text>
-                    <Switch value={value} onValueChange={onChange} />
+                    <SwitchButton value={value} onChange={onChange} />
                   </View>
                 )}
               />
@@ -394,9 +395,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   primaryRow: {
-    flexDirection: "row-reverse",
+    flexDirection: "row",
+    gap:5,
     alignItems: "center",
-    justifyContent: "flex-end",
+    justifyContent: "flex-start",
   },
   submit: {
     backgroundColor: "#3B82F6", // blue-500

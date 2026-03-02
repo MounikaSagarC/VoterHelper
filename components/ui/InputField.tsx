@@ -52,7 +52,7 @@ export function InputField<T extends FieldValues>({
               {icon && (
                 <Ionicons
                   name={icon}
-                  size={20}
+                  size={18}
                   color="#111827"
                   style={styles.icon}
                 />
@@ -75,7 +75,7 @@ export function InputField<T extends FieldValues>({
             {pwdIcon && (
               <Ionicons
                 name={showPassword ? "eye-off" : "eye"}
-                size={26}
+                size={20}
                 color="#111827"
                 style={styles.icon}
                 onPress={() => setShowPassword(!showPassword)}
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
   },
   label: {
     color: "#6b7280",
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "600",
   },
   required: {
@@ -139,6 +139,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
+    fontSize:12,
     paddingVertical: 8,
   },
   errorText: {

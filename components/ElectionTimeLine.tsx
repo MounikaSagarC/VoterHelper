@@ -4,11 +4,6 @@ import ElectionCard from "./ElectionCard";
 export default function ElectionTimeline({ group, onPress }: any) {
   return (
     <View style={styles.container}>
-      {/* Timeline axis */}
-      <View style={styles.axis}>
-        {/* <View style={styles.line} /> */}
-      </View>
-
       {/* Content */}
       <View style={styles.content}>
         {/* Date row */}
@@ -31,20 +26,12 @@ const AXIS_WIDTH = 26;
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    marginBottom: 24,
+    // marginBottom: 8,
   },
 
   axis: {
     width: AXIS_WIDTH,
     alignItems: "center",
-  },
-
-  line: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    width: 2,
-    backgroundColor: "#60A5FA",
   },
 
   content: {
@@ -56,6 +43,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 12,
+    marginLeft:12
   },
 
   dot: {
@@ -68,7 +56,7 @@ const styles = StyleSheet.create({
 
   date: {
     color: "#9CA3AF",
-    fontSize: 15,
+    fontSize: 14,
     marginLeft: 12,
   },
 });

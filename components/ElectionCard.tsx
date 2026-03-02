@@ -3,13 +3,9 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import Card from "./Cards/Card";
 import { useQuery } from "@tanstack/react-query";
 import { getCandidatesByElections } from "@/services/api/elections";
-import { useLocalSearchParams } from "expo-router";
 
 export default function ElectionCard({ data, onPress }: any) {
 
-  
-    const id = data.id;
-   const numericId = id ? parseInt(id, 10) : 0;
   const { data: electedCandidates } = useQuery({
     queryKey: ["electedCandidates", data.id],
     queryFn: () => getCandidatesByElections(data.id),
@@ -37,18 +33,13 @@ const candidateCount = electedCandidates?.length ?? 0;
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "#d3d8e6",
-    padding: 16,
-    borderRadius: 18,
-    marginBottom: 12,
-  },
   title: {
     color: "#000",
-    fontSize: 17,
+    fontSize: 12,
     fontWeight: "600",
   },
   sub: {
+    fontSize:10,
     color: "#9CA3AF",
     marginTop: 2,
   },
@@ -64,9 +55,11 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   count: {
+    fontSize:12,
     color: "#9CA3AF",
   },
   link: {
+    fontSize:10,
     color: "#60A5FA",
     alignItems:"flex-end",
     fontWeight: "500",

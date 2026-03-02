@@ -1,3 +1,4 @@
+import { TAB_BAR_HEIGHT } from "@/app/(tabs)/_layout";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Image, ScrollView, Text, TextInput, TouchableOpacity, View, StyleSheet } from "react-native";
@@ -98,6 +99,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F6F5FF",
+    paddingBottom: TAB_BAR_HEIGHT 
   },
   header: {
     paddingHorizontal: 16,

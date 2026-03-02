@@ -2,6 +2,7 @@ import Card from "@/components/Cards/Card";
 import { SwipeToDeleteCard } from "@/components/Cards/SwipeToDelete";
 import SearchBar from "@/components/SearchBar";
 import Dropdown from "@/components/ui/dropdown";
+import SwitchButton from "@/components/ui/SwitchButton";
 import LetterAvatar from "@/components/ui/User";
 import { getCandidates } from "@/services/api/candidate";
 import { getStates } from "@/services/api/profile";
@@ -113,14 +114,15 @@ const OfferCard = () => {
               </View>
             </View>
 
-            <Switch
-              value={item.id !== undefined ? candidateState[item.id] : false}
-              onValueChange={(value) => {
+            <SwitchButton
+            value={item.id !== undefined ? candidateState[item.id] : false}
+              onChange={() => {
                 if (item.id !== undefined) {
                   handleToggle(item.id);
                 }
               }}
             />
+
           </View>
 
           {/* Divider */}

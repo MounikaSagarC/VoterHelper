@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     alignSelf: "center",
-    height:420,
+    height:350,
 
     // Tablet-friendly width
     width: width >= 768 ? "70%" : "100%",
@@ -79,8 +79,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
 
-    paddingTop: 12,
-    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingHorizontal: 4,
     paddingBottom: Platform.OS === "android" ? 24 : 32,
 
     // Shadow / elevation
@@ -98,6 +98,6 @@ const styles = StyleSheet.create({
     color:"white",
     backgroundColor: "#334155",
     alignSelf: "center",
-    marginBottom: 16,
+    marginBottom: 28,
   },
 });

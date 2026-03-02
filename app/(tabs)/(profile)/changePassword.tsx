@@ -1,3 +1,4 @@
+import { InputField } from "@/components/ui/InputField";
 import { useChangepwdMutation } from "@/services/mutations/profile_mutation";
 import {
   changePasswordSchema,
@@ -6,16 +7,13 @@ import {
 import { useProfilestore } from "@/store/profile_store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { isAxiosError } from "axios";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Alert, Pressable, Text, View } from "react-native";
-import { InputField } from "../ui/InputField";
-import { set } from "zod";
+import { View, Pressable, Text, StyleSheet } from "react-native";
 
 const ChangePassword = () => {
-  const [showPassword, setShowPassword] = useState(true);
   const setActive = useProfilestore((s) => s.setActive);
   const { changePasswordMutate } = useChangepwdMutation();
+
   const {
     control,
     handleSubmit,
@@ -24,66 +22,78 @@ const ChangePassword = () => {
   } = useForm({
     resolver: zodResolver(changePasswordSchema),
   });
+
   const onSubmit = (data: PasswordTypes) => {
     changePasswordMutate.mutate(data, {
       onError: (error: any) => {
         const message = isAxiosError(error)
-        ? error.response?.data?.message || error.message
-        : error instanceof Error
+          ? error.response?.data?.message || error.message
+          : error instanceof Error
           ? error.message
           : "Something went wrong";
-      setError("root", { message });
+
+        setError("root", { message });
       },
       onSuccess() {
-          setActive(false);
+        setActive(false);
       },
     });
   };
 
   return (
-    <View className="gap-10">
+    <View style={styles.container}>
       <InputField
         icon="lock-closed-outline"
         label="Current Password"
         name="currentPassword"
-        pwdIcon={true}
+        pwdIcon
         control={control}
       />
+
       <InputField
         icon="lock-closed-outline"
         label="New Password"
         name="newPassword"
-        pwdIcon={true}
+        pwdIcon
         control={control}
       />
+
       <InputField
         icon="lock-closed-outline"
         label="Confirm Password"
         name="confirmPassword"
-        pwdIcon={true}
+        pwdIcon
         control={control}
       />
 
-      <Pressable
-        onPress={handleSubmit(onSubmit, (formErrors) => {
-          Alert.alert(
-            "VALIDATION BLOCKED",
-            JSON.stringify(formErrors, null, 2),
-          );
-        })}
-      >
-        <Text className="bg-cyan-500 p-3 self-center text-white font-semibold rounded-lg">
-          Change Password
-        </Text>
+      <Pressable onPress={handleSubmit(onSubmit)}>
+        <Text style={styles.buttonText}>Change Password</Text>
       </Pressable>
 
-      {/* <Text className="text-red-500">{JSON.stringify(errors, null, 2)}</Text> */}
-
       {errors.root?.message && (
-        <Text className="text-red-500 self-center">{errors.root.message}</Text>
+        <Text style={styles.errorText}>{errors.root.message}</Text>
       )}
     </View>
   );
 };
 
 export default ChangePassword;
+
+const styles = StyleSheet.create({
+  container: {
+    margin:15,
+    gap: 4, // same as gap-10
+  },
+  buttonText: {
+    backgroundColor: "#06b6d4", // cyan-500
+    padding: 12,
+    alignSelf: "center",
+    color: "#fff",
+    fontWeight: "600",
+    borderRadius: 8,
+  },
+  errorText: {
+    color: "red",
+    alignSelf: "center",
+  },
+});

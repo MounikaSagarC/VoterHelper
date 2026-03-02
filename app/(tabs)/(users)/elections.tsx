@@ -76,6 +76,8 @@ const Users = () => {
     );
   }
 
+  console.log(users)
+
   const renderItem = ({ item }: { item: any }) => {
     return (
       <Pressable>
@@ -87,7 +89,7 @@ const Users = () => {
               <View>
                 <Text style={styles.value}>{item.generatedName}</Text>
                 <Text style={styles.label}>{item.state}</Text>
-                <Link style={styles.link} href={{ pathname:"/electionCandidates",params:{id:item.id,name:item.generatedName}}}>View details</Link>
+                <Link style={styles.link} href={{ pathname:"/electionCandidates",params:{id:item.id,name:item.generatedName,electionState:item.state}}}>View details</Link>
               </View>
             </View>
 

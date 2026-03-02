@@ -1,7 +1,9 @@
+import { TAB_BAR_HEIGHT } from "@/app/(tabs)/_layout";
 import { MenuItem } from "@/lib/helpers/profileHelper";
 import { useAuthStore } from "@/store/auth_store";
 import { router } from "expo-router";
 import {
+  BellElectricIcon,
   Building,
   CircleQuestionMark,
   Database,
@@ -9,6 +11,7 @@ import {
   MenuIcon,
   TagIcon,
   Users2Icon,
+  VoteIcon,
   X,
 } from "lucide-react-native";
 import React from "react";
@@ -128,16 +131,10 @@ export const TagsBottomSheet: React.FC<TagsBottomSheetProps> = ({
                 </>
               ):(
                 <>
-                <View style={styles.divider}>
+                <View>
                 <MenuItem
-                  icon={Users2Icon}
+                  icon={VoteIcon}
                   label="Elections"
-                  arrowicon="chevron-forward"
-                  onPress={() => handleNavigate("(tabs)/(users)/elections")}
-                />
-                <MenuItem
-                  icon={Users2Icon}
-                  label="Practice"
                   arrowicon="chevron-forward"
                   onPress={() => handleNavigate("(tabs)/(users)/practice")}
                 />
@@ -184,6 +181,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   menuContainer: {
+    paddingBottom: TAB_BAR_HEIGHT,
     backgroundColor: "#fff",
     borderRadius: 16,
     paddingHorizontal: 20,

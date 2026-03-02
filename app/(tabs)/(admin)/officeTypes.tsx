@@ -2,6 +2,7 @@ import Card from "@/components/Cards/Card";
 import { SwipeToDeleteCard } from "@/components/Cards/SwipeToDelete";
 import FloatingActionButton from "@/components/FloatingButton";
 import OfficeModal from "@/components/Modal/OfficeModal";
+import SwitchButton from "@/components/ui/SwitchButton";
 import { getOfficeTypes } from "@/services/api/officeType";
 import { useOfficeTypeMutattions } from "@/services/mutations/office_mutation";
 import { OfficeType } from "@/services/schemas/admin_schema";
@@ -117,9 +118,9 @@ const OfferCard = () => {
 
                     <View style={styles.actions}>
                       <Text>Status:</Text>
-                      <Switch
+                      <SwitchButton
                         value={officeState[officeType.id]}
-                        onValueChange={() => handleToggle(officeType.id!)}
+                        onChange={() => handleToggle(officeType.id!)}
                       />
                     </View>
                   </Pressable>

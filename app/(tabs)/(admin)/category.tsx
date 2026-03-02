@@ -95,10 +95,6 @@ export default function TopicsCardList() {
                   setOpen(true);
                 }}
               />
-              {/* <Switch
-                value={categoryState[item.id]}
-                onValueChange={() => handleToggle(item.id!)}
-              /> */}
             </View>
           </View>
 

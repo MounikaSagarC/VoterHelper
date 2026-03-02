@@ -1,3 +1,4 @@
+import SwitchButton from "@/components/ui/SwitchButton";
 import { useProfileMutation } from "@/services/mutations/profile_mutation";
 import { ProfileTypes } from "@/services/schemas/profileSchema";
 import { useProfilestore } from "@/store/profile_store";
@@ -52,9 +53,9 @@ export default function SettingsScreen() {
         title="Show Email"
         description="Let others see your email on your profile."
         rightComponent={
-          <Switch
+          <SwitchButton
             value={formData.showEmailPublicly ?? false}
-            onValueChange={(value) =>
+            onChange={(value:any) =>
               updateSetting({ showEmailPublicly: value })
             }
           />
@@ -66,9 +67,9 @@ export default function SettingsScreen() {
         title="Show Real Name"
         description="Let others see your real name on your profile."
         rightComponent={
-          <Switch
+          <SwitchButton
             value={formData.showRealNamePublicly ?? false}
-            onValueChange={(value) =>
+            onChange={(value:any) =>
               updateSetting({ showRealNamePublicly: value })
             }
           />
@@ -80,9 +81,9 @@ export default function SettingsScreen() {
         title="Show Age"
         description="Display your age publicly on your profile."
         rightComponent={
-          <Switch
+          <SwitchButton
             value={formData.showAgePublicly ?? false}
-            onValueChange={(value) =>
+            onChange={(value:any) =>
               updateSetting({ showAgePublicly: value })
             }
           />

@@ -15,7 +15,7 @@ export const MenuItem = ({
 }) => (
   <TouchableOpacity onPress={onPress} style={styles.container}>
     <View style={styles.left}>
-      <Icon as={icon} size={20} color="#111827" />
+      <Icon as={icon} size={18} color="#111827" />
       <Text style={styles.label}>{label}</Text>
     </View>
     <Ionicons name={arrowicon} size={18} color="#9CA3AF" />
@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 16,
+    paddingVertical: 10,
   },
   left: {
     flexDirection: "row",
@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
     gap: 8, // replaces space-x-3 + gap-2
   },
   label: {
-    fontSize: 16,
+    fontSize: 14,
     color: "#111827",
   },
 });

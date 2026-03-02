@@ -3,14 +3,26 @@ import { useMenuSheetStore } from "@/store/bottomSheetStore";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { Image, Text, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+// constants/layout.ts
+export const TAB_BAR_HEIGHT = 70;
 
 export default function TabLayout() {
   const { open, toggle, close } = useMenuSheetStore();
+  const insets = useSafeAreaInsets()
   return (
     <>
       <Tabs
         screenOptions={{
-          tabBarStyle: { height: 60 },
+          tabBarStyle: {
+            position: "absolute",
+            backgroundColor: "white",
+            borderTopWidth: 0,
+            elevation: 12,
+            paddingBottom:insets.bottom,
+            height: 60+insets.bottom,
+          },
           headerShown: true,
           tabBarActiveTintColor: "#2563eb",
           tabBarLabelPosition: "below-icon",
@@ -48,7 +60,7 @@ export default function TabLayout() {
                 />
               </TouchableOpacity>
             ),
-            headerTitle:"",
+            headerTitle: "",
             tabBarIcon: ({ focused }) => {
               return (
                 <View
@@ -66,7 +78,7 @@ export default function TabLayout() {
                 >
                   <Ionicons
                     name="home"
-                    size={20}
+                    size={15}
                     color={focused ? "black" : "#9CA3AF"}
                   />
                 </View>
@@ -76,7 +88,7 @@ export default function TabLayout() {
               return (
                 <View style={{ marginTop: 5 }}>
                   {focused ? null : (
-                    <Text style={{ color: "#9CA3AF" }}>Home</Text>
+                    <Text style={{ color: "#9CA3AF",fontSize:10 }}>Home</Text>
                   )}
                 </View>
               );
@@ -91,16 +103,16 @@ export default function TabLayout() {
               <View
                 style={{
                   position: "absolute",
-                  bottom: 0,
-                  width: 60,
-                  height: 60,
+                  bottom: 10,
+                  width: 40,
+                  height: 40,
                   borderRadius: 30,
                   backgroundColor: "black",
                   alignItems: "center",
                   justifyContent: "center",
                 }}
               >
-                <Ionicons name="menu" size={30} color="white" />
+                <Ionicons name="menu" size={20} color="white" />
               </View>
             ),
           }}
@@ -115,13 +127,13 @@ export default function TabLayout() {
           name="(profile)"
           options={{
             title: "Profile",
-            headerShown:false,
+            headerShown: false,
             popToTopOnBlur: true,
             tabBarLabel({ focused }) {
               return (
                 <View style={{ marginTop: 5 }}>
                   {focused ? null : (
-                    <Text style={{ color: "#9CA3AF" }}>Profile</Text>
+                    <Text style={{ color: "#9CA3AF",fontSize:10 }}>Profile</Text>
                   )}
                 </View>
               );
@@ -144,7 +156,7 @@ export default function TabLayout() {
                 >
                   <Ionicons
                     name="person"
-                    size={20}
+                    size={15}
                     color={focused ? "black" : "#9CA3AF"}
                   />
                 </View>
@@ -152,8 +164,14 @@ export default function TabLayout() {
             },
           }}
         />
-        <Tabs.Screen name="(admin)" options={{href:null,headerShown:false, popToTopOnBlur:true}}/>
-        <Tabs.Screen name="(users)" options={{href:null,headerShown:false, popToTopOnBlur:true}}/>
+        <Tabs.Screen
+          name="(admin)"
+          options={{ href: null, headerShown: false, popToTopOnBlur: true }}
+        />
+        <Tabs.Screen
+          name="(users)"
+          options={{ href: null, headerShown: false, popToTopOnBlur: true }}
+        />
       </Tabs>
       <TagsBottomSheet
         visible={open}

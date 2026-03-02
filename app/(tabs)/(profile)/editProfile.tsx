@@ -19,6 +19,8 @@ import { userProfile } from "@/services/api/profile";
 import { useProfileMutation } from "@/services/mutations/profile_mutation";
 import { ProfileTypes } from "@/services/schemas/profileSchema";
 import { useProfilestore } from "@/store/profile_store";
+import SwitchButton from "@/components/ui/SwitchButton";
+import { TAB_BAR_HEIGHT } from "../_layout";
 
 const EditProfile = () => {
   const { formData } = useProfilestore();
@@ -87,23 +89,23 @@ const EditProfile = () => {
 
         {/* Form */}
         <View style={styles.form}>
-          <View style={styles.row}>
+          {/* <View style={styles.row}> */}
             <View style={styles.flex1}>
               <InputField label="First Name" name="firstName" control={control} />
             </View>
             <View style={styles.flex1}>
               <InputField label="Last Name" name="lastName" control={control} />
             </View>
-          </View>
+          {/* </View> */}
 
-          <View style={styles.row}>
+          {/* <View style={styles.row}> */}
             <View style={styles.flex1}>
               <InputField label="Mobile" name="phoneNumber" control={control} />
             </View>
             <View style={styles.flex1}>
               <InputField label="Nick Name" name="nickname" control={control} />
             </View>
-          </View>
+          {/* </View> */}
 
           <InputField
             label="Bio"
@@ -150,7 +152,7 @@ const EditProfile = () => {
                 control={control}
                 name="showEmailPublicly"
                 render={({ field: { value, onChange } }) => (
-                  <Switch value={value ?? false} onValueChange={onChange} />
+                  <SwitchButton value={value ?? false} onChange={onChange} />
                 )}
               />
             </View>
@@ -161,7 +163,7 @@ const EditProfile = () => {
                 control={control}
                 name="showRealNamePublicly"
                 render={({ field: { value, onChange } }) => (
-                  <Switch value={value ?? false} onValueChange={onChange} />
+                  <SwitchButton value={value ?? false} onChange={onChange} />
                 )}
               />
             </View>
@@ -173,7 +175,7 @@ const EditProfile = () => {
               control={control}
               name="showAgePublicly"
               render={({ field: { value, onChange } }) => (
-                <Switch value={value ?? false} onValueChange={onChange} />
+                <SwitchButton value={value ?? false} onChange={onChange} />
               )}
             />
           </View>
@@ -197,6 +199,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F9FAFB", // gray-50
+    marginBottom:TAB_BAR_HEIGHT
   },
   inner: {
     paddingHorizontal: 16,
@@ -242,9 +245,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
-  dobSection: {
-    marginTop: 96,
-  },
   sectionTitle: {
     fontWeight: "600",
   },
@@ -262,7 +262,8 @@ const styles = StyleSheet.create({
   toggleSingle: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    gap:40
+    // justifyContent: "space-between",
   },
 
   submitButton: {

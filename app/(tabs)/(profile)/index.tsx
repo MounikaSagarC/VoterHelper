@@ -1,4 +1,4 @@
-import ChangePassword from "@/components/screens/ChangePassword";
+// import ChangePassword from "@/components/screens/ChangePassword";
 import { MenuItem } from "@/lib/helpers/profileHelper";
 import { logoutUser } from "@/services/api/auth";
 import { userProfile } from "@/services/api/profile";
@@ -122,14 +122,14 @@ export default function ProfileScreen() {
                       icon={LockIcon}
                       label="Change Password"
                       arrowicon={isActive ? "chevron-down" : "chevron-forward"}
-                      onPress={() => setActive(!isActive)}
+                      onPress={() => router.push("/changePassword")}
                     />
 
-                    {isActive && (
+                    {/* {isActive && (
                       <View style={styles.changePasswordBox}>
                         <ChangePassword />
                       </View>
-                    )}
+                    )} */}
                   </View>
                 </View>
                 <View style={styles.logoutCard}>

@@ -1,6 +1,7 @@
 import Card from "@/components/Cards/Card";
 import SearchBar from "@/components/SearchBar";
 import Dropdown from "@/components/ui/dropdown";
+import SwitchButton from "@/components/ui/SwitchButton";
 import LetterAvatar from "@/components/ui/User";
 import { getUsers } from "@/services/api/users";
 import { useDeleteUserMutation } from "@/services/mutations/user_mutation";
@@ -119,9 +120,9 @@ const Users = () => {
               </View>
             </View>
 
-            <Switch
+            <SwitchButton
               value={item.id !== undefined ? userState[item.id] : false}
-              onValueChange={(value) => {
+              onChange={() => {
                 if (item.id !== undefined) {
                   handleToggle(item.userId);
                 }

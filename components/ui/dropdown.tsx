@@ -1,5 +1,6 @@
 import { AntDesign } from "@expo/vector-icons";
-import { useState } from "react";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 export interface DropdownOption {
@@ -24,10 +25,16 @@ const Dropdown = ({
   options,
   onChange,
   placeholder = "Select",
-  maxHeight = 200,
-  width = 180,
+  width,
 }: DropdownProps) => {
   const [open, setOpen] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        setOpen(false);
+      };
+    }, []),
+  );
 
   const selectedLabel =
     options.find((o) => o.value === value)?.label ?? placeholder;
@@ -88,11 +95,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#F9FAFB",
     borderRadius: 8,
     paddingHorizontal: 10,
-    height: 36,
+    height: 26,
+    gap: 12,
   },
 
   triggerText: {
-    fontSize: 14,
+    fontSize: 12,
     color: "#111827",
   },
 
@@ -117,7 +125,7 @@ const styles = StyleSheet.create({
   },
 
   itemText: {
-    fontSize: 14,
+    fontSize: 10,
     color: "#111827",
     lineHeight: 10,
   },

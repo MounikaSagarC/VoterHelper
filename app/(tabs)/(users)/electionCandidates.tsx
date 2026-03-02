@@ -1,89 +1,44 @@
+import DataNotFound from "@/components/ui/DataNotFound";
 import LetterAvatar from "@/components/ui/User";
 import { getCandidatesByElections } from "@/services/api/elections";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 
-interface Candidate {
-  id: string;
-  name: string;
-  role: string;
-  party: string;
-  image: string;
-}
-
-interface CandidateData {
-  title: string;
-  data: Candidate[];
-}
-
-const DATA = [
-  {
-    title: "Running",
-    data: [
-      {
-        id: "1",
-        name: "Donald Trump",
-        role: "President of the US",
-        party: "Republican",
-        image: "https://via.placeholder.com/80",
-      },
-      {
-        id: "2",
-        name: "Joe Biden",
-        role: "US Senator and Vice President",
-        party: "Democrat",
-        image: "https://via.placeholder.com/80",
-      },
-    ],
-  },
-  {
-    title: "Dropped Out",
-    data: [
-      {
-        id: "3",
-        name: "Tulsi Gabbard",
-        role: "US House of Representatives",
-        party: "Democrat",
-        image: "https://via.placeholder.com/80",
-      },
-    ],
-  },
-];
-
 export default function CandidatesScreen() {
-  const params = useLocalSearchParams();
-  console.log("RAW PARAMS 👉", params);
+  const { id, name, state } = useLocalSearchParams<{
+    id: string;
+    name: string;
+    state?: string;
+  }>();
 
-  const id = params?.id;
-  const name = params.name;
+  console.log(state);
+
   console.log("ID 👉", id, typeof id);
 
   const electionId = Number(id);
   console.log("ELECTION ID 👉", electionId, Number.isNaN(electionId));
 
-  // console.log("idd", id);
-
   const numericId = id ? parseInt(id, 10) : 0;
 
-  const { data: electedCandidates } = useQuery({
+  const { data: electedCandidates, isLoading } = useQuery({
     queryKey: ["electedCandidates", numericId],
     queryFn: () => getCandidatesByElections(numericId),
   });
+
+  if (isLoading) return null;
   console.log("ui response", electedCandidates);
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* HEADER */}
       <View style={styles.headerCard}>
         <Text style={styles.headerTitle}>Candidates</Text>
 
         <View style={styles.headerRow}>
-          <Text style={styles.headerSubtitle}>
-            {name}
-          </Text>
+          <Text style={styles.headerSubtitle}>{name}</Text>
 
           <View style={styles.stateChip}>
-            <Text style={styles.stateChipText}>Texas</Text>
+            <Text style={styles.stateChipText}>{state}</Text>
           </View>
         </View>
       </View>
@@ -109,7 +64,6 @@ export default function CandidatesScreen() {
               </View>
 
               <Text style={styles.role}>{item.state}</Text>
-
               <View
                 style={[
                   styles.badge,
@@ -124,10 +78,12 @@ export default function CandidatesScreen() {
           </View>
         )}
         ListEmptyComponent={
-          <Text style={{ textAlign: "center", marginTop: 40 }}>
-            No candidates found
-          </Text>
+          <DataNotFound
+            title="No Data Found"
+            description="Select a year to see the elections."
+          />
         }
+
       />
     </View>
   );
@@ -170,20 +126,19 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   name: {
-    fontSize: 15,
+    fontSize: 12,
     fontWeight: "600",
     color: "#111",
   },
   headerCard: {
     backgroundColor: "#51d6b9",
     padding: 16,
-    borderRadius:16,
-    marginHorizontal:10,
-    marginTop:20
+    borderRadius: 16,
+    paddingTop: 40,
   },
 
   headerTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "700",
     color: "#111",
     marginBottom: 6,
@@ -198,7 +153,7 @@ const styles = StyleSheet.create({
 
   headerSubtitle: {
     flex: 1,
-    fontSize: 13,
+    fontSize: 12,
     color: "#444",
   },
 
@@ -216,11 +171,11 @@ const styles = StyleSheet.create({
   },
 
   date: {
-    fontSize: 12,
+    fontSize: 10,
     color: "#666",
   },
   role: {
-    fontSize: 13,
+    fontSize: 12,
     color: "#777",
     marginVertical: 4,
   },
@@ -238,7 +193,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFEAEA",
   },
   badgeText: {
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: "500",
     color: "#333",
   },

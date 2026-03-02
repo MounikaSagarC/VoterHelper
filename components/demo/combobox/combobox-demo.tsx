@@ -55,16 +55,16 @@ export function ComboboxSearch({
 
 const styles = StyleSheet.create({
   trigger: {
-    height: 40,
+    height: 30,
     marginTop: 8,
     paddingHorizontal: 12,
-    width: "100%",
+    width: "80%",
     borderWidth: 1,
     borderRadius: 8,
     backgroundColor: "#ffffff",
   },
   valueText: {
-    fontSize: 15,
+    fontSize: 13,
   },
 
   item: {

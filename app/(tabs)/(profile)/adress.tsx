@@ -106,7 +106,7 @@ const Address = () => {
                     <Text style={styles.addressTitle}>
                       {address.addressLine1}
                     </Text>
-                    <Text style={styles.addressTitle}>
+                    <Text style={styles.addressSubtitle}>
                       {address.addressLine2}
                     </Text>
                     <Text style={styles.addressSubtitle}>
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     paddingBottom: 120,
   },
   heading: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: "600",
     marginVertical: 12,
   },
@@ -181,13 +181,16 @@ const styles = StyleSheet.create({
   },
   addressText: {
     marginLeft: 8,
-    gap:10,
+    fontSize:14,
+    gap:5,
     flex: 1,
   },
   addressTitle: {
     fontWeight: "600",
+    fontSize:14
   },
   addressSubtitle: {
+    fontSize:12,
     color: "#4b5563", // text-gray-600
   },
   emptyState: {

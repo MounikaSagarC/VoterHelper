@@ -1,4 +1,5 @@
 import SourceModal from "@/components/Modal/SourceModal";
+import SwitchButton from "@/components/ui/SwitchButton";
 import { fetchSources } from "@/services/api/sources";
 import { useSourceMutations } from "@/services/mutations/admin_mutation";
 import { Source } from "@/services/schemas/admin_schema";
@@ -115,9 +116,9 @@ const DataSource = () => {
 
                   <View style={styles.actions}>
                     <Text>Status:</Text>
-                    <Switch
+                    <SwitchButton
                       value={sourceState[source.id]}
-                      onValueChange={() => handleToggle(source.id!)}
+                      onChange={() => handleToggle(source.id!)}
                     />
                   </View>
                 </Pressable>
