@@ -1,25 +1,25 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigation } from "expo-router";
-import { useEffect, useRef } from "react";
-import { Controller, useForm, useWatch } from "react-hook-form";
+import { useEffect } from "react";
+import { Controller, useForm } from "react-hook-form";
 import {
+  ActivityIndicator,
   Image,
   Pressable,
   ScrollView,
-  Switch,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  StyleSheet,
 } from "react-native";
 
 import { InputField } from "@/components/ui/InputField";
+import SwitchButton from "@/components/ui/SwitchButton";
 import { userProfile } from "@/services/api/profile";
 import { useProfileMutation } from "@/services/mutations/profile_mutation";
 import { ProfileTypes } from "@/services/schemas/profileSchema";
 import { useProfilestore } from "@/store/profile_store";
-import SwitchButton from "@/components/ui/SwitchButton";
 import { TAB_BAR_HEIGHT } from "../_layout";
 
 const EditProfile = () => {
@@ -27,30 +27,14 @@ const EditProfile = () => {
   const updateForm = useProfilestore((s) => s.updateForm);
   const { updateProfileMutation } = useProfileMutation();
   const navigation = useNavigation();
-  const hydrated = useRef(false);
 
-  const { control, reset, handleSubmit } = useForm<ProfileTypes>({
-    defaultValues: formData,
-  });
-
-  useEffect(() => {
-    if (formData && !hydrated.current) {
-      reset(formData);
-      hydrated.current = true;
-    }
-  }, [formData, reset]);
-
-  const watchedValues = useWatch({ control });
-
-  useEffect(() => {
-    if (hydrated.current) {
-      updateForm(watchedValues);
-    }
-  }, [watchedValues, updateForm]);
-
-  const { data } = useQuery({
+  const { data, isFetching } = useQuery({
     queryKey: ["userProfile"],
     queryFn: userProfile,
+  });
+
+  const { control,  handleSubmit } = useForm<ProfileTypes>({
+    defaultValues: formData,
   });
 
   useEffect(() => {
@@ -64,12 +48,20 @@ const EditProfile = () => {
     }
   }, [data, updateForm]);
 
-  const onSubmit = (formData: ProfileTypes) => {
-    updateProfileMutation.mutate(formData, {
-      onSuccess: () => updateForm(formData),
+  const onSubmit = async (formValues: ProfileTypes) => {
+    updateProfileMutation.mutate(formValues, {
+      onSuccess: () => updateForm(formValues),
     });
     navigation.goBack();
   };
+
+  if (isFetching) {
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -90,21 +82,21 @@ const EditProfile = () => {
         {/* Form */}
         <View style={styles.form}>
           {/* <View style={styles.row}> */}
-            <View style={styles.flex1}>
-              <InputField label="First Name" name="firstName" control={control} />
-            </View>
-            <View style={styles.flex1}>
-              <InputField label="Last Name" name="lastName" control={control} />
-            </View>
+          <View style={styles.flex1}>
+            <InputField label="First Name" name="firstName" control={control} />
+          </View>
+          <View style={styles.flex1}>
+            <InputField label="Last Name" name="lastName" control={control} />
+          </View>
           {/* </View> */}
 
           {/* <View style={styles.row}> */}
-            <View style={styles.flex1}>
-              <InputField label="Mobile" name="phoneNumber" control={control} />
-            </View>
-            <View style={styles.flex1}>
-              <InputField label="Nick Name" name="nickname" control={control} />
-            </View>
+          <View style={styles.flex1}>
+            <InputField label="Mobile" name="phoneNumber" control={control} />
+          </View>
+          <View style={styles.flex1}>
+            <InputField label="Nick Name" name="nickname" control={control} />
+          </View>
           {/* </View> */}
 
           <InputField
@@ -114,7 +106,7 @@ const EditProfile = () => {
             // style={styles.bio}
           />
 
-          <View style={styles.dobSection}>
+          <View>
             <Text style={styles.sectionTitle}>Date of Birth</Text>
             <View style={styles.row}>
               <View style={styles.flex1}>
@@ -152,7 +144,10 @@ const EditProfile = () => {
                 control={control}
                 name="showEmailPublicly"
                 render={({ field: { value, onChange } }) => (
-                  <SwitchButton value={value ?? false} onChange={onChange} />
+                  <SwitchButton
+                    value={value ?? false}
+                    onChange={() => onChange(!value)}
+                  />
                 )}
               />
             </View>
@@ -163,7 +158,10 @@ const EditProfile = () => {
                 control={control}
                 name="showRealNamePublicly"
                 render={({ field: { value, onChange } }) => (
-                  <SwitchButton value={value ?? false} onChange={onChange} />
+                  <SwitchButton
+                    value={value ?? false}
+                    onChange={() => onChange(!value)}
+                  />
                 )}
               />
             </View>
@@ -175,7 +173,10 @@ const EditProfile = () => {
               control={control}
               name="showAgePublicly"
               render={({ field: { value, onChange } }) => (
-                <SwitchButton value={value ?? false} onChange={onChange} />
+                <SwitchButton
+                  value={value ?? false}
+                  onChange={() => onChange(!value)}
+                />
               )}
             />
           </View>
@@ -199,7 +200,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F9FAFB", // gray-50
-    marginBottom:TAB_BAR_HEIGHT
+    marginBottom: TAB_BAR_HEIGHT,
   },
   inner: {
     paddingHorizontal: 16,
@@ -262,7 +263,7 @@ const styles = StyleSheet.create({
   toggleSingle: {
     flexDirection: "row",
     alignItems: "center",
-    gap:40
+    gap: 58,
     // justifyContent: "space-between",
   },
 

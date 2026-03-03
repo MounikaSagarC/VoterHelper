@@ -28,7 +28,7 @@ const OfferCard = () => {
     null,
   );
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
-  const [selectedState, setSelectedState] = useState<string>("");
+  const [selectedState, setSelectedState] = useState<string | number>("");
 
   const { createQuestionMutate, updateQuestionMutate, deleteQuestionMutate } =
     useQuestionMutation();
@@ -128,8 +128,8 @@ const OfferCard = () => {
             options={stateOptions}
             onChange={setSelectedState}
             placeholder="State"
-            maxHeight={80} // 👈 CONTROL DROPDOWN HEIGHT HERE
             width={160}
+            height={40}
           />
         </View>
       </View>

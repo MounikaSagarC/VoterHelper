@@ -3,13 +3,7 @@ import { useProfileMutation } from "@/services/mutations/profile_mutation";
 import { ProfileTypes } from "@/services/schemas/profileSchema";
 import { useProfilestore } from "@/store/profile_store";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import {
-  ScrollView,
-  Switch,
-  Text,
-  View,
-  StyleSheet,
-} from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 const SettingRow = ({
   icon,
@@ -27,9 +21,7 @@ const SettingRow = ({
       {icon}
       <View style={styles.textContainer}>
         <Text style={styles.title}>{title}</Text>
-        {description && (
-          <Text style={styles.description}>{description}</Text>
-        )}
+        {description && <Text style={styles.description}>{description}</Text>}
       </View>
     </View>
     {rightComponent}
@@ -41,9 +33,9 @@ export default function SettingsScreen() {
   const { formData, updateForm } = useProfilestore();
 
   const updateSetting = (partial: Partial<ProfileTypes>) => {
-    const updated = { ...formData, ...partial };
+    const updated = { ...formData, ...partial } as ProfileTypes;
     updateForm(updated);
-    updateProfileMutation.mutate({ data: updated });
+    updateProfileMutation.mutate(updated);
   };
 
   return (
@@ -55,8 +47,8 @@ export default function SettingsScreen() {
         rightComponent={
           <SwitchButton
             value={formData.showEmailPublicly ?? false}
-            onChange={(value:any) =>
-              updateSetting({ showEmailPublicly: value })
+            onChange={() =>
+              updateSetting({ showEmailPublicly: !formData.showEmailPublicly })
             }
           />
         }
@@ -69,8 +61,10 @@ export default function SettingsScreen() {
         rightComponent={
           <SwitchButton
             value={formData.showRealNamePublicly ?? false}
-            onChange={(value:any) =>
-              updateSetting({ showRealNamePublicly: value })
+            onChange={() =>
+              updateSetting({
+                showRealNamePublicly: !formData.showRealNamePublicly,
+              })
             }
           />
         }
@@ -83,8 +77,8 @@ export default function SettingsScreen() {
         rightComponent={
           <SwitchButton
             value={formData.showAgePublicly ?? false}
-            onChange={(value:any) =>
-              updateSetting({ showAgePublicly: value })
+            onChange={() =>
+              updateSetting({ showAgePublicly: !formData.showAgePublicly })
             }
           />
         }

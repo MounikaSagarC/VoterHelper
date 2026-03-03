@@ -1,4 +1,5 @@
 import { queryclient } from "@/app/_layout";
+import { useToast } from "@/components/ui/toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import { Alert } from "react-native";
@@ -10,18 +11,20 @@ import {
   updateProfile,
 } from "../api/profile";
 import { AddressType } from "../schemas/profileSchema";
-import { useToast } from "@/components/ui/toast";
 
 export const useProfileMutation = () => {
   const { toast } = useToast();
   const updateProfileMutation = useMutation({
     mutationFn: updateProfile,
     onError: () => {
-      toast({title:"Error occurred while updating profile",variant:"error"})
+      toast({
+        title: "Error occurred while updating profile",
+        variant: "error",
+      });
     },
-    onSuccess: () => {
-      toast({title:"Profile updated successfully",variant:"success"})
-      queryclient.invalidateQueries({ queryKey: ["userProfile"] });
+    onSuccess: async () => {
+      toast({ title: "Profile updated successfully", variant: "success" });
+      await queryclient.invalidateQueries({ queryKey: ["userProfile"] });
     },
   });
   return { updateProfileMutation };
@@ -41,7 +44,11 @@ export const useChangepwdMutation = () => {
       }
 
       Alert.alert("Password change failed", message);
-      toast({ title: "Password change failed", description: message, variant: "error" });
+      toast({
+        title: "Password change failed",
+        description: message,
+        variant: "error",
+      });
     },
     onSuccess: () => {
       Alert.alert("Success", "Password changed successfully");
@@ -74,7 +81,11 @@ export const usePostAddressMutation = () => {
       }
 
       Alert.alert("Address creation failed", message);
-      toast({ title: "Address creation failed", description: message, variant: "error" });
+      toast({
+        title: "Address creation failed",
+        description: message,
+        variant: "error",
+      });
     },
     onSuccess: () => {
       queryclient.invalidateQueries({ queryKey: ["getAddress"] });
@@ -85,7 +96,6 @@ export const usePostAddressMutation = () => {
   return { postAddressMutate };
 };
 
-
 export const useDeleteAddressMutation = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -95,7 +105,10 @@ export const useDeleteAddressMutation = () => {
 
     onError: () => {
       Alert.alert("Error occurred while deleting address");
-      toast({ title: "Error occurred while deleting address", variant: "error" });
+      toast({
+        title: "Error occurred while deleting address",
+        variant: "error",
+      });
     },
 
     onSettled: () => {
@@ -130,7 +143,11 @@ export const useUpdateAddressMutation = () => {
       }
 
       Alert.alert("Address update failed", message);
-      toast({ title: "Address update failed", description: message, variant: "error" });
+      toast({
+        title: "Address update failed",
+        description: message,
+        variant: "error",
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["getAddress"] });
@@ -138,4 +155,3 @@ export const useUpdateAddressMutation = () => {
     },
   });
 };
-

@@ -22,7 +22,6 @@ export const FormCombo = ({
         <Text style={styles.label}>{label}</Text>
         <Text style={styles.required}>*</Text>
       </View>
-
       <ComboboxSearch
         options={options}
         value={value}

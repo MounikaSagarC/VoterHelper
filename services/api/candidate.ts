@@ -4,7 +4,7 @@ export const getCandidates = async ({
   stateCode,
   query,
 }: {
-  stateCode: string;
+  stateCode: string | number;
   query: string;
 }) => {
   if (query) {

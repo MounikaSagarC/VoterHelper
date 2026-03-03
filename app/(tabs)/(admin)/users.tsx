@@ -17,11 +17,10 @@ import {
   Text,
   View,
 } from "react-native";
-import { Switch } from "react-native-gesture-handler";
 
 const Users = () => {
   const { deleteUserMutation } = useDeleteUserMutation();
-  const [selectStatus, setSelectedStatus] = useState<string>("ALL");
+  const [selectStatus, setSelectedStatus] = useState<string | number>("ALL");
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState(query);
   const [userState, setUserState] = useState<Record<number, boolean>>({});
@@ -173,8 +172,8 @@ const Users = () => {
             value={selectStatus}
             options={statusOptions}
             onChange={setSelectedStatus}
-            maxHeight={80}
             width={160}
+            height={30}
           />
         </View>
       </View>

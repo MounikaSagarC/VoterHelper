@@ -25,7 +25,7 @@ export const getQuestionsById = async (id: number) => {
   return res.data.data;
 };
 
-export const getQuestionsByState = async (state: string) => {
+export const getQuestionsByState = async (state: string | number) => {
   if (state === "") {
     const res = await api.get(`/v1/admin/questions`);
     return res.data;

@@ -1,224 +1,243 @@
-import Card from "@/components/Cards/Card";
-import Dropdown from "@/components/ui/dropdown";
-import  { DateAvatar } from "@/components/ui/User";
-import { getElections, getElectionYears } from "@/services/api/elections";
-import { getStates } from "@/services/api/profile";
+import ElectionTimeline from "@/components/ElectionTimeLine";
+import FilterPills from "@/components/FilterPills";
+import CustomBottomSheet from "@/components/Sheet";
+import DataNotFound from "@/components/ui/DataNotFound";
+import { getElections } from "@/services/api/elections";
 import { useQuery } from "@tanstack/react-query";
-import { Link, router } from "expo-router";
-import {  useState } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { BlurView } from "expo-blur";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useMemo, useState } from "react";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 
-const Users = () => {
-  const [selectedState, setSelectedState] = useState<string>("ALL");
-  const [selectedYear, setSelectedYear] = useState<string>("ALL");
+export default function ElectionsScreen() {
+  const [open, setOpen] = useState(false);
+  const [selectedElection, setSelectedElection] = useState<any>(null);
+  const [selectedState, setSelectedState] = useState<number | string>(0);
+  const [selectedYear, setSelectedYear] = useState<number | string>(0);
 
-  const { data: years } = useQuery({
-    queryKey: ["years"],
-    queryFn: getElectionYears,
-  });
-
-  // Fetch states
-  const { data: states } = useQuery({
-    queryKey: ["states"],
-    queryFn: getStates,
-  });
-
-  const yearOptions = [
-  { label: "All Years", value: "ALL" },
-  ...(years
-    ?.slice() // Create a shallow copy to avoid mutating the original array
-    .sort((a: number, b: number) => b - a)
-    .map((y: number) => ({
-      label: y.toString(),
-      value: y.toString(),
-    })) ?? []),
-];
-
-  const stateOptions = [
-    { label: "All States", value: "ALL" },
-    ...(states?.map((s: any) => ({ label: s.state, value: s.id.toString() })) ??
-      []),
-  ];
-
-  // Fetch candidates
-  const {
-    data: users,
-    isLoading,
-  } = useQuery({
+  const { data: users, refetch } = useQuery({
     queryKey: ["users", selectedState, selectedYear],
-    queryFn: async () => {
-      console.log("Fetching elections with:", {
-        state: selectedState,
-        year: selectedYear,
-      });
-
-      const response = await getElections(
-        parseInt(selectedYear) || 0,
-        selectedState === "ALL" ? 0 : parseInt(selectedState),
-      );
-
-      return response;
-    },
+    queryFn: async () => getElections(selectedYear, selectedState),
   });
 
-  if (isLoading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#2563EB" />
-      </View>
-    );
-  }
+  const timelineData = useMemo(() => {
+    if (!users || users.length === 0) return [];
 
-  console.log(users)
+    const map = new Map<string, any[]>();
 
-  const renderItem = ({ item }: { item: any }) => {
-    return (
-      <Pressable>
-        <Card>
-          {/* Header */}
-          <View style={styles.header}>
-            <View style={styles.candidateInfo}>
-              <DateAvatar date={item.electionDate} />
-              <View>
-                <Text style={styles.value}>{item.generatedName}</Text>
-                <Text style={styles.label}>{item.state}</Text>
-                <Link style={styles.link} href={{ pathname:"/electionCandidates",params:{id:item.id,name:item.generatedName,electionState:item.state}}}>View details</Link>
-              </View>
-            </View>
+    users.forEach((election: any) => {
+      if (!map.has(election.electionDate)) {
+        map.set(election.electionDate, []);
+      }
+      map.get(election.electionDate)!.push(election);
+    });
 
-          </View>
+    return Array.from(map.entries()).map(([date, elections]) => ({
+      date,
+      elections,
+    }));
+  }, [users]);
 
-        </Card>
-      </Pressable>
-    );
+  const openSheet = (election: any) => {
+    if (!election) return;
+    setSelectedElection(election);
+    setOpen(true);
   };
 
-  return (
-    <>
-      <View style={styles.filterBar}>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            gap: 8,
-          }}
-        >
-          <Text>Filter By State:</Text>
-          <Dropdown
-            value={selectedState}
-            options={stateOptions}
-            onChange={setSelectedState}
-            placeholder="State"
-            maxHeight={80}
-            width={160}
-          />
-        </View>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            gap: 8,
-          }}
-        >
-          <Text>Filter By Year:</Text>
-          <Dropdown
-            value={selectedYear}
-            options={yearOptions}
-            onChange={setSelectedYear}
-            placeholder="Year"
-            maxHeight={80}
-            width={160}
-          />
-        </View>
-      </View>
-      <FlatList
-        data={users || []}
-        keyExtractor={(item) => item.id?.toString() || Math.random().toString()}
-        renderItem={renderItem}
-        contentContainerStyle={{ padding: 16 }}
-        showsVerticalScrollIndicator={false}
-      />
-    </>
+  useFocusEffect(
+    useCallback(() => {
+      setSelectedState(0);
+      setSelectedYear(0);
+      setSelectedElection(null);
+      setOpen(false);
+      refetch();
+    }, []),
   );
-};
 
-export default Users;
+  return (
+    <View style={styles.container}>
+      <BlurView intensity={20} tint="dark" style={styles.glassHeader}>
+        <View style={styles.glassOverlay}>
+          <Text style={styles.title}>Elections</Text>
+          <FilterPills
+            selectedState={selectedState}
+            selectedYear={selectedYear}
+            onStateChange={setSelectedState}
+            onYearChange={setSelectedYear}
+          />
+        </View>
+      </BlurView>
+
+      <FlatList
+        data={timelineData}
+        keyExtractor={(item) => item.date}
+        renderItem={({ item }) => (
+          <ElectionTimeline group={item} onPress={openSheet} />
+        )}
+        ListEmptyComponent={
+          <DataNotFound description="Select a year to see the elections." />
+        }
+        contentContainerStyle={{
+          paddingBottom: 160,
+          marginHorizontal: 10,
+          marginTop: 10,
+        }}
+      />
+
+      {/* Bottom Sheet */}
+      <CustomBottomSheet visible={open} onClose={() => setOpen(false)}>
+        {selectedElection && (
+          <View style={styles.sheetContainer}>
+            <Text style={styles.sheetTitle}>
+              {selectedElection.generatedName}
+            </Text>
+
+            <Text style={styles.sheetDate}>
+              {selectedElection.electionDate} • {selectedElection.state}
+            </Text>
+
+            {/* <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>👥 Candidates:</Text>
+              <Text style={styles.infoValue}>
+                {selectedElection?.length??0}
+              </Text>
+            </View> */}
+
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>🗳 Voting Type:</Text>
+              <Text style={styles.infoValue}>
+                {selectedElection.generatedName.split("-")[1]}
+              </Text>
+            </View>
+
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>🏛 Districts:</Text>
+              <Text style={styles.infoValue}>Multiple</Text>
+            </View>
+
+            <View style={styles.sheetActions}>
+              <View style={styles.primaryBtn}>
+                <Text
+                  style={styles.primaryText}
+                  onPress={() => {
+                    router.push({
+                      pathname: "/electionCandidates",
+                      params: {
+                        id: selectedElection.id,
+                        name: selectedElection.generatedName,
+                        state: selectedElection.state,
+                      },
+                    });
+                  }}
+                >
+                  View Candidates
+                </Text>
+              </View>
+            </View>
+          </View>
+        )}
+      </CustomBottomSheet>
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
-  filterBar: {
-    display: "flex",
-    flexDirection: "row-reverse",
-    gap: 15,
-    paddingHorizontal: 16,
-    paddingTop: 10,
-    paddingBottom: 4,
-  },
-  candidateInfo: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 9,
-  },
-  link: {
-    color:"#2368d9",
-    borderBottomColor:"#2368d9",
-    textDecorationLine:"underline",
-    marginTop:10
-  },
-  center: {
+  container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 24,
   },
-  header: {
+
+  title: {
+    color: "#000",
+    fontSize: 20,
+    fontWeight: "600",
+    letterSpacing: 0.5,
+  },
+
+  sheetContainer: {
+    backgroundColor: "#fff",
+    padding: 14,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+  },
+
+  dragIndicator: {
+    width: 46,
+    height: 5,
+    backgroundColor: "#2B3348",
+    alignSelf: "center",
+    borderRadius: 8,
+    marginBottom: 18,
+  },
+
+  sheetTitle: {
+    color: "#000",
+    fontSize: 16,
+    fontWeight: "600",
+    letterSpacing: 0.4,
+  },
+
+  sheetDate: {
+    color: "#94A3B8",
+    fontSize: 12,
+    marginTop: 6,
+    marginBottom: 20,
+  },
+
+  infoRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
+    alignItems: "center",
+    marginBottom: 16,
   },
-  amount: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#111827",
+
+  glassHeader: {
+    paddingTop: 30,
+    // marginBottom:10,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
   },
-  statusBadge: {
-    marginTop: 6,
-    backgroundColor: "#b0e8dd",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    alignSelf: "flex-start",
+
+  glassOverlay: {
+    padding: 15,
+    gap: 5,
+    // backgroundColor: "rgba(255,255,255,0.15)", // frosted overlay
   },
-  statusText: {
+
+  infoLabel: {
+    color: "#CBD5E1",
+    fontSize: 12,
+    fontWeight: "500",
+  },
+
+  infoValue: {
+    color: "#9ba1a8",
     fontSize: 12,
     fontWeight: "600",
-    color: "#0a5e4e",
   },
-  divider: {
-    height: 1,
-    backgroundColor: "#E5E7EB",
-    marginVertical: 12,
-  },
-  row: {
+
+  sheetActions: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 8,
+    gap: 12,
+    marginTop: 24,
   },
-  label: {
-    fontSize: 13,
-    color: "#6B7280",
+
+  primaryBtn: {
+    flex: 1,
+    backgroundColor: "#3B82F6",
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: "center",
+    shadowColor: "#3B82F6",
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 6,
   },
-  value: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#111827",
+
+  primaryText: {
+    color: "#FFFFFF",
+    fontWeight: "700",
+    fontSize: 15,
+    letterSpacing: 0.3,
   },
 });

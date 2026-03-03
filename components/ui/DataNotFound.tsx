@@ -7,20 +7,23 @@ type Props = {
 };
 
 export default function DataNotFound({
-  title = "Data Not Found",
-  description = "No data available for the selected criteria",
+  title,
+  description,
   onRetry,
 }: Props) {
   return (
     <View style={styles.container}>
       <Image
-        source={require("@/assets/images/data-not-found.jpg")}
+        source={require("@/assets/images/data-not-found.png")}
         style={styles.image}
         resizeMode="contain"
       />
-
+      {title && (
       <Text style={styles.title}>{title}</Text>
+      )}
+      { description && (
       <Text style={styles.description}>{description}</Text>
+      )}
 
       {onRetry && (
         <Pressable style={styles.retryButton} onPress={onRetry}>

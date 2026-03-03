@@ -120,7 +120,7 @@ const OfferCard = () => {
                       <Text>Status:</Text>
                       <SwitchButton
                         value={officeState[officeType.id]}
-                        onChange={() => handleToggle(officeType.id!)}
+                        onChange={() => {handleToggle(officeType.id!);setOpenMenuId(null);}}
                       />
                     </View>
                   </Pressable>

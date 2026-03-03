@@ -1,6 +1,6 @@
 import { api } from "@/lib/axios"
 
-export const getElections = async(year:number,stateId:number) => {
+export const getElections = async(year:number | string,stateId:number | string) => {
     if (stateId) {
         const res = await api.get(`/v2/elections?year=${year}&stateId=${stateId}`)
         console.log("elections",res.data,"state",stateId)

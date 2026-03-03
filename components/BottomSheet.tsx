@@ -3,7 +3,6 @@ import { MenuItem } from "@/lib/helpers/profileHelper";
 import { useAuthStore } from "@/store/auth_store";
 import { router } from "expo-router";
 import {
-  BellElectricIcon,
   Building,
   CircleQuestionMark,
   Database,
@@ -69,76 +68,80 @@ export const TagsBottomSheet: React.FC<TagsBottomSheetProps> = ({
             <View style={styles.menuContainer}>
               {isAdmin ? (
                 <>
-              <MenuItem
-                icon={TagIcon}
-                label="Parties"
-                arrowicon="chevron-forward"
-                onPress={() => handleNavigate("(tabs)/(admin)/party")}
-              />
+                  <MenuItem
+                    icon={TagIcon}
+                    label="Parties"
+                    arrowicon="chevron-forward"
+                    onPress={() => handleNavigate("(tabs)/(admin)/party")}
+                  />
 
-              <View style={styles.divider}>
-                <MenuItem
-                  icon={Users2Icon}
-                  label="Users"
-                  arrowicon="chevron-forward"
-                  onPress={() => handleNavigate("(tabs)/(admin)/users")}
-                />
-              </View>
-              <View style={styles.divider}>
-                <MenuItem
-                  icon={MenuIcon}
-                  label="Categories"
-                  arrowicon="chevron-forward"
-                  onPress={() => handleNavigate("(tabs)/(admin)/category")}
-                />
-              </View>
+                  <View style={styles.divider}>
+                    <MenuItem
+                      icon={Users2Icon}
+                      label="Users"
+                      arrowicon="chevron-forward"
+                      onPress={() => handleNavigate("(tabs)/(admin)/users")}
+                    />
+                  </View>
+                  <View style={styles.divider}>
+                    <MenuItem
+                      icon={MenuIcon}
+                      label="Categories"
+                      arrowicon="chevron-forward"
+                      onPress={() => handleNavigate("(tabs)/(admin)/category")}
+                    />
+                  </View>
 
-              <View style={styles.divider}>
-                <MenuItem
-                  icon={CircleQuestionMark}
-                  label="Questions"
-                  arrowicon="chevron-forward"
-                  onPress={() => handleNavigate("/(tabs)/(admin)/questions")}
-                />
-              </View>
+                  <View style={styles.divider}>
+                    <MenuItem
+                      icon={CircleQuestionMark}
+                      label="Questions"
+                      arrowicon="chevron-forward"
+                      onPress={() =>
+                        handleNavigate("/(tabs)/(admin)/questions")
+                      }
+                    />
+                  </View>
 
-              <View style={styles.divider}>
-                <MenuItem
-                  icon={GraduationCapIcon}
-                  label="Candidates"
-                  arrowicon="chevron-forward"
-                  onPress={() => handleNavigate("(tabs)/(admin)/candidate")}
-                />
-              </View>
+                  <View style={styles.divider}>
+                    <MenuItem
+                      icon={GraduationCapIcon}
+                      label="Candidates"
+                      arrowicon="chevron-forward"
+                      onPress={() => handleNavigate("(tabs)/(admin)/candidate")}
+                    />
+                  </View>
 
-              <View style={styles.divider}>
-                <MenuItem
-                  icon={Building}
-                  label="Office Types"
-                  arrowicon="chevron-forward"
-                  onPress={() => handleNavigate("(tabs)/(admin)/officeTypes")}
-                />
-              </View>
+                  <View style={styles.divider}>
+                    <MenuItem
+                      icon={Building}
+                      label="Office Types"
+                      arrowicon="chevron-forward"
+                      onPress={() =>
+                        handleNavigate("(tabs)/(admin)/officeTypes")
+                      }
+                    />
+                  </View>
 
-              <View style={styles.divider}>
-                <MenuItem
-                  icon={Database}
-                  label="Data Sources"
-                  arrowicon="chevron-forward"
-                  onPress={() => handleNavigate("(tabs)/(admin)/sources")}
-                />
-              </View>
+                  <View style={styles.divider}>
+                    <MenuItem
+                      icon={Database}
+                      label="Data Sources"
+                      arrowicon="chevron-forward"
+                      onPress={() => handleNavigate("(tabs)/(admin)/sources")}
+                    />
+                  </View>
                 </>
-              ):(
+              ) : (
                 <>
-                <View>
-                <MenuItem
-                  icon={VoteIcon}
-                  label="Elections"
-                  arrowicon="chevron-forward"
-                  onPress={() => handleNavigate("(tabs)/(users)/practice")}
-                />
-              </View>
+                  <View>
+                    <MenuItem
+                      icon={VoteIcon}
+                      label="Elections"
+                      arrowicon="chevron-forward"
+                      onPress={() => handleNavigate("(tabs)/(users)/elections")}
+                    />
+                  </View>
                 </>
               )}
             </View>
@@ -163,6 +166,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: "50%",
+    paddingBottom: 45,
   },
   header: {
     flexDirection: "row",

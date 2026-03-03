@@ -4,7 +4,7 @@ export const getUsers = async ({
   status,
   query,
 }: {
-  status: string;
+  status: string | number;
   query: string;
 }) => {
   if (query) {

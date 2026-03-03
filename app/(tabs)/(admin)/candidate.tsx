@@ -21,7 +21,7 @@ import { Switch } from "react-native-gesture-handler";
 
 const OfferCard = () => {
   const { deleteCandidateMutate } = useDeleteCandidateMutation();
-  const [selectedState, setSelectedState] = useState<string>("ALL");
+  const [selectedState, setSelectedState] = useState<string | number>("ALL");
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState(query);
   const [candidateState, setCandidateState] = useState<Record<number, boolean>>(
@@ -177,7 +177,7 @@ const OfferCard = () => {
             options={stateOptions}
             onChange={setSelectedState}
             placeholder="State"
-            maxHeight={80}
+            height={40}
             width={160}
           />
         </View>

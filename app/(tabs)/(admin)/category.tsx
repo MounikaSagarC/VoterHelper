@@ -38,6 +38,8 @@ export default function TopicsCardList() {
     queryFn: fetchCategories,
   });
 
+  console.log(categories)
+
   const handlePress = () => {
     setSelectedCategory(null);
     setMode("create");

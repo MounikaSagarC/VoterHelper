@@ -1,18 +1,15 @@
-import { View, Text, StyleSheet, Dimensions } from "react-native";
-import Dropdown from "./ui/dropdown";
-import { useQuery } from "@tanstack/react-query";
 import { getElectionYears } from "@/services/api/elections";
 import { getStates } from "@/services/api/profile";
+import { useQuery } from "@tanstack/react-query";
+import { StyleSheet, Text, View } from "react-native";
+import Dropdown from "./ui/dropdown";
 
 type FilterProps = {
-  selectedState: string;
-  selectedYear: string;
-  onStateChange: (value: string) => void;
-  onYearChange: (value: string) => void;
+  selectedState: number | string;
+  selectedYear: number | string;
+  onStateChange: (value: number | string) => void;
+  onYearChange: (value: number | string) => void;
 };
-
-const { width } = Dimensions.get("window");
-const isSmallScreen = width < 360;
 
 export default function FilterPills({
   selectedState,
@@ -37,7 +34,7 @@ export default function FilterPills({
       .sort((a: number, b: number) => b - a)
       .map((y: number) => ({
         label: y.toString(),
-        value: y.toString(),
+        value: y,
       })) ?? []),
   ];
 
@@ -45,7 +42,7 @@ export default function FilterPills({
     { label: "All States", value: "ALL" },
     ...(states?.map((s: any) => ({
       label: s.state,
-      value: s.id.toString(),
+      value: s.id,
     })) ?? []),
   ];
 
@@ -59,8 +56,9 @@ export default function FilterPills({
           options={stateOptions}
           onChange={onStateChange}
           placeholder="Select"
-          maxHeight={200}
-          // width={isSmallScreen ? width * 0.45 : 140}
+          searchOption={true}
+          width={130}
+          height={30}
         />
       </View>
 
@@ -72,8 +70,8 @@ export default function FilterPills({
           options={yearOptions}
           onChange={onYearChange}
           placeholder="Select"
-          maxHeight={200}
-          // width={isSmallScreen ? width * 0.35 : 140}
+          width={100}
+          height={30}
         />
       </View>
     </View>
@@ -95,7 +93,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   label: {
-    fontSize: 12,                // ✅ smaller text
+    fontSize: 12, // ✅ smaller text
     color: "#444",
   },
 });
