@@ -6,7 +6,7 @@ import LetterAvatar from "@/components/ui/User";
 import { getUsers } from "@/services/api/users";
 import { useDeleteUserMutation } from "@/services/mutations/user_mutation";
 import { UserType } from "@/services/schemas/admin_schema";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -25,6 +25,8 @@ const Users = () => {
   const [debouncedQuery, setDebouncedQuery] = useState(query);
   const [userState, setUserState] = useState<Record<number, boolean>>({});
 
+  const page_size = 10;
+
   // Debounce search input
   useEffect(() => {
     const handler = setTimeout(() => setDebouncedQuery(query), 300);
@@ -32,26 +34,37 @@ const Users = () => {
   }, [query]);
 
   // Fetch candidates
-  const {
-    data: users,
-    isLoading,
-    refetch,
-  } = useQuery({
-    queryKey: ["users", selectStatus, debouncedQuery],
-    queryFn: async () => {
-      console.log("Fetching users with:", {
-        status: selectStatus,
-        query: debouncedQuery,
-      });
+const {
+  data: users,
+  isLoading,
+  refetch,
+  fetchNextPage,
+  hasNextPage,
+  isFetchingNextPage,
+} = useInfiniteQuery<UserType[]>({
+  queryKey: ["users", selectStatus, debouncedQuery],
 
-      const response = await getUsers({
-        status: selectStatus,
-        query: debouncedQuery,
-      });
+  queryFn: async ({ pageParam = 0 }) => {
+    const response = await getUsers({
+      status: selectStatus,
+      query: debouncedQuery,
+      page: pageParam as number,
+      size: page_size,
+    });
 
-      return response?.filter((user: any) => user.roleName !== "Super Admin");
-    },
-  });
+    return response?.filter((user:UserType) => user.roleName !== "Super Admin");
+  },
+
+  getNextPageParam: (lastPage, pages) => {
+    if (lastPage.length === page_size) {
+      return pages.length + 1;
+    }
+    return undefined;
+  },
+
+  initialPageParam: 0,
+});
+
 
   const statusOptions = [
     { label: "ALL", value: "ALL" },
@@ -59,29 +72,7 @@ const Users = () => {
     { label: "InActive", value: "FALSE" },
   ];
 
-  const handleDeleteCategory = (userId: number | undefined) => {
-    if (!userId) return;
-    deleteUserMutation.mutate(userId);
-  };
-
-  useEffect(() => {
-    if (users) {
-      const state: Record<number, boolean> = {};
-      users.forEach((p: UserType) => {
-        if (p.id !== undefined) {
-          state[p.id] = p.accountNonLocked ?? false;
-        }
-      });
-      setUserState(state);
-    }
-  }, [users]);
-
   const handleToggle = (id: number) => {
-    setUserState((prev) => {
-      const next = { ...prev, [id]: !prev[id] };
-      return next;
-    });
-
     deleteUserMutation.mutate(id);
   };
 
@@ -179,7 +170,7 @@ const Users = () => {
       </View>
 
       <FlatList
-        data={users || []}
+        data={users?.pages.flat() || []}
         keyExtractor={(item) => item.id?.toString() || Math.random().toString()}
         renderItem={renderItem}
         contentContainerStyle={{ padding: 16 }}

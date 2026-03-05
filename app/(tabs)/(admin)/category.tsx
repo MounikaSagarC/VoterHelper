@@ -13,14 +13,6 @@ import { Edit } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 
-type Item = {
-  id: number;
-  order: number;
-  name: string;
-  valueName: string;
-  description: string;
-};
-
 export default function TopicsCardList() {
   const [mode, setMode] = React.useState<"create" | "edit">("create");
   const [selectedCategory, setSelectedCategory] =
@@ -44,23 +36,6 @@ export default function TopicsCardList() {
     setSelectedCategory(null);
     setMode("create");
     setOpen(true);
-  };
-
-  useEffect(() => {
-    if (categories && Object.keys(categoryState).length === 0) {
-      const state: Record<number, boolean> = {};
-      categories.forEach((p: Category) => {
-        if (p.id !== undefined) {
-          state[p.id] = p.status ?? true;
-        }
-      });
-      setCategoryState(state);
-    }
-  }, [categoryState]);
-
-  const handleToggle = (id: number) => {
-    setCategoryState((prev) => ({ ...prev, [id]: !prev[id] }));
-    deleteCategoryMutate.mutate(id);
   };
 
   const handleDeleteCategory = async (addressId: number | undefined) => {

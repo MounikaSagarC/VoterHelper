@@ -10,7 +10,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
 import { MoreVertical, Pencil } from "lucide-react-native";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -25,7 +25,6 @@ const PartyScreen = () => {
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [selectedParty, setSelectedParty] = useState<any>(null);
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
-  const [partyState, setPartyState] = useState<Record<number, boolean>>({});
 
   const inActivatePartyMutate = useInActivatePartyMutation();
   const { createPartyMutate, updatePartyMutate } = usePartyMutations();
@@ -35,16 +34,7 @@ const PartyScreen = () => {
     queryFn: fetchParties,
   });
 
-  useEffect(() => {
-    const state: Record<number, boolean> = {};
-    data.forEach((p: any) => {
-      state[p.id] = p.isActive;
-    });
-    setPartyState(state);
-  }, [data]);
-
   const handleToggle = (id: number) => {
-    setPartyState((prev) => ({ ...prev, [id]: !prev[id] }));
     inActivatePartyMutate.mutate(id);
   };
 
@@ -122,8 +112,8 @@ const PartyScreen = () => {
                     <View style={styles.statusRow}>
                       <Text>Status</Text>
                       <SwitchButton
-                        value={partyState[party.id]}
-                        onChange={() => {handleToggle(party.id),setOpenMenuId(null)}}
+                        value={party.isActive}
+                        onChange={() => {handleToggle(party.id);setOpenMenuId(null)}}
                       />
                     </View>
                   </View>

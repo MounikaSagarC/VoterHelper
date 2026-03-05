@@ -55,21 +55,9 @@ const OfferCard = () => {
     queryFn: getOfficeTypes,
   });
 
-  useEffect(() => {
-    if (officeTypes) {
-      const state: Record<number, boolean> = {};
-      officeTypes.forEach((p) => {
-        state[p.id] = p.status ?? false; // make sure status exists
-      });
-      setOfficeState(state);
-    }
-  }, [officeTypes]);
-
   const handleToggle = (id: number) => {
-    setOfficeState((prev) => ({ ...prev, [id]: !prev[id] }));
     deleteOfficeTypeMutate.mutate(id);
   };
-
 
   const renderItem = ({ item: officeType }: { item: OfficeType }) => {
     const isMenuOpen = openMenuId !== null && openMenuId === officeType.id;
@@ -119,7 +107,7 @@ const OfferCard = () => {
                     <View style={styles.actions}>
                       <Text>Status:</Text>
                       <SwitchButton
-                        value={officeState[officeType.id]}
+                        value={!!officeType.status}
                         onChange={() => {handleToggle(officeType.id!);setOpenMenuId(null);}}
                       />
                     </View>

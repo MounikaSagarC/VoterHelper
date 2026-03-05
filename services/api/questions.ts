@@ -25,12 +25,12 @@ export const getQuestionsById = async (id: number) => {
   return res.data.data;
 };
 
-export const getQuestionsByState = async (state: string | number) => {
+export const getQuestionsByState = async (state: string | number , page : number , size : number , category : string|number) => {
   if (state === "") {
-    const res = await api.get(`/v1/admin/questions`);
-    return res.data;
+    const res = await api.get(`/v1/admin/questions?page=${page}&size=${size}`);
+    console.log("Questions",res.data.data.data.content)
+    return res.data.data;
   } 
-  const res = await api.get(`/v1/admin/questions/state?state=${state}`);
-    return res.data;
-  
+  const res = await api.get(`/v1/admin/questions?stateCode=${state}&page=${page}&size=${size}`);
+    return res.data.data;
 }

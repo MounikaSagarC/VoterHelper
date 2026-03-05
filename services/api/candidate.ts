@@ -1,21 +1,13 @@
 import { api } from "@/lib/axios";
 
-export const getCandidates = async ({
-  stateCode,
-  query,
-}: {
-  stateCode: string | number;
-  query: string;
-}) => {
+export const getCandidates = async (stateCode: string | number, query: string ,page:number,size:number) => {
   if (query) {
     const res = await api.get(
-      `/v2/candidates?stateCode=${stateCode}&search=${query}`,
+      `/v2/candidates?stateCode=${stateCode}&search=${query}&page=${page}&size=${size}`,
     );
-    const data = res.data
     return res.data.data;
   }
-  const res = await api.get(`/v2/candidates?stateCode=${stateCode}`);
-  const data = res.data.data
+  const res = await api.get(`/v2/candidates?stateCode=${stateCode}&page=${page}&size=${size}`);
   return res.data.data;
 };
 

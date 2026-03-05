@@ -2,8 +2,11 @@ import Card from "@/components/Cards/Card";
 import { SwipeToDeleteCard } from "@/components/Cards/SwipeToDelete";
 import FloatingActionButton from "@/components/FloatingButton";
 import QuestionModal from "@/components/Modal/QuestionModal";
+import SearchBar from "@/components/SearchBar";
 import Dropdown from "@/components/ui/dropdown";
 import { Icon } from "@/components/ui/icon";
+import Pagination from "@/components/ui/pagination";
+import { fetchCategories } from "@/services/api/category";
 import { getStates } from "@/services/api/profile";
 import { getQuestionsByState } from "@/services/api/questions";
 import { useQuestionMutation } from "@/services/mutations/question_mutation";
@@ -11,7 +14,7 @@ import { Question } from "@/services/schemas/admin_schema";
 import { AntDesign } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { Edit } from "lucide-react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -29,6 +32,11 @@ const OfferCard = () => {
   );
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const [selectedState, setSelectedState] = useState<string | number>("");
+  const [selectedCategory, setSelectedCategory ] = useState<string| number>("")
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+    const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState(query);
 
   const { createQuestionMutate, updateQuestionMutate, deleteQuestionMutate } =
     useQuestionMutation();
@@ -38,17 +46,27 @@ const OfferCard = () => {
     queryFn: getStates,
   });
 
-  const { data: question, isLoading } = useQuery({
-    queryKey: ["questions", selectedState || ""],
+  const { data: categories } = useQuery({
+    queryKey:['categories'],
+    queryFn:fetchCategories
+  })
+
+  console.log(categories)
+
+  const { data: question, isLoading, refetch } = useQuery({
+    queryKey: ["questions", selectedState ,selectedCategory, page, pageSize],
     queryFn: () => {
-      return getQuestionsByState(selectedState);
+      return getQuestionsByState(selectedState,selectedCategory, page, pageSize);
     },
   });
+
+  console.log("questions", question);
 
   const normalizeQuestions = (data: any) =>
     Array.isArray(data) ? data : data ? [data] : [];
 
-  const questions = normalizeQuestions(question?.data);
+  const questions = normalizeQuestions(question?.content);
+  console.log(questions)
 
   const handleAdd = () => {
     setSelectedQuestion(null);
@@ -68,6 +86,20 @@ const OfferCard = () => {
       value: s.code,
     })) ?? []),
   ];
+
+  const categoryOptions = [
+    { label: "All Categories", value: "" },
+    ...(categories?.map((s: any) => ({
+      label: s.name,
+      value: s.id,
+    })) ?? []),
+  ];
+
+    useEffect(() => {
+      const handler = setTimeout(() => setDebouncedQuery(query), 300);
+      return () => clearTimeout(handler);
+    }, [query]);
+  
 
   if (isLoading) {
     return (
@@ -120,16 +152,51 @@ const OfferCard = () => {
   return (
     <>
       {/* 🔽 SORT FILTER */}
+      <SearchBar
+        value={query}
+        onChangeText={setQuery}
+        placeholder="Search candidates..."
+        onClear={() => {
+          setQuery("");
+          setDebouncedQuery(""); // reset debounce value immediately
+          refetch(); // fetch all candidates
+        }}
+      />
       <View style={styles.filterBar}>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-          <Text>Filter By State:</Text>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
+          <Text>Filter By Category:</Text>
           <Dropdown
             value={selectedState}
             options={stateOptions}
             onChange={setSelectedState}
             placeholder="State"
-            width={160}
             height={40}
+            width={160}
+          />
+        </View>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
+          <Text>Filter By State:</Text>
+          <Dropdown
+            value={selectedCategory}
+            options={categoryOptions}
+            onChange={setSelectedCategory}
+            placeholder="State"
+            height={40}
+            width={160}
           />
         </View>
       </View>
@@ -141,6 +208,17 @@ const OfferCard = () => {
         contentContainerStyle={{ padding: 16 }}
         keyboardShouldPersistTaps="handled"
         refreshing={isLoading}
+        ListFooterComponent={() => {
+          return (
+            <Pagination
+              currentPage={page}
+              totalRecords={120}
+              pageSize={pageSize}
+              onPageChange={setPage}
+              onPageSizeChange={setPageSize}
+            />
+          );
+        }}
       />
 
       {/* FAB */}
@@ -155,8 +233,6 @@ const OfferCard = () => {
         mode={mode}
         initialData={selectedQuestion ?? undefined}
         onSubmitForm={(formData) => {
-          // Keep categoryId as string since the schema expects string type
-          // Use empty string as fallback to satisfy the "nonempty" requirement
           const payload = {
             ...formData,
             categoryId: formData.categoryId || "",
@@ -190,6 +266,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 10,
     paddingBottom: 4,
+    display:"flex",
+    flexDirection:"row",
+    gap:10,
+    alignItems:"flex-end"
   },
 
   dropdownWrapper: {

@@ -28,7 +28,7 @@ export const categorySchema = z.object({
 });
 
 export const candidateSchema = z.object({
-  id: z.number().int().positive().optional(),
+  id: z.number().int().positive(),
   firstName: z.string().nonempty("First name required").min(2).max(100),
   middleName: z.string().optional(),
   lastName: z.string().nonempty("Last name required").min(2).max(100),
@@ -37,7 +37,7 @@ export const candidateSchema = z.object({
   addressStreet2: z.string().optional(),
   addressCity: z.string().optional(),
   addressZip: z.string().optional(),
-  candidateStatus: z.string().optional(),
+  candidateStatus: z.boolean().default(false),
   candidateInActive: z.boolean(),
   partyCode: z.string().nonempty("Party code required").min(2).max(10),
   officeTypeId: z

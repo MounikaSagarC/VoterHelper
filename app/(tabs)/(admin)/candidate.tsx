@@ -2,6 +2,7 @@ import Card from "@/components/Cards/Card";
 import { SwipeToDeleteCard } from "@/components/Cards/SwipeToDelete";
 import SearchBar from "@/components/SearchBar";
 import Dropdown from "@/components/ui/dropdown";
+import Pagination from "@/components/ui/pagination";
 import SwitchButton from "@/components/ui/SwitchButton";
 import LetterAvatar from "@/components/ui/User";
 import { getCandidates } from "@/services/api/candidate";
@@ -17,7 +18,8 @@ import {
   Text,
   View,
 } from "react-native";
-import { Switch } from "react-native-gesture-handler";
+import { TAB_BAR_HEIGHT } from "../_layout";
+import { fetchCategories } from "@/services/api/category";
 
 const OfferCard = () => {
   const { deleteCandidateMutate } = useDeleteCandidateMutation();
@@ -27,6 +29,8 @@ const OfferCard = () => {
   const [candidateState, setCandidateState] = useState<Record<number, boolean>>(
     {},
   );
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const queryClient = useQueryClient();
 
@@ -42,9 +46,8 @@ const OfferCard = () => {
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ["candidates", selectedState, debouncedQuery],
-    queryFn: () =>
-      getCandidates({ stateCode: selectedState, query: debouncedQuery }),
+    queryKey: ["candidates", selectedState, debouncedQuery, page, pageSize],
+    queryFn: () => getCandidates(selectedState, debouncedQuery, page, pageSize),
   });
 
   // Fetch states
@@ -63,27 +66,10 @@ const OfferCard = () => {
     deleteCandidateMutate.mutate(candidateId);
   };
 
-  useEffect(() => {
-    if (candidates) {
-      const state: Record<number, boolean> = {};
-      candidates.forEach((p: Candidate) => {
-        if (p.id !== undefined) {
-          state[p.id] = p.candidateInActive ?? false;
-        }
-      });
-      setCandidateState(state);
-    }
-  }, [candidates]);
-
-  const handleToggle = (id: number) => {
-
-    setCandidateState((prev) => {
-      const next = { ...prev, [id]: !prev[id] };
-      return next;
-    });
-
-    deleteCandidateMutate.mutate(id);
-  };
+const handleToggle = (id: number) => {
+  if (deleteCandidateMutate.isPending) return;
+  deleteCandidateMutate.mutate(id);
+};
 
   if (isLoading) {
     return (
@@ -115,14 +101,11 @@ const OfferCard = () => {
             </View>
 
             <SwitchButton
-            value={item.id !== undefined ? candidateState[item.id] : false}
+              value={!!item.candidateInActive}
               onChange={() => {
-                if (item.id !== undefined) {
-                  handleToggle(item.id);
-                }
+                handleToggle(item.id)
               }}
             />
-
           </View>
 
           {/* Divider */}
@@ -184,11 +167,23 @@ const OfferCard = () => {
       </View>
 
       <FlatList
-        data={candidates || []}
-        keyExtractor={(item) => item.id?.toString() || Math.random().toString()}
+        data={candidates.content || []}
+        style={{marginBottom:150}}
+        keyExtractor={(item) => item.id?.toString()}
         renderItem={renderItem}
         contentContainerStyle={{ padding: 16 }}
         showsVerticalScrollIndicator={false}
+        ListFooterComponent={() => {
+          return (
+            <Pagination
+              currentPage={page}
+              totalRecords={candidates.totalElements}
+              pageSize={pageSize}
+              onPageChange={setPage}
+              onPageSizeChange={setPageSize}
+            />
+          );
+        }}
       />
     </>
   );

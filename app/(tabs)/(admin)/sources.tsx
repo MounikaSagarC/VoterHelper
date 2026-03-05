@@ -51,20 +51,11 @@ const DataSource = () => {
     queryFn: fetchSources,
   });
 
-  useEffect(() => {
-    if (data && Object.keys(sourceState).length === 0) {
-      const state: Record<number, boolean> = {};
-      data.forEach((p: Source) => {
-        state[p.id] = p.status;
-      });
-      setSourceState(state);
-    }
-  }, [data]);
-
   const handleToggle = (id: number) => {
-    setSourceState((prev) => ({ ...prev, [id]: !prev[id] }));
     deleteSourceMutate.mutate(id);
   };
+
+  console.log(data)
 
   if (isLoading) {
     return (
@@ -117,7 +108,7 @@ const DataSource = () => {
                   <View style={styles.actions}>
                     <Text>Status:</Text>
                     <SwitchButton
-                      value={sourceState[source.id]}
+                      value={source.status}
                       onChange={() => handleToggle(source.id!)}
                     />
                   </View>
