@@ -19,6 +19,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { TAB_BAR_HEIGHT } from "../_layout";
 
 const PartyScreen = () => {
   const [open, setOpen] = useState(false);
@@ -65,6 +66,7 @@ const PartyScreen = () => {
         {/* LIST */}
         <FlatList
           data={data}
+          style={{marginBottom:TAB_BAR_HEIGHT}}
           keyExtractor={(item) => item.id.toString()}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"

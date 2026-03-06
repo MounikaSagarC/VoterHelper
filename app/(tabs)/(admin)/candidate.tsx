@@ -2,14 +2,17 @@ import Card from "@/components/Cards/Card";
 import { SwipeToDeleteCard } from "@/components/Cards/SwipeToDelete";
 import SearchBar from "@/components/SearchBar";
 import Dropdown from "@/components/ui/dropdown";
-import Pagination from "@/components/ui/pagination";
 import SwitchButton from "@/components/ui/SwitchButton";
 import LetterAvatar from "@/components/ui/User";
 import { getCandidates } from "@/services/api/candidate";
 import { getStates } from "@/services/api/profile";
 import { useDeleteCandidateMutation } from "@/services/mutations/candidate_mutation";
 import { Candidate } from "@/services/schemas/admin_schema";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -18,8 +21,6 @@ import {
   Text,
   View,
 } from "react-native";
-import { TAB_BAR_HEIGHT } from "../_layout";
-import { fetchCategories } from "@/services/api/category";
 
 const OfferCard = () => {
   const { deleteCandidateMutate } = useDeleteCandidateMutation();
@@ -31,6 +32,7 @@ const OfferCard = () => {
   );
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const page_size = 10;
 
   const queryClient = useQueryClient();
 
@@ -44,11 +46,26 @@ const OfferCard = () => {
   const {
     data: candidates,
     isLoading,
+    hasNextPage,
+    isFetchingNextPage,
     refetch,
-  } = useQuery({
+    fetchNextPage
+  } = useInfiniteQuery({
     queryKey: ["candidates", selectedState, debouncedQuery, page, pageSize],
-    queryFn: () => getCandidates(selectedState, debouncedQuery, page, pageSize),
+    queryFn: ({ pageParam = 0 }) =>
+      getCandidates(selectedState, debouncedQuery, pageParam, page_size),
+    getNextPageParam: (lastPage, pages) => {
+      if (lastPage?.length < pageSize) {
+        return undefined;
+      }
+      return pages.length;
+    },
+    initialPageParam: 0,
   });
+
+    const candidate = candidates?.pages.flatMap((page) => page.content) ?? [];
+
+  console.log(candidate)
 
   // Fetch states
   const { data: states } = useQuery({
@@ -66,10 +83,10 @@ const OfferCard = () => {
     deleteCandidateMutate.mutate(candidateId);
   };
 
-const handleToggle = (id: number) => {
-  if (deleteCandidateMutate.isPending) return;
-  deleteCandidateMutate.mutate(id);
-};
+  const handleToggle = (id: number) => {
+    if (deleteCandidateMutate.isPending) return;
+    deleteCandidateMutate.mutate(id);
+  };
 
   if (isLoading) {
     return (
@@ -103,7 +120,7 @@ const handleToggle = (id: number) => {
             <SwitchButton
               value={!!item.candidateInActive}
               onChange={() => {
-                handleToggle(item.id)
+                handleToggle(item.id);
               }}
             />
           </View>
@@ -167,23 +184,17 @@ const handleToggle = (id: number) => {
       </View>
 
       <FlatList
-        data={candidates.content || []}
-        style={{marginBottom:150}}
+        data={candidate}
+        style={{ marginBottom: 150 }}
         keyExtractor={(item) => item.id?.toString()}
         renderItem={renderItem}
         contentContainerStyle={{ padding: 16 }}
         showsVerticalScrollIndicator={false}
-        ListFooterComponent={() => {
-          return (
-            <Pagination
-              currentPage={page}
-              totalRecords={candidates.totalElements}
-              pageSize={pageSize}
-              onPageChange={setPage}
-              onPageSizeChange={setPageSize}
-            />
-          );
+        onEndReached={() => {
+          if (hasNextPage) fetchNextPage();
         }}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={isFetchingNextPage ? <ActivityIndicator /> : null}
       />
     </>
   );

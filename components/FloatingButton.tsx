@@ -1,3 +1,4 @@
+import { TAB_BAR_HEIGHT } from "@/app/(tabs)/_layout";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { ReactNode, useRef } from "react";
 import {
@@ -60,7 +61,7 @@ export default FloatingActionButton;
 const styles = StyleSheet.create({
   fabWrapper: {
     position: "absolute",
-    bottom: 24,
+    bottom: TAB_BAR_HEIGHT * 2,
     right: 24,
   },
   fab: {

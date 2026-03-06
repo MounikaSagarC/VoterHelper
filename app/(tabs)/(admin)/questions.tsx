@@ -5,14 +5,13 @@ import QuestionModal from "@/components/Modal/QuestionModal";
 import SearchBar from "@/components/SearchBar";
 import Dropdown from "@/components/ui/dropdown";
 import { Icon } from "@/components/ui/icon";
-import Pagination from "@/components/ui/pagination";
 import { fetchCategories } from "@/services/api/category";
 import { getStates } from "@/services/api/profile";
 import { getQuestionsByState } from "@/services/api/questions";
 import { useQuestionMutation } from "@/services/mutations/question_mutation";
 import { Question } from "@/services/schemas/admin_schema";
 import { AntDesign } from "@expo/vector-icons";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Edit } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
@@ -23,6 +22,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { TAB_BAR_HEIGHT } from "../_layout";
 
 const OfferCard = () => {
   const [open, setOpen] = useState(false);
@@ -32,11 +32,12 @@ const OfferCard = () => {
   );
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const [selectedState, setSelectedState] = useState<string | number>("");
-  const [selectedCategory, setSelectedCategory ] = useState<string| number>("")
+  const [selectedCategory, setSelectedCategory] = useState<string | number>("");
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
-    const [query, setQuery] = useState("");
+  const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState(query);
+  const page_size = 10;
 
   const { createQuestionMutate, updateQuestionMutate, deleteQuestionMutate } =
     useQuestionMutation();
@@ -47,26 +48,42 @@ const OfferCard = () => {
   });
 
   const { data: categories } = useQuery({
-    queryKey:['categories'],
-    queryFn:fetchCategories
-  })
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+  });
 
-  console.log(categories)
+  const {
+    data: question,
+    isLoading,
+    refetch,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["questions", selectedState, selectedCategory, debouncedQuery],
 
-  const { data: question, isLoading, refetch } = useQuery({
-    queryKey: ["questions", selectedState ,selectedCategory, page, pageSize],
-    queryFn: () => {
-      return getQuestionsByState(selectedState,selectedCategory, page, pageSize);
+    queryFn: ({ pageParam = 0 }) =>
+      getQuestionsByState(
+        selectedState,
+        pageParam,
+        page_size,
+        selectedCategory,
+        debouncedQuery,
+      ),
+
+    initialPageParam: 0,
+
+    getNextPageParam: (lastPage, pages) => {
+      if (lastPage?.length < pageSize) {
+        return undefined;
+      }
+
+      return pages.length;
     },
   });
 
-  console.log("questions", question);
-
-  const normalizeQuestions = (data: any) =>
-    Array.isArray(data) ? data : data ? [data] : [];
-
-  const questions = normalizeQuestions(question?.content);
-  console.log(questions)
+  const questions = question?.pages.flatMap((page) => page.content) ?? [];
+  console.log(questions);
 
   const handleAdd = () => {
     setSelectedQuestion(null);
@@ -95,11 +112,10 @@ const OfferCard = () => {
     })) ?? []),
   ];
 
-    useEffect(() => {
-      const handler = setTimeout(() => setDebouncedQuery(query), 300);
-      return () => clearTimeout(handler);
-    }, [query]);
-  
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedQuery(query), 300);
+    return () => clearTimeout(handler);
+  }, [query]);
 
   if (isLoading) {
     return (
@@ -110,8 +126,6 @@ const OfferCard = () => {
   }
 
   const renderItem = ({ item }: { item: Question }) => {
-    const isMenuOpen = openMenuId === item.id;
-
     return (
       <SwipeToDeleteCard onDelete={() => handleDelete(item.id)}>
         <Card style={{ marginBottom: 20 }}>
@@ -155,7 +169,7 @@ const OfferCard = () => {
       <SearchBar
         value={query}
         onChangeText={setQuery}
-        placeholder="Search candidates..."
+        placeholder="Search by question text..."
         onClear={() => {
           setQuery("");
           setDebouncedQuery(""); // reset debounce value immediately
@@ -171,14 +185,14 @@ const OfferCard = () => {
             gap: 8,
           }}
         >
-          <Text>Filter By Category:</Text>
+          <Text>Category:</Text>
           <Dropdown
-            value={selectedState}
-            options={stateOptions}
-            onChange={setSelectedState}
-            placeholder="State"
-            height={40}
-            width={160}
+            value={selectedCategory}
+            options={categoryOptions}
+            onChange={setSelectedCategory}
+            placeholder="Category"
+            height={30}
+            width={130}
           />
         </View>
         <View
@@ -189,36 +203,31 @@ const OfferCard = () => {
             gap: 8,
           }}
         >
-          <Text>Filter By State:</Text>
+          <Text> State:</Text>
           <Dropdown
-            value={selectedCategory}
-            options={categoryOptions}
-            onChange={setSelectedCategory}
+            value={selectedState}
+            options={stateOptions}
+            onChange={setSelectedState}
             placeholder="State"
-            height={40}
-            width={160}
+            height={30}
+            width={100}
           />
         </View>
       </View>
       {/* LIST */}
       <FlatList
         data={questions}
+        style={{ marginBottom: TAB_BAR_HEIGHT }}
         keyExtractor={(item) => String(item.id)}
         renderItem={renderItem}
         contentContainerStyle={{ padding: 16 }}
         keyboardShouldPersistTaps="handled"
-        refreshing={isLoading}
-        ListFooterComponent={() => {
-          return (
-            <Pagination
-              currentPage={page}
-              totalRecords={120}
-              pageSize={pageSize}
-              onPageChange={setPage}
-              onPageSizeChange={setPageSize}
-            />
-          );
+        onEndReached={() => {
+          if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
         }}
+        refreshing={isLoading}
       />
 
       {/* FAB */}
@@ -266,10 +275,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 10,
     paddingBottom: 4,
-    display:"flex",
-    flexDirection:"row",
-    gap:10,
-    alignItems:"flex-end"
+    display: "flex",
+    flexDirection: "row",
+    gap: 10,
+    alignItems: "flex-end",
   },
 
   dropdownWrapper: {
@@ -321,7 +330,7 @@ const styles = StyleSheet.create({
   },
 
   amount: {
-    fontSize: 22,
+    fontSize: 16,
     fontWeight: "700",
     color: "#111827",
   },
@@ -340,14 +349,14 @@ const styles = StyleSheet.create({
   },
 
   label: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "500",
     color: "#787774",
     marginBottom: 6,
   },
 
   value: {
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: "400",
     color: "#111827",
   },

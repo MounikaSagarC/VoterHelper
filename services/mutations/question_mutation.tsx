@@ -16,6 +16,7 @@ export const useQuestionMutation = () => {
 
     const updateQuestionMutate = useMutation({
         mutationFn: (payload: Question) => {
+            console.log("mutation hit")
             return updateQuestion(payload); // ✅ send full object
           },
         onSuccess : ()=>{

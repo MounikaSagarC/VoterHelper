@@ -157,6 +157,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-end",
     backgroundColor: "rgba(0,0,0,0.5)",
+    // marginBottom:TAB_BAR_HEIGHT
   },
   backdrop: {
     flex: 1,
@@ -166,7 +167,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: "50%",
-    paddingBottom: 45,
   },
   header: {
     flexDirection: "row",
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   menuContainer: {
-    paddingBottom: TAB_BAR_HEIGHT,
+    // paddingBottom: TAB_BAR_HEIGHT,
     backgroundColor: "#fff",
     borderRadius: 16,
     paddingHorizontal: 20,

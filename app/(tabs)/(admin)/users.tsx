@@ -6,7 +6,7 @@ import LetterAvatar from "@/components/ui/User";
 import { getUsers } from "@/services/api/users";
 import { useDeleteUserMutation } from "@/services/mutations/user_mutation";
 import { UserType } from "@/services/schemas/admin_schema";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -17,6 +17,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const Users = () => {
   const { deleteUserMutation } = useDeleteUserMutation();
@@ -34,37 +35,35 @@ const Users = () => {
   }, [query]);
 
   // Fetch candidates
-const {
-  data: users,
-  isLoading,
-  refetch,
-  fetchNextPage,
-  hasNextPage,
-  isFetchingNextPage,
-} = useInfiniteQuery<UserType[]>({
-  queryKey: ["users", selectStatus, debouncedQuery],
+  const {
+    data: users,
+    isLoading,
+    refetch,
+  } = useInfiniteQuery<UserType[]>({
+    queryKey: ["users", selectStatus, debouncedQuery],
 
-  queryFn: async ({ pageParam = 0 }) => {
-    const response = await getUsers({
-      status: selectStatus,
-      query: debouncedQuery,
-      page: pageParam as number,
-      size: page_size,
-    });
+    queryFn: async ({ pageParam = 0 }) => {
+      const response = await getUsers({
+        status: selectStatus,
+        query: debouncedQuery,
+        page: pageParam as number,
+        size: page_size,
+      });
 
-    return response?.filter((user:UserType) => user.roleName !== "Super Admin");
-  },
+      return response?.filter(
+        (user: UserType) => user.roleName !== "Super Admin",
+      );
+    },
 
-  getNextPageParam: (lastPage, pages) => {
-    if (lastPage.length === page_size) {
-      return pages.length + 1;
-    }
-    return undefined;
-  },
+    getNextPageParam: (lastPage, pages) => {
+      if (lastPage.length === page_size) {
+        return pages.length + 1;
+      }
+      return undefined;
+    },
 
-  initialPageParam: 0,
-});
-
+    initialPageParam: 0,
+  });
 
   const statusOptions = [
     { label: "ALL", value: "ALL" },
@@ -73,6 +72,7 @@ const {
   ];
 
   const handleToggle = (id: number) => {
+    console.log("togglehit");
     deleteUserMutation.mutate(id);
   };
 
@@ -102,7 +102,15 @@ const {
           <View style={styles.header}>
             <View style={styles.candidateInfo}>
               <LetterAvatar userName={item.firstName} />
-              <View>
+              <View
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  gap: 5,
+                  alignContent: "center",
+                  justifyContent: "center",
+                }}
+              >
                 <Text style={styles.amount}>{item.firstName}</Text>
                 <View style={styles.statusBadge}>
                   <Text style={styles.statusText}>{item.roleName}</Text>
@@ -111,11 +119,9 @@ const {
             </View>
 
             <SwitchButton
-              value={item.id !== undefined ? userState[item.id] : false}
+              value={!!item.accountNonLocked}
               onChange={() => {
-                if (item.id !== undefined) {
-                  handleToggle(item.userId);
-                }
+                handleToggle(item?.userId);
               }}
             />
           </View>
@@ -138,7 +144,7 @@ const {
   };
 
   return (
-    <>
+    <SafeAreaView>
       <SearchBar
         value={query}
         onChangeText={setQuery}
@@ -170,13 +176,14 @@ const {
       </View>
 
       <FlatList
+        style={{ marginBottom: 250 }}
         data={users?.pages.flat() || []}
         keyExtractor={(item) => item.id?.toString() || Math.random().toString()}
         renderItem={renderItem}
         contentContainerStyle={{ padding: 16 }}
         showsVerticalScrollIndicator={false}
       />
-    </>
+    </SafeAreaView>
   );
 };
 
@@ -190,7 +197,8 @@ const styles = StyleSheet.create({
   },
   candidateInfo: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 9,
   },
   center: {
@@ -205,17 +213,16 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   amount: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "700",
     color: "#111827",
   },
   statusBadge: {
-    marginTop: 6,
     backgroundColor: "#b0e8dd",
     paddingHorizontal: 10,
-    paddingVertical: 4,
     borderRadius: 12,
-    alignSelf: "flex-start",
+    paddingVertical: 4,
+    alignSelf: "center",
   },
   statusText: {
     fontSize: 12,
@@ -233,11 +240,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   label: {
-    fontSize: 13,
+    fontSize: 12,
     color: "#6B7280",
   },
   value: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "600",
     color: "#111827",
   },

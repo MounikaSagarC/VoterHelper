@@ -5,7 +5,7 @@ type Props = {
   size?: number;
 };
 
-export default function LetterAvatar({ userName, size = 40 }: Props) {
+export default function LetterAvatar({ userName, size = 35 }: Props) {
   const firstLetter = userName?.trim()?.charAt(0)?.toUpperCase() || "?";
 
   return (

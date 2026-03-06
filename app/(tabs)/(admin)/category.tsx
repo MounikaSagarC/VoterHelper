@@ -12,6 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Edit } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
+import { TAB_BAR_HEIGHT } from "../_layout";
 
 export default function TopicsCardList() {
   const [mode, setMode] = React.useState<"create" | "edit">("create");
@@ -84,6 +85,7 @@ export default function TopicsCardList() {
   return (
     <View style={styles.container}>
       <FlatList
+      style={{marginBottom:TAB_BAR_HEIGHT}}
         data={categories}
         keyExtractor={(item) =>
           item.id?.toString() ?? `category-${item.displayOrder}`
