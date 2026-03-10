@@ -50,7 +50,7 @@ export default function TabLayout() {
               <TouchableOpacity style={{ marginRight: 12 }}>
                 <Image
                   source={{
-                    uri: "https://randomuser.me/api/portraits/women/44.jpg",
+                    uri: "https://i.pravatar.cc/150?img=12",
                   }}
                   style={{
                     width: 36,

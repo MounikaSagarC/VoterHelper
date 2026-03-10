@@ -5,19 +5,42 @@ import DataNotFound from "@/components/ui/DataNotFound";
 import { getElections } from "@/services/api/elections";
 import { useQuery } from "@tanstack/react-query";
 import { BlurView } from "expo-blur";
-import { router, useFocusEffect } from "expo-router";
-import { useCallback, useMemo, useState } from "react";
+import { useLocalSearchParams , router } from "expo-router";
+import {  useMemo, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 
 export default function ElectionsScreen() {
   const [open, setOpen] = useState(false);
   const [selectedElection, setSelectedElection] = useState<any>(null);
-  const [selectedState, setSelectedState] = useState<number | string>(0);
-  const [selectedYear, setSelectedYear] = useState<number | string>(0);
 
-  const { data: users, refetch } = useQuery({
-    queryKey: ["users", selectedState, selectedYear],
-    queryFn: async () => getElections(selectedYear, selectedState),
+
+  const params = useLocalSearchParams();
+
+  const state = typeof params.state === "string" ? params.state : "ALL";
+
+  const year = typeof params.year === "string" ? params.year : "ALL";
+
+  const updateState = (value: string) => {
+    router.setParams({ state: value });
+  };
+
+  const updateYear = (value: string) => {
+    router.setParams({ year: value });
+  };
+const {
+    data: users,
+    isFetching,
+    isLoading,
+  } = useQuery({
+    queryKey: ["users", state, year],
+    queryFn: async () => {
+      const response = await getElections(
+        parseInt(year) || 0,
+        state === "ALL" ? 0 : parseInt(state),
+      );
+      return response;
+    },
+
   });
 
   const timelineData = useMemo(() => {
@@ -44,26 +67,16 @@ export default function ElectionsScreen() {
     setOpen(true);
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      setSelectedState(0);
-      setSelectedYear(0);
-      setSelectedElection(null);
-      setOpen(false);
-      refetch();
-    }, []),
-  );
-
   return (
     <View style={styles.container}>
       <BlurView intensity={20} tint="dark" style={styles.glassHeader}>
         <View style={styles.glassOverlay}>
           <Text style={styles.title}>Elections</Text>
           <FilterPills
-            selectedState={selectedState}
-            selectedYear={selectedYear}
-            onStateChange={setSelectedState}
-            onYearChange={setSelectedYear}
+            selectedState={state}
+            selectedYear={year}
+            onStateChange={updateState}
+            onYearChange={updateYear}
           />
         </View>
       </BlurView>

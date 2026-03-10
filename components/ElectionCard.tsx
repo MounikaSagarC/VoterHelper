@@ -1,17 +1,16 @@
+import { getCandidatesByElections } from "@/services/api/elections";
 import { Ionicons } from "@expo/vector-icons";
+import { useQuery } from "@tanstack/react-query";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Card from "./Cards/Card";
-import { useQuery } from "@tanstack/react-query";
-import { getCandidatesByElections } from "@/services/api/elections";
 
 export default function ElectionCard({ data, onPress }: any) {
-
   const { data: electedCandidates } = useQuery({
     queryKey: ["electedCandidates", data.id],
     queryFn: () => getCandidatesByElections(data.id),
   });
 
-const candidateCount = electedCandidates?.length ?? 0;
+  const candidateCount = electedCandidates?.length ?? 0;
   return (
     <Card>
       <View>
@@ -24,9 +23,11 @@ const candidateCount = electedCandidates?.length ?? 0;
           <Ionicons name="people-outline" size={16} color="#9CA3AF" />
           <Text style={styles.count}>{candidateCount} Candidates</Text>
         </View>
-        <Pressable onPress={onPress} hitSlop={10}>
-          <Text style={styles.link}>View Candidates</Text>
-        </Pressable>
+        {candidateCount !== 0 && (
+          <Pressable onPress={onPress} hitSlop={10}>
+            <Text style={styles.link}>View Candidates</Text>
+          </Pressable>
+        )}
       </View>
     </Card>
   );
@@ -39,7 +40,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   sub: {
-    fontSize:10,
+    fontSize: 10,
     color: "#9CA3AF",
     marginTop: 2,
   },
@@ -55,13 +56,13 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   count: {
-    fontSize:12,
+    fontSize: 12,
     color: "#9CA3AF",
   },
   link: {
-    fontSize:10,
+    fontSize: 10,
     color: "#60A5FA",
-    alignItems:"flex-end",
+    alignItems: "flex-end",
     fontWeight: "500",
   },
 });

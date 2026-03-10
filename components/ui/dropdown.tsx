@@ -147,13 +147,13 @@ import {
 
 export interface DropdownOption {
   label: string;
-  value: string | number;
+  value: string ;
 }
 
 interface SearchableDropdownProps {
-  value: string | number;
+  value: string ;
   options: DropdownOption[];
-  onChange: (value: string | number) => void;
+  onChange: (value: string ) => void;
   placeholder?: string;
   width?: number;
   height?: number;
@@ -301,12 +301,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     backgroundColor: "#F9FAFB",
     borderRadius: 10,
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     // height: 40,
   },
 
   triggerText: {
-    fontSize: 14,
+    fontSize: 13,
     color: "#111827",
     flex: 1,
   },
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 10,
     height: 36,
-    fontSize: 14,
+    fontSize: 13,
   },
 
   item: {
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
   },
 
   itemText: {
-    fontSize: 14,
+    fontSize: 13,
     color: "#111827",
   },
 
